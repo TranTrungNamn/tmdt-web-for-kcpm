@@ -70,6 +70,11 @@ const productSchema = new mongoose.Schema({
     min: 0,
     description: "Số lượng hàng tồn kho",
   },
+  badge: {
+    type: String,
+    enum: ["PREMIUM", "TRENDY", "FLAGSHIP", "LIMITED", "NORMAL"],
+    default: "NORMAL",
+  },
 }, {
   timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   toJSON: { virtuals: true },

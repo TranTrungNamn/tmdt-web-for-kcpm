@@ -84,7 +84,7 @@ export default function AdminDemoPanel({
       const mockOrderPayload = {
         fullName: "ĐỘ XUM XUÊ (Khách Demo)",
         phone: "0987654321",
-        email: "mintzinfinity898@gmail.com",
+        email: "customer@techvie.com",
         address: "180 Cao Lỗ, Quận 8, TP.HCM",
         notes: "Đơn hàng thử nghiệm tạo nhanh từ Admin Panel",
         paymentMethod: "cod",
@@ -336,7 +336,7 @@ export default function AdminDemoPanel({
 
   const handleSwitchToClient = async () => {
     setIsSwitching(true);
-    onSwitchAccount("mintzinfinity898@gmail.com");
+    onSwitchAccount("customer@techvie.com");
   };
 
   return (

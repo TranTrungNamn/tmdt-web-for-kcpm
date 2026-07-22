@@ -38,6 +38,7 @@ import UserManager from "./UserManager";
 import CategoryManager from "./CategoryManager";
 import ReviewManager from "./ReviewManager";
 import StockManager from "./StockManager";
+import PaymentManager from "./PaymentManager";
 import AdminDemoPanel from "../../demo/AdminDemoPanel";
 import { IS_DEMO_ENABLED } from "../../demo/demoConfig";
 
@@ -210,6 +211,7 @@ export default function AdminPage({
     "products",
     "stock",
     "orders",
+    "payments",
     "messages",
     "promos",
     "users",
@@ -670,8 +672,8 @@ export default function AdminPage({
   const handleUpdatePaymentStatus = (
     orderId: number | string,
     paymentStatus: "pending" | "paid" | "failed" | "cancelled",
-  ) => {
-    updateOrderPaymentStatus(orderId, paymentStatus)
+  ): Promise<boolean> => {
+    return updateOrderPaymentStatus(orderId, paymentStatus)
       .then((data) => {
         if (data.success) {
           const label =
@@ -684,14 +686,17 @@ export default function AdminPage({
                   : "Chờ thanh toán";
           addLog(`Đơn hàng #${orderId} cập nhật thanh toán: ${label}`);
           fetchOrders();
+          return true;
         } else {
           addLog(
             `Lỗi cập nhật thanh toán #${orderId}: ${data.message || "Không rõ nguyên nhân"}`,
           );
+          return false;
         }
       })
       .catch((err) => {
         console.error("Error changing payment status:", err);
+        return false;
       });
   };
 
@@ -805,6 +810,7 @@ export default function AdminPage({
                  activeSubTab === "products" ? "PRODUCT MANAGER" :
                  activeSubTab === "stock" ? "STOCK WAREHOUSE MANAGER" :
                  activeSubTab === "orders" ? "LIVE ORDERS REGISTRY" :
+                 activeSubTab === "payments" ? "TRANSACTIONS & PAYMENT CONTROL" :
                  activeSubTab === "messages" ? "CUSTOMER INQUIRIES" :
                  activeSubTab === "promos" ? "PROMO CAMPAIGNS" :
                  activeSubTab === "reviews" ? "PRODUCT REVIEWS" : "USER ROLES & ACCOUNTS"}
@@ -815,6 +821,7 @@ export default function AdminPage({
                 {activeSubTab === "products" && "Quản Lý Quầy Sản Phẩm"}
                 {activeSubTab === "stock" && "Báo cáo Tồn kho & Quản lý Kho"}
                 {activeSubTab === "orders" && "Sổ Ghi Đơn Hàng Thực"}
+                {activeSubTab === "payments" && "Bảng Đối Soát Giao Dịch"}
                 {activeSubTab === "messages" && "Thư Phản Hồi Khách Hàng"}
                 {activeSubTab === "promos" && "Hệ Thống Voucher & Khuyến Mãi"}
                 {activeSubTab === "users" && "Sổ Nhân Sự & Thành Viên"}
@@ -826,6 +833,7 @@ export default function AdminPage({
                 {activeSubTab === "products" && "Đăng bán sản phẩm mới, cập nhật giá cả, thương hiệu và thông số cấu hình cụ thể."}
                 {activeSubTab === "stock" && "Giám sát số lượng tồn, lọc sản phẩm hết hàng hoặc sắp hết hàng và nhập hàng nhanh."}
                 {activeSubTab === "orders" && "Xem thông tin giao nhận, cập nhật trạng thái đơn hàng (đang xử lý, hoàn thành, hủy đơn)."}
+                {activeSubTab === "payments" && "Đối soát dòng tiền chuyển khoản trực tuyến, phê duyệt trạng thái thanh toán và xem doanh thu."}
                 {activeSubTab === "messages" && "Phản hồi ý kiến đóng góp, đề đạt yêu cầu làm đại lý hoặc câu hỏi hỗ trợ khách hàng."}
                 {activeSubTab === "promos" && "Cấu hình mã giảm giá toàn sàn, lưu trực tiếp máy chủ và hiển thị cho người dùng tức thời khi checkout."}
                 {activeSubTab === "users" && "Điều chỉnh phân quyền cán bộ nhân viên, xem thông tin số điện thoại email và trạng thái khoá tài khoản."}
@@ -921,6 +929,14 @@ export default function AdminPage({
                   onRefreshMessages={fetchMessages}
                   onDeleteMessage={handleDeleteContactMessage}
                   onReplyMessage={handleReplyContactMessage}
+                  isDarkMode={isDarkMode}
+                />
+              )}
+
+              {activeSubTab === "payments" && (
+                <PaymentManager
+                  orders={orders}
+                  onUpdatePaymentStatus={handleUpdatePaymentStatus}
                   isDarkMode={isDarkMode}
                 />
               )}

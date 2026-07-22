@@ -36,6 +36,8 @@ import SearchSidePanel from "./components/SearchSidePanel";
 import PolicyPage from "./components/PolicyPage";
 import CartSidePanel from "./components/CartSidePanel";
 import ResetPassword from "./components/AuthPage/ResetPassword";
+import ProductDetail from "./components/ProductPage/ProductDetail";
+import BackToTopButton from "./components/shared/BackToTopButton";
 
 function AppContent() {
   const appRef = useRef<HTMLDivElement>(null);
@@ -58,15 +60,6 @@ function AppContent() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 80);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [systemUsers, setSystemUsers] = useState<any[]>([]);
@@ -152,6 +145,33 @@ function AppContent() {
       }
     });
   }, []);
+
+  const [globalSelectedProduct, setGlobalSelectedProduct] = useState<Product | null>(null);
+
+  // Monitor url query parameters globally to trigger product details modal overlay
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const productId = params.get('productId') || params.get('id');
+    if (productId && products.length > 0) {
+      const prod = products.find(p => String(p.id) === String(productId) || String(p._id) === String(productId));
+      if (prod) {
+        setGlobalSelectedProduct(prod);
+      } else {
+        setGlobalSelectedProduct(null);
+      }
+    } else {
+      setGlobalSelectedProduct(null);
+    }
+  }, [location.search, products]);
+
+  const handleCloseGlobalDetail = () => {
+    setGlobalSelectedProduct(null);
+    const params = new URLSearchParams(location.search);
+    params.delete('productId');
+    params.delete('id');
+    const searchStr = params.toString();
+    navigate(location.pathname + (searchStr ? `?${searchStr}` : ''), { replace: true });
+  };
 
   useEffect(() => {
     if (isLoggedIn && userProfile.role === "admin" && token) {
@@ -532,7 +552,20 @@ function AppContent() {
     }
   };
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const savedCart = localStorage.getItem("techvie_cart");
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // Persist cart to localStorage
+  useEffect(() => {
+    localStorage.setItem("techvie_cart", JSON.stringify(cart));
+  }, [cart]);
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -579,6 +612,35 @@ function AppContent() {
         (item) => !(item.product.id === productId && item.selectedColor === selectedColor)
       ),
     );
+  };
+
+  const handleUpdateItemColor = (productId: string, oldColor?: string, newColor?: string) => {
+    setCart((prevCart) => {
+      const targetIndex = prevCart.findIndex(
+        (item) => item.product.id === productId && item.selectedColor === oldColor
+      );
+      if (targetIndex === -1) return prevCart;
+
+      const targetItem = prevCart[targetIndex];
+      const existingIndex = prevCart.findIndex(
+        (item) => item.product.id === productId && item.selectedColor === newColor
+      );
+
+      if (existingIndex !== -1 && existingIndex !== targetIndex) {
+        return prevCart
+          .map((item, idx) => {
+            if (idx === existingIndex) {
+              return { ...item, quantity: item.quantity + targetItem.quantity };
+            }
+            return item;
+          })
+          .filter((_, idx) => idx !== targetIndex);
+      } else {
+        return prevCart.map((item, idx) =>
+          idx === targetIndex ? { ...item, selectedColor: newColor } : item
+        );
+      }
+    });
   };
 
   const handleClearCart = () => {
@@ -829,27 +891,20 @@ function AppContent() {
           handleNavigate(tab);
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
+        onUpdateItemColor={handleUpdateItemColor}
       />
 
       {/* Back to Top Button */}
-      <AnimatePresence>
-        {showScrollTop && 
-         activeTab !== 'account' && 
-         !String(activeTab).startsWith('admin') && 
-         activeTab !== 'login' && 
-         activeTab !== 'register' && (
-          <motion.button
-            initial={{ opacity: 0, y: 20, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-8 right-8 z-[40] w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-gray-800 transition-colors cursor-pointer group"
-            title="Lên đầu trang"
-          >
-            <ChevronUp size={24} className="group-hover:-translate-y-1 transition-transform" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <BackToTopButton activeTab={activeTab} />
+
+      {/* Global Product Detail Modal Overlay */}
+      <ProductDetail
+        product={globalSelectedProduct}
+        onClose={handleCloseGlobalDetail}
+        onAddToCart={handleAddToCart}
+        onNavigate={handleNavigate}
+        isLoggedIn={isLoggedIn}
+      />
     </div>
   );
 }

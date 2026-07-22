@@ -36,6 +36,7 @@ const normalizeProduct = (p: any): Product => {
     colors: Array.isArray(p.colors) ? p.colors : (typeof p.colors === 'string' ? p.colors.split(',').map((c: string) => c.trim()) : []),
     averageRating: typeof p.averageRating === 'number' ? p.averageRating : 0,
     reviewCount: typeof p.reviewCount === 'number' ? p.reviewCount : 0,
+    badge: p.badge || 'NORMAL',
   };
 };
 

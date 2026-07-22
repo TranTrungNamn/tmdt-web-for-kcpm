@@ -13,17 +13,18 @@ import {
   FolderTree,
   Search,
   Star,
-  Boxes
+  Boxes,
+  CreditCard,
 } from 'lucide-react';
 
 // @ts-ignore
-import localLightBg from '/image/aleksandra-dementeva-aWBPQHfPwVM-unsplash.jpg';
+import localLightBg from '../../assets/images/admin-sidebar/aleksandra-dementeva-aWBPQHfPwVM-unsplash.jpg';
 // @ts-ignore
-import localDarkBg from '/image/long-chung-uaVvEOCrq8s-unsplash.jpg';
+import localDarkBg from '../../assets/images/admin-sidebar/long-chung-uaVvEOCrq8s-unsplash.jpg';
 
 interface AdminSidebarProps {
-  activeSubTab: 'overview' | 'categories' | 'products' | 'stock' | 'orders' | 'messages' | 'promos' | 'users' | 'reviews';
-  setActiveSubTab: (tab: 'overview' | 'categories' | 'products' | 'stock' | 'orders' | 'messages' | 'promos' | 'users' | 'reviews') => void;
+  activeSubTab: 'overview' | 'categories' | 'products' | 'stock' | 'orders' | 'payments' | 'messages' | 'promos' | 'users' | 'reviews';
+  setActiveSubTab: (tab: 'overview' | 'categories' | 'products' | 'stock' | 'orders' | 'payments' | 'messages' | 'promos' | 'users' | 'reviews') => void;
   isDarkMode: boolean;
   setIsDarkMode: (val: boolean) => void;
   categoriesCount: number;
@@ -217,6 +218,7 @@ export default function AdminSidebar({
                 { tab: 'products' as const, Icon: Package, label: 'Sản phẩm', count: productsCount },
                 { tab: 'stock' as const, Icon: Boxes, label: 'Kho hàng / Tồn', count: null },
                 { tab: 'orders' as const, Icon: ShoppingBag, label: 'Đơn hàng', count: ordersCount },
+                { tab: 'payments' as const, Icon: CreditCard, label: 'Thanh toán', count: null },
               ].map(({ tab, Icon, label, count }, i) => (
                 <motion.button
                   key={tab}

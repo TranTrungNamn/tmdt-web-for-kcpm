@@ -112,10 +112,15 @@ const authController = {
       // Kiểm tra email trùng lặp
       const existingUser = await User.findByEmail(email);
       if (existingUser) {
-        return res.status(409).json({
-          success: false,
-          message: "Email này đã được sử dụng bởi tài khoản khác!",
-        });
+        if (existingUser.isEmailVerified === false) {
+          // Xóa tài khoản chưa kích hoạt/chưa xác minh cũ để giải phóng email cho chủ sở hữu thực sự
+          await User.hardDeleteUnverifiedByEmail(email);
+        } else {
+          return res.status(409).json({
+            success: false,
+            message: "Email này đã được sử dụng bởi tài khoản khác!",
+          });
+        }
       }
 
       // Kiểm tra username trùng lặp
@@ -173,10 +178,11 @@ const authController = {
         return res.status(400).json({ success: false, message: "Thiếu email để kiểm tra!" });
       }
       const existingUser = await User.findByEmail(email.toLowerCase());
+      const isTaken = existingUser && existingUser.isEmailVerified;
       return res.status(200).json({
         success: true,
-        exists: !!existingUser,
-        message: existingUser ? "Email này đã được sử dụng bởi tài khoản khác!" : "Email khả dụng."
+        exists: !!isTaken,
+        message: isTaken ? "Email này đã được sử dụng bởi tài khoản khác!" : "Email khả dụng."
       });
     } catch (error) {
       console.error("Lỗi kiểm tra email:", error);

@@ -48,8 +48,9 @@ async function startServer() {
       deliveryMethod,
       cart,
       finalTotal,
-      status: "Đang lắp ráp chuẩn bị gửi",
+      status: "Chờ xác nhận thanh toán",
       statusType: "processing",
+      paymentStatus: "pending",
       createdAt: new Date().toISOString()
     };
 
@@ -62,6 +63,27 @@ async function startServer() {
       orderId,
       order: newOrder
     });
+  });
+
+  // API Route: Get payment status of checkout orders (mock)
+  app.get("/api/checkout/payment/status/:orderId", (req, res) => {
+    const { orderId } = req.params;
+    const order = orders.find(o => o.orderId === parseInt(orderId));
+    if (order) {
+      return res.json({
+        success: true,
+        order,
+        payment: {
+          provider: order.paymentMethod,
+          status: order.paymentStatus || "pending",
+          statusLabel: order.paymentStatus === "paid" ? "Đã thanh toán" : "Chờ thanh toán",
+          reference: `TECHVIE-MOCK-${orderId}`,
+          note: `TECHVIE ${orderId}`,
+          paymentUrl: "",
+        }
+      });
+    }
+    res.status(404).json({ success: false, message: "Không tìm thấy đơn hàng." });
   });
 
   // Keep a simple in-memory database of customer contacts for demonstration

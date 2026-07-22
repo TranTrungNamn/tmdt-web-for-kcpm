@@ -12,6 +12,10 @@ import {
   Keyboard,
   Package,
   Layers,
+  Sparkles,
+  Zap,
+  Award,
+  Clock,
 } from "lucide-react";
 
 const categoryIconMap: Record<string, React.ReactNode> = {
@@ -20,6 +24,34 @@ const categoryIconMap: Record<string, React.ReactNode> = {
   "Đồng hồ": <Watch className="w-4 h-4" strokeWidth={1.5} />,
   "Âm thanh": <Volume2 className="w-4 h-4" strokeWidth={1.5} />,
   "Bàn phím": <Keyboard className="w-4 h-4" strokeWidth={1.5} />,
+};
+
+const badgeConfigMap: Record<string, { label: string; icon: React.ReactNode; style: string }> = {
+  NORMAL: {
+    label: "NORMAL (Không nhãn)",
+    icon: <Package className="w-4 h-4" strokeWidth={1.5} />,
+    style: "bg-gray-100 text-gray-700 border-gray-200",
+  },
+  PREMIUM: {
+    label: "PREMIUM (Cao cấp)",
+    icon: <Sparkles className="w-4 h-4" strokeWidth={1.5} />,
+    style: "bg-indigo-50 border-indigo-200 text-indigo-700",
+  },
+  TRENDY: {
+    label: "TRENDY (Xu hướng)",
+    icon: <Zap className="w-4 h-4" strokeWidth={1.5} />,
+    style: "bg-emerald-50 border-emerald-200 text-emerald-700",
+  },
+  FLAGSHIP: {
+    label: "FLAGSHIP (Đầu bảng)",
+    icon: <Award className="w-4 h-4" strokeWidth={1.5} />,
+    style: "bg-rose-50 border-rose-200 text-rose-700",
+  },
+  LIMITED: {
+    label: "LIMITED (Giới hạn)",
+    icon: <Clock className="w-4 h-4" strokeWidth={1.5} />,
+    style: "bg-amber-50 border-amber-200 text-amber-700",
+  },
 };
 
 interface ProductFormModalProps {
@@ -46,6 +78,7 @@ export default function ProductFormModal({
   const [prodDesc, setProdDesc] = useState("");
   const [prodColors, setProdColors] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [prodBadge, setProdBadge] = useState("NORMAL");
   const [categoriesList, setCategoriesList] = useState<
     { name: string; icon: React.ReactNode }[]
   >([]);
@@ -96,6 +129,10 @@ export default function ProductFormModal({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Custom Dropdown State & Ref for Badge
+  const [isBadgeDropdownOpen, setIsBadgeDropdownOpen] = useState(false);
+  const badgeDropdownRef = useRef<HTMLDivElement>(null);
+
   // Xử lý sự kiện click ra ngoài để tự động đóng menu
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -104,6 +141,12 @@ export default function ProductFormModal({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsDropdownOpen(false);
+      }
+      if (
+        badgeDropdownRef.current &&
+        !badgeDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsBadgeDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -171,6 +214,7 @@ export default function ProductFormModal({
         setProdDesc(editingProduct.description || "");
         setFormSpecs(editingProduct.specs || []);
         setProdColors(editingProduct.colors ? editingProduct.colors.join(", ") : "");
+        setProdBadge(editingProduct.badge || "NORMAL");
       } else {
         setProdName("");
         setProdPrice(0);
@@ -180,6 +224,7 @@ export default function ProductFormModal({
         setProdDesc("");
         setFormSpecs([]);
         setProdColors("");
+        setProdBadge("NORMAL");
       }
     }
   }, [isOpen, editingProduct]);
@@ -198,6 +243,7 @@ export default function ProductFormModal({
       description: prodDesc,
       specs: formSpecs,
       colors: prodColors.split(',').map(c => c.trim()).filter(Boolean),
+      badge: prodBadge,
     };
 
     onSave(productData, imageFile);
@@ -310,7 +356,7 @@ export default function ProductFormModal({
               </div>
 
               {/* Pricing field */}
-              <div className="lg:col-span-4 space-y-2">
+              <div className="lg:col-span-6 space-y-2">
                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                   Giá bán niêm yết (VND) *
                 </label>
@@ -329,7 +375,7 @@ export default function ProductFormModal({
               </div>
 
               {/* Stock field with big increase/decrease buttons */}
-              <div className="lg:col-span-4 space-y-2">
+              <div className="lg:col-span-6 space-y-2">
                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                   Tồn kho
                 </label>
@@ -372,7 +418,7 @@ export default function ProductFormModal({
               </div>
 
               {/* Category selector */}
-              <div className="lg:col-span-4 relative" ref={dropdownRef}>
+              <div className="lg:col-span-6 relative" ref={dropdownRef}>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                   Phân loại thiết bị
                 </label>
@@ -505,6 +551,133 @@ export default function ProductFormModal({
                   </div>
                 )}
               </div>
+
+              {/* Badge selector */}
+              <div className="lg:col-span-6 relative" ref={badgeDropdownRef}>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  Nhãn dán quảng bá (Product Badge)
+                </label>
+
+                {/* Custom Trigger Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsBadgeDropdownOpen(!isBadgeDropdownOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-2 rounded-xl border text-left transition-all duration-200 cursor-pointer
+                    ${
+                      d
+                        ? isBadgeDropdownOpen
+                          ? "bg-[#161b22] border-indigo-500 text-white shadow-sm"
+                          : "bg-[#161b22] border-[#30363d] text-white hover:border-gray-700 hover:bg-[#21262d]/50"
+                        : isBadgeDropdownOpen
+                          ? "bg-white border-black text-gray-905 shadow-sm"
+                          : "bg-white border-gray-200 text-gray-905 hover:border-gray-300 hover:bg-gray-50/50"
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`p-1 rounded-lg transition-colors ${
+                        isBadgeDropdownOpen
+                          ? d
+                            ? "bg-[#21262d] text-white"
+                            : "bg-slate-100 text-black"
+                          : d
+                            ? "bg-[#0d1117] text-gray-400"
+                            : "bg-slate-50 text-slate-500"
+                      }`}
+                    >
+                      {(badgeConfigMap[prodBadge] || badgeConfigMap["NORMAL"]).icon}
+                    </span>
+                    <span
+                      className={`font-bold text-xs ${d ? "text-white" : "text-gray-900"}`}
+                    >
+                      {(badgeConfigMap[prodBadge] || badgeConfigMap["NORMAL"]).label}
+                    </span>
+                  </div>
+
+                  {/* Chevron Arrow */}
+                  <svg
+                    className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isBadgeDropdownOpen ? "rotate-180 text-black" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isBadgeDropdownOpen && (
+                  <div
+                    className={`absolute top-full left-0 z-50 w-full mt-2 rounded-2xl shadow-xl py-2 animate-fade-in text-xs transition-all duration-350 border ${
+                      d
+                        ? "bg-[#161b22] border-[#30363d] text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+                        : "bg-white border-gray-200 text-gray-900 shadow-xl"
+                    }`}
+                  >
+                    <ul
+                      className="max-h-60 overflow-auto scrollbar-none space-y-1"
+                      style={{
+                        scrollbarWidth: "none",
+                        msOverflowStyle: "none",
+                      }}
+                    >
+                      {Object.entries(badgeConfigMap).map(([key, config]) => (
+                        <li
+                          key={key}
+                          onClick={() => {
+                            setProdBadge(key);
+                            setIsBadgeDropdownOpen(false);
+                          }}
+                          className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors mx-2 rounded-xl group
+                            ${
+                              prodBadge === key
+                                ? d
+                                  ? "bg-[#21262d] text-white font-black hover:bg-white/10 hover:text-white"
+                                  : "bg-slate-100 text-black font-black hover:bg-black hover:text-white"
+                                : d
+                                  ? "text-gray-350 hover:bg-[#21262d] hover:text-white font-bold"
+                                  : "text-gray-600 hover:bg-black hover:text-white font-bold"
+                            }
+                          `}
+                        >
+                          <span
+                            className={`${prodBadge === key ? (d ? "text-white" : "text-black") : "text-slate-400"} group-hover:text-white transition-colors`}
+                          >
+                            {config.icon}
+                          </span>
+                          <span className="flex-1 text-xs">
+                            {config.label}
+                          </span>
+
+                          {/* Checkmark indicator */}
+                          {prodBadge === key && (
+                            <svg
+                              className={`w-4 h-4 group-hover:text-white transition-colors ${d ? "text-white" : "text-black"}`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
               {/* Colors input */}
               <div className="lg:col-span-12 space-y-2 mt-4">
                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">

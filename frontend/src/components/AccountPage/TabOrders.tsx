@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Package, CheckCircle2, Banknote, Smartphone, CreditCard, Truck, ZoomIn } from 'lucide-react';
+import { Package, CheckCircle2, Banknote, Smartphone, CreditCard, Truck, ZoomIn, Copy, Clock, XCircle } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { getProducts } from '../../services/api';
 import ProductDetail from '../ProductPage/ProductDetail';
 import { Product } from '../../types';
+import { showSuccess } from '../../utils/toast';
 
 interface TabOrdersProps {
   orders: any[];
@@ -16,6 +17,7 @@ const PAYMENT_CONFIG: Record<string, { label: string; color: string; bg: string;
   cod:           { label: 'COD',           color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200',     Icon: Truck },
   bank_transfer: { label: 'Chuyển khoản', color: 'text-blue-700',    bg: 'bg-blue-50 border-blue-200',       Icon: Banknote },
   momo:          { label: 'MoMo',          color: 'text-pink-700',    bg: 'bg-pink-50 border-pink-200',       Icon: Smartphone },
+  vnpay:         { label: 'VNPAY',         color: 'text-indigo-700',  bg: 'bg-indigo-50 border-indigo-200',   Icon: CreditCard },
   zalopay:       { label: 'ZaloPay',       color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', Icon: CreditCard },
 };
 
@@ -26,6 +28,48 @@ function formatVND(value: any): string {
   if (isNaN(num)) return String(value);
   return num.toLocaleString('vi-VN') + '₫';
 }
+
+const getVibrantStatusBadgeClass = (status: string, statusType: string) => {
+  const type = String(statusType).toLowerCase();
+  const st = String(status).toLowerCase();
+  
+  if (type === "success" || st.includes("hoàn tất")) {
+    return "bg-emerald-500 text-white shadow-[0_2px_8px_rgba(16,185,129,0.25)] border-emerald-400";
+  }
+  if (type === "shipping" || st.includes("giao hàng") || st.includes("bưu tá")) {
+    return "bg-blue-500 text-white shadow-[0_2px_8px_rgba(59,130,246,0.25)] border-blue-400";
+  }
+  if (type === "cancelled" || st.includes("hủy") || st.includes("thất bại")) {
+    return "bg-rose-500 text-white shadow-[0_2px_8px_rgba(244,63,94,0.25)] border-rose-400";
+  }
+  if (type === "processing" || st.includes("chuẩn bị") || st.includes("xác nhận") || st.includes("lắp ráp")) {
+    return "bg-purple-500 text-white shadow-[0_2px_8px_rgba(168,85,247,0.25)] border-purple-400";
+  }
+  return "bg-amber-500 text-white shadow-[0_2px_8px_rgba(245,158,11,0.25)] border-amber-400";
+};
+
+const renderStatusIcon = (statusType: string) => {
+  const type = String(statusType).toLowerCase();
+  
+  if (type === "success") {
+    return <CheckCircle2 size={15} className="text-emerald-500 flex-shrink-0" />;
+  }
+  if (type === "shipping") {
+    return <Truck size={15} className="text-blue-500 flex-shrink-0 animate-bounce" />;
+  }
+  if (type === "cancelled") {
+    return <XCircle size={15} className="text-rose-500 flex-shrink-0" />;
+  }
+  if (type === "processing") {
+    return (
+      <div className="relative flex items-center justify-center flex-shrink-0 w-4 h-4">
+        <span className="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-purple-400 opacity-75"></span>
+        <Package size={15} className="text-purple-600 relative z-10 animate-pulse" />
+      </div>
+    );
+  }
+  return <Clock size={15} className="text-amber-500 flex-shrink-0 animate-pulse" />;
+};
 
 const normalizeProduct = (p: any): Product => {
   let safeSpecs: { label: string; value: string }[] = [];
@@ -145,7 +189,17 @@ export default function TabOrders({ orders, onNavigate, onAddToCart }: TabOrders
                   <div className="bg-white/50 border-b border-white/60 px-5 py-4 grid grid-cols-3 gap-4 items-start">
                     <div className="flex flex-col gap-1">
                       <span className="text-[9px] uppercase font-black text-[#4a5568] tracking-[0.15em]">Đơn hàng</span>
-                      <strong className="text-[#2d3748] font-extrabold text-[13px] font-mono leading-tight break-all">{ord.id}</strong>
+                      <strong 
+                        onClick={() => {
+                          navigator.clipboard.writeText(ord.id);
+                          showSuccess("Đã sao chép mã đơn hàng!");
+                        }}
+                        className="text-[#2d3748] font-extrabold text-[13px] font-mono leading-tight break-all cursor-pointer hover:text-black hover:underline active:scale-95 transition-all inline-flex items-center gap-1 group"
+                        title="Click để sao chép mã đơn hàng"
+                      >
+                        <span>{ord.id}</span>
+                        <Copy size={11} className="text-gray-400 opacity-50 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                      </strong>
                     </div>
                     <div className="flex flex-col gap-1">
                       <span className="text-[9px] uppercase font-black text-[#4a5568] tracking-[0.15em]">Ngày đặt</span>
@@ -223,16 +277,22 @@ export default function TabOrders({ orders, onNavigate, onAddToCart }: TabOrders
                     {/* ── Status row ── */}
                     <div className="pt-3 border-t border-white/60 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2 text-xs text-[#2d3748]">
-                        {ord.statusType === 'processing' ? (
-                          <div className="w-2 h-2 rounded-full bg-black animate-ping flex-shrink-0" />
-                        ) : (
-                          <CheckCircle2 size={14} className="text-emerald-600 flex-shrink-0" />
-                        )}
-                        <span className="font-semibold text-[#2d3748]">
-                          Trạng thái:{' '}
-                          <strong className="text-black font-black uppercase text-[10px] tracking-wide">{ord.status}</strong>
+                        {renderStatusIcon(ord.statusType)}
+                        <span className="font-semibold text-[#2d3748] flex items-center gap-1.5">
+                          Trạng thái:
+                          <strong className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${getVibrantStatusBadgeClass(ord.status, ord.statusType)}`}>
+                            {ord.status}
+                          </strong>
                         </span>
                       </div>
+                      {onNavigate && (
+                        <button
+                          onClick={() => onNavigate(`checkout?orderId=${ord.id}`)}
+                          className="px-3.5 py-1.5 rounded-lg border border-black bg-black text-white hover:bg-gray-800 transition-all font-black text-[9px] uppercase tracking-widest cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+                        >
+                          Xem biên lai / Thanh toán
+                        </button>
+                      )}
                     </div>
                   </div>
 

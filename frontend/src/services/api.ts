@@ -345,8 +345,12 @@ export async function getProducts(search?: string, includeDeleted: boolean = fal
       productList = data.data;
     }
     
-    console.log(`[API getProducts] ✔ Tải thành công ${productList.length} sản phẩm từ backend.`);
-    return { success: true, products: productList };
+    const mappedProducts = productList.map((p: any) => ({
+      ...p,
+      id: p.id || p._id || String(Math.random()),
+    }));
+    console.log(`[API getProducts] ✔ Tải thành công ${mappedProducts.length} sản phẩm từ backend.`);
+    return { success: true, products: mappedProducts };
   } catch (error) {
     console.error('[API getProducts] ❌ Lỗi khi tải danh sách sản phẩm:', error);
     return { success: false, products: [] };
@@ -371,7 +375,8 @@ export async function createProduct(formData: FormData, token: string): Promise<
     }
     const data = await response.json();
     console.log('[API createProduct] ✔ Phản hồi từ backend:', data);
-    return { success: true, message: data.message || 'Thêm sản phẩm thành công!', product: data.product };
+    const product = data.product ? { ...data.product, id: data.product.id || data.product._id } : undefined;
+    return { success: true, message: data.message || 'Thêm sản phẩm thành công!', product };
   } catch (error: any) {
     console.error('[API createProduct] ❌ Lỗi thêm sản phẩm:', error);
     return { success: false, message: error.message || 'Lỗi kết nối khi thêm sản phẩm.' };
@@ -396,7 +401,8 @@ export async function updateProduct(id: string, formData: FormData, token: strin
     }
     const data = await response.json();
     console.log(`[API updateProduct] ✔ Phản hồi cập nhật sản phẩm #${id}:`, data);
-    return { success: true, message: data.message || 'Cập nhật sản phẩm thành công!', product: data.product };
+    const product = data.product ? { ...data.product, id: data.product.id || data.product._id } : undefined;
+    return { success: true, message: data.message || 'Cập nhật sản phẩm thành công!', product };
   } catch (error: any) {
     console.error(`[API updateProduct] ❌ Lỗi cập nhật sản phẩm #${id}:`, error);
     return { success: false, message: error.message || 'Lỗi kết nối khi cập nhật sản phẩm.' };
@@ -813,6 +819,21 @@ export async function getCheckoutPaymentStatus(orderId: number | string): Promis
   } catch (error: any) {
     console.error('Lỗi kiểm tra trạng thái thanh toán:', error);
     return { success: false, message: error.message || 'Không thể kiểm tra trạng thái thanh toán.' };
+  }
+}
+
+// Giả lập đối soát thanh toán tự động qua SePay Webhook (Dành cho kiểm thử Sandbox)
+export async function simulateSepayPayment(orderId: number | string): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/checkout/payment/sepay-ipn/simulate/${orderId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    console.error('Lỗi giả lập thanh toán SePay:', error);
+    return { success: false, message: error.message || 'Không thể kết nối đến máy chủ.' };
   }
 }
 

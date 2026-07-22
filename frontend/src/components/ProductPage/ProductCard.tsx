@@ -22,10 +22,7 @@ export default function ProductCard({
 
   // Calculate dynamic tag badges based on category or price
   const getBadgeText = () => {
-    if (product.price >= 20000000) return 'PREMIUM';
-    if (product.price <= 3000000) return 'TRENDY';
-    if (product.category === 'Laptop' || product.category === 'Điện thoại') return 'FLAGSHIP';
-    return 'LIMITED';
+    return product.badge || 'NORMAL';
   };
 
   const getBadgeStyle = () => {
@@ -89,9 +86,11 @@ export default function ProductCard({
             <span className="text-[9px] uppercase font-mono font-black tracking-wider bg-gray-50 border border-gray-150 text-gray-500 px-3 py-1 rounded-full">
               {product.category}
             </span>
-            <span className={`text-[9px] uppercase font-mono font-black tracking-wider border px-3 py-1 rounded-full ${getBadgeStyle()}`}>
-              {getBadgeText()}
-            </span>
+            {getBadgeText() !== 'NORMAL' && (
+              <span className={`text-[9px] uppercase font-mono font-black tracking-wider border px-3 py-1 rounded-full ${getBadgeStyle()}`}>
+                {getBadgeText()}
+              </span>
+            )}
           </div>
         </div>
 

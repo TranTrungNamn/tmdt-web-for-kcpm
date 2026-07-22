@@ -3,6 +3,8 @@ import {
   RotateCcw,
   AlertCircle,
   MapPin,
+  Phone,
+  Mail,
   Clock,
   Truck,
   CheckCircle,
@@ -132,6 +134,35 @@ function OrderProductImage({
     </div>
   );
 }
+
+const getStatusBadgeClass = (status: string, statusType: string, d: boolean) => {
+  const type = String(statusType).toLowerCase();
+  const st = String(status).toLowerCase();
+  
+  if (type === "success" || st.includes("hoàn tất")) {
+    return d
+      ? "border border-emerald-900/40 bg-emerald-950/30 text-emerald-400"
+      : "border border-emerald-200/50 bg-emerald-50 text-emerald-700";
+  }
+  if (type === "shipping" || st.includes("giao hàng") || st.includes("bưu tá")) {
+    return d
+      ? "border border-blue-900/40 bg-blue-950/30 text-blue-400"
+      : "border border-blue-200/50 bg-blue-50 text-blue-700";
+  }
+  if (type === "cancelled" || st.includes("hủy") || st.includes("thất bại")) {
+    return d
+      ? "border border-rose-900/40 bg-rose-950/30 text-rose-400"
+      : "border border-rose-200/50 bg-rose-50 text-rose-700";
+  }
+  if (type === "processing" || st.includes("chuẩn bị") || st.includes("xác nhận") || st.includes("lắp ráp")) {
+    return d
+      ? "border border-purple-900/40 bg-purple-950/30 text-purple-400"
+      : "border border-purple-200/50 bg-purple-50 text-purple-700";
+  }
+  return d
+    ? "border border-amber-900/40 bg-amber-950/30 text-amber-400"
+    : "border border-amber-200/50 bg-amber-50 text-amber-700";
+};
 
 export default function OrderManager({
   orders,
@@ -493,23 +524,7 @@ export default function OrderManager({
 
                 <div className="flex flex-wrap items-center gap-3">
                   <span
-                    className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase ${
-                      ord.status === "Hoàn tất bàn giao"
-                        ? d
-                          ? "border border-emerald-900/40 bg-emerald-950/30 text-emerald-400"
-                          : "border border-emerald-200/50 bg-emerald-50 text-emerald-700"
-                        : ord.status === "Đang giao hàng"
-                          ? d
-                            ? "border border-blue-900/40 bg-blue-950/30 text-blue-400"
-                            : "border border-blue-200/50 bg-blue-50 text-blue-700"
-                          : ord.status === "Hủy bỏ"
-                            ? d
-                              ? "border border-rose-900/40 bg-rose-950/30 text-rose-400"
-                              : "bg-rose-50 text-rose-700"
-                            : d
-                              ? "border border-amber-900/40 bg-amber-950/30 text-amber-400"
-                              : "bg-amber-50 text-amber-700"
-                    }`}
+                    className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase ${getStatusBadgeClass(ord.status, ord.statusType, d)}`}
                   >
                     {ord.status}
                   </span>
@@ -531,26 +546,34 @@ export default function OrderManager({
                   <div
                     className={`space-y-1.5 text-[11px] ${d ? "text-gray-300" : "text-gray-600"}`}
                   >
-                    <p>
-                      <strong className={d ? "text-gray-200" : "text-gray-800"}>
+                    <p className="flex items-center gap-1.5">
+                      <Phone
+                        size={12}
+                        className={d ? "text-gray-500" : "text-gray-400"}
+                      />
+                      <strong className={`shrink-0 ${d ? "text-gray-200" : "text-gray-800"}`}>
                         SĐT:
                       </strong>{" "}
-                      {ord.phone}
+                      <span>{ord.phone}</span>
                     </p>
-                    <p>
-                      <strong className={d ? "text-gray-200" : "text-gray-800"}>
+                    <p className="flex items-center gap-1.5">
+                      <Mail
+                        size={12}
+                        className={d ? "text-gray-500" : "text-gray-400"}
+                      />
+                      <strong className={`shrink-0 ${d ? "text-gray-200" : "text-gray-800"}`}>
                         Email:
                       </strong>{" "}
-                      {ord.email}
+                      <span>{ord.email}</span>
                     </p>
-                    <p className="flex items-start gap-1">
+                    <p className="flex items-start gap-1.5">
+                      <MapPin
+                        size={12}
+                        className={`mt-0.5 shrink-0 ${d ? "text-gray-500" : "text-gray-400"}`}
+                      />
                       <strong
                         className={`shrink-0 ${d ? "text-gray-200" : "text-gray-800"}`}
                       >
-                        <MapPin
-                          size={12}
-                          className={`inline ${d ? "text-gray-500" : "text-gray-400"}`}
-                        />{" "}
                         Địa chỉ:
                       </strong>{" "}
                       <span className="break-words">{ord.address}</span>
@@ -788,39 +811,54 @@ export default function OrderManager({
                           />
 
                           <button
+                            disabled={ord.paymentStatus === "paid"}
                             onClick={() =>
                               onUpdatePaymentStatus(ord.orderId, "paid")
                             }
-                            className={`flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg border py-2 text-[10px] font-bold tracking-wider uppercase transition-colors ${
-                              d
-                                ? "border-emerald-900/30 bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/60"
-                                : "border-emerald-200/40 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                            className={`flex w-full items-center justify-center gap-1 rounded-lg border py-2 text-[10px] font-bold tracking-wider uppercase transition-colors ${
+                              ord.paymentStatus === "paid"
+                                ? d
+                                  ? "border-emerald-950 bg-emerald-950/20 text-emerald-500/50 cursor-not-allowed"
+                                  : "border-emerald-100 bg-emerald-50/50 text-emerald-600/50 cursor-not-allowed"
+                                : d
+                                  ? "border-emerald-900/30 bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/60 cursor-pointer"
+                                  : "border-emerald-200/40 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 cursor-pointer"
                             }`}
                           >
-                            <CheckCircle size={11} /> Xác nhận đã trả
+                            <CheckCircle size={11} /> {ord.paymentStatus === "paid" ? "Đã xác nhận trả" : "Xác nhận đã trả"}
                           </button>
 
                           <button
+                            disabled={ord.paymentStatus === "paid"}
                             onClick={() =>
                               onUpdatePaymentStatus(ord.orderId, "pending")
                             }
-                            className={`flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg border py-2 text-[10px] font-bold tracking-wider uppercase transition-colors ${
-                              d
-                                ? "border-[#30363d] bg-[#21262d] text-gray-200 hover:bg-[#30363d]"
-                                : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
+                            className={`flex w-full items-center justify-center gap-1 rounded-lg border py-2 text-[10px] font-bold tracking-wider uppercase transition-colors ${
+                              ord.paymentStatus === "paid"
+                                ? d
+                                  ? "border-[#21262d] bg-[#161b22] text-gray-600 cursor-not-allowed"
+                                  : "border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed"
+                                : d
+                                  ? "border-[#30363d] bg-[#21262d] text-gray-200 hover:bg-[#30363d] cursor-pointer"
+                                  : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100 cursor-pointer"
                             }`}
                           >
                             <Clock size={11} /> Chờ thanh toán
                           </button>
 
                           <button
+                            disabled={ord.paymentStatus === "paid"}
                             onClick={() =>
                               onUpdatePaymentStatus(ord.orderId, "failed")
                             }
-                            className={`flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg py-2 text-[10px] font-bold tracking-wider uppercase transition-colors ${
-                              d
-                                ? "bg-rose-950/30 text-rose-400 hover:bg-rose-900/40"
-                                : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                            className={`flex w-full items-center justify-center gap-1 rounded-lg py-2 text-[10px] font-bold tracking-wider uppercase transition-colors ${
+                              ord.paymentStatus === "paid"
+                                ? d
+                                  ? "bg-rose-950/10 text-rose-500/30 cursor-not-allowed"
+                                  : "bg-rose-50/30 text-rose-600/35 cursor-not-allowed"
+                                : d
+                                  ? "bg-rose-950/30 text-rose-400 hover:bg-rose-900/40 cursor-pointer"
+                                  : "bg-rose-50 text-rose-600 hover:bg-rose-100 cursor-pointer"
                             }`}
                           >
                             <X size={11} /> Thanh toán lỗi

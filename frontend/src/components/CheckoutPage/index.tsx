@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { CartItem } from '../../types';
 import { getCheckoutPaymentStatus, submitCheckoutOrder, getVouchers } from '../../services/api';
 import { Gift, Info } from 'lucide-react';
+import { showSuccess, showError, showWarning } from '../../utils/toast';
 
 import CheckoutForm from './CheckoutForm';
 import CheckoutProcessing from './CheckoutProcessing';
@@ -18,7 +19,7 @@ interface CheckoutPageProps {
   userProfile?: any;
 }
 
-type PaymentMethodType = 'bank' | 'cod' | 'momo' | 'zalopay';
+type PaymentMethodType = 'bank' | 'cod' | 'momo' | 'vnpay';
 type DeliveryMethodType = 'standard' | 'express';
 
 export default function CheckoutPage({
@@ -82,6 +83,81 @@ export default function CheckoutPage({
       console.error("Lỗi khi fetch vouchers từ db:", err);
     });
   }, []);
+
+  // Check URL query parameters for orderId to view past receipt/payment details
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const orderIdParam = params.get('orderId');
+    if (orderIdParam) {
+      setStep('processing');
+      getCheckoutPaymentStatus(orderIdParam).then(res => {
+        if (res.success && res.order) {
+          const ord = res.order;
+          setServerOrderId(ord.orderId);
+          setFullName(ord.fullName);
+          setPhone(ord.phone);
+          setEmail(ord.email);
+          setAddress(ord.address);
+          setNotes(ord.notes);
+          
+          // Set delivery method to match the order
+          const ordDel = ord.deliveryMethod || '';
+          setDeliveryMethod(ordDel.toLowerCase().includes('express') ? 'express' : 'standard');
+
+          // Map items to match CartItem structure
+          const mappedItems: CartItem[] = (ord.cart || []).map((c: any) => ({
+            product: {
+              id: c.product?.id || c.product?._id || String(Math.random()),
+              name: c.product?.name || c.product_name || 'Sản phẩm',
+              price: c.product?.price || c.product_price || 0,
+              image: c.product?.image || c.image || '',
+              category: c.product?.category || 'Thiết bị',
+              specs: c.product?.specs || [],
+              colors: c.product?.colors || [],
+              averageRating: c.product?.averageRating || 0,
+              reviewCount: c.product?.reviewCount || 0
+            },
+            quantity: c.quantity || 1
+          }));
+          setCompletedCart(mappedItems);
+
+          // Calculate subtotal, fee, discount
+          const sub = mappedItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+          const finalValStr = String(ord.finalTotal || '0₫');
+          const final = parseInt(finalValStr.replace(/\D/g, ''), 10) || 0;
+          const fee = ordDel.toLowerCase().includes('express') ? 120000 : 0;
+          const disc = sub + fee - final;
+          
+          setCompletedTotals({
+            subtotal: sub,
+            discountAmount: disc > 0 ? disc : 0,
+            deliveryFee: fee,
+            finalTotal: final
+          });
+
+          // Set payment details
+          setPaymentDetails(res.payment || {
+            provider: ord.paymentProvider,
+            status: ord.paymentStatus,
+            statusLabel: ord.paymentStatusLabel,
+            reference: ord.paymentReference,
+            note: ord.paymentNote,
+            paymentUrl: ord.paymentUrl
+          });
+          
+          setStep('success');
+        } else {
+          setApiError(res.message || 'Không thể tải thông tin đơn hàng.');
+          setStep('form');
+        }
+      }).catch(err => {
+        console.error('Lỗi khi fetch thông tin đơn hàng:', err);
+        setApiError('Lỗi kết nối khi tải đơn hàng.');
+        setStep('form');
+      });
+    }
+  }, []);
+
 
   // Calculations
   const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
@@ -220,14 +296,18 @@ export default function CheckoutPage({
       setPaymentDetails(data.payment || data.order || paymentDetails);
       const status = data.payment?.status || data.order?.paymentStatus;
       if (status === 'paid') {
-        setPaymentStatusMessage('Admin đã xác nhận tiền về. Đơn hàng đã thanh toán thành công.');
+        console.log('Admin đã xác nhận. Đơn hàng đã thanh toán thành công.');
+        showSuccess('Thanh toán thành công! Đơn hàng đã được xác nhận.');
       } else if (status === 'failed') {
-        setPaymentStatusMessage('Thanh toán đang được đánh dấu lỗi. Vui lòng liên hệ cửa hàng để kiểm tra.');
+        console.log('Thanh toán đang được đánh dấu lỗi. Vui lòng liên hệ cửa hàng để kiểm tra.');
+        showError('Giao dịch thanh toán bị lỗi hoặc thất bại.');
       } else {
-        setPaymentStatusMessage('Đơn hàng vẫn đang chờ admin đối soát giao dịch.');
+        console.log('Đơn hàng vẫn đang chờ admin đối soát giao dịch.');
+        showWarning('Hệ thống vẫn đang chờ nhận được thanh toán chuyển khoản.');
       }
     } else {
-      setPaymentStatusMessage(data.message || 'Không thể kiểm tra trạng thái thanh toán lúc này.');
+      console.log(data.message || 'Không thể kiểm tra trạng thái thanh toán lúc này.');
+      showError(data.message || 'Không thể kết nối đến máy chủ để kiểm tra.');
     }
 
     setIsCheckingPayment(false);
@@ -377,6 +457,7 @@ export default function CheckoutPage({
             onRefreshPaymentStatus={handleRefreshPaymentStatus}
             isCheckingPayment={isCheckingPayment}
             paymentStatusMessage={paymentStatusMessage}
+            onNavigate={onNavigate}
           />
         )}
       </AnimatePresence>

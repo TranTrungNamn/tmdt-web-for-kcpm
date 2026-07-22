@@ -96,10 +96,9 @@ const productController = {
     }
   },
 
-  // 2. Thêm mới sản phẩm (kèm upload ảnh Cloudinary)
   createProduct: async (req, res) => {
     try {
-      const { name, price, stock, category, description, specs, colors } = req.body;
+      const { name, price, stock, category, description, specs, colors, badge } = req.body;
 
       if (!name || !price || !category) {
         return res.status(400).json({
@@ -159,6 +158,7 @@ const productController = {
         description: description || "",
         specs: parsedSpecs,
         colors: parsedColors,
+        badge: badge || "NORMAL",
       });
 
       await newProduct.save();
@@ -178,11 +178,10 @@ const productController = {
     }
   },
 
-  // 3. Cập nhật sản phẩm
   updateProduct: async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, price, stock, category, description, specs, colors } = req.body;
+      const { name, price, stock, category, description, specs, colors, badge } = req.body;
 
       const product = await Product.findById(id);
       if (!product) {
@@ -197,6 +196,7 @@ const productController = {
       if (stock !== undefined) product.stock = Number(stock);
       if (category) product.category = category;
       if (description !== undefined) product.description = description;
+      if (badge !== undefined) product.badge = badge;
 
       if (specs) {
         try {

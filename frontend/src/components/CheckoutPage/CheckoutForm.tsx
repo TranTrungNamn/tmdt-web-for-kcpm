@@ -12,7 +12,12 @@ import {
   Smartphone,
   Info,
   CircleDot,
+  CreditCard,
 } from "lucide-react";
+import SepayFields from "./PaymentMethods/SepayFields";
+import CodFields from "./PaymentMethods/CodFields";
+import MomoFields from "./PaymentMethods/MomoFields";
+import VnpayFields from "./PaymentMethods/VnpayFields";
 
 interface CheckoutFormProps {
   cart: CartItem[];
@@ -27,8 +32,8 @@ interface CheckoutFormProps {
   notes: string;
   setNotes: (val: string) => void;
 
-  paymentMethod: "bank" | "cod" | "momo" | "zalopay";
-  setPaymentMethod: (method: "bank" | "cod" | "momo" | "zalopay") => void;
+  paymentMethod: "bank" | "cod";
+  setPaymentMethod: (method: "bank" | "cod") => void;
   deliveryMethod: "standard" | "express";
   setDeliveryMethod: (method: "standard" | "express") => void;
 
@@ -83,244 +88,25 @@ export default function CheckoutForm({
 }: CheckoutFormProps) {
   const [zoomImageSrc, setZoomImageSrc] = React.useState<string | null>(null);
 
+  // Preload background images to eliminate lag on tab switch
+  React.useEffect(() => {
+    const img1 = new Image();
+    img1.src = "/src/assets/images/checkout-form/ruwell-salatan-kqo8P16y0YY-unsplash (small).jpg";
+    const img2 = new Image();
+    img2.src = "/src/assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg";
+  }, []);
+
   // Render sub-sections based on payment selection
   const renderPaymentFields = () => {
     switch (paymentMethod) {
       case "bank":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5 font-sans text-xs text-gray-700"
-          >
-            <div className="flex items-start gap-3">
-              <QrCode
-                className="flex-shrink-0 animate-pulse text-indigo-600"
-                size={32}
-              />
-              <div>
-                <h4 className="mb-1 font-bold text-gray-900">
-                  Mã QR VietQR Ngân Hàng
-                </h4>
-                <p className="text-gray-550 leading-relaxed">
-                  Quét mã MB Bank bên dưới và chuyển đúng số tiền. Đơn hàng sẽ ở
-                  trạng thái chờ thanh toán cho đến khi người bán đối soát tiền
-                  về.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center justify-around gap-4 rounded-xl border border-indigo-100 bg-white p-4 md:flex-row">
-              <div className="relative flex-shrink-0 rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
-                <img
-                  src="/src/assets/images/nganhang.jpg"
-                  alt="QR VietQR MB Bank"
-                  className="h-[190px] w-[150px] rounded-lg object-cover cursor-zoom-in hover:brightness-90 transition-all"
-                  onClick={() => setZoomImageSrc("/src/assets/images/nganhang.jpg")}
-                  title="Nhấp vào để phóng to mã QR"
-                />
-                <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 px-2 py-0.5 text-[8px] font-black tracking-wider text-white uppercase">
-                  QUÉT QR
-                </div>
-              </div>
-
-              <div className="w-full space-y-2 text-left md:w-auto">
-                <div className="grid grid-cols-3 gap-x-2">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Ngân hàng:
-                  </span>
-                  <span className="col-span-2 font-bold text-gray-900">
-                    MB Bank
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-x-2">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Số Tài Khoản:
-                  </span>
-                  <span className="col-span-2 font-mono font-bold text-indigo-700">
-                    25350879130818
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-x-2">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Tên chủ TK:
-                  </span>
-                  <span className="col-span-2 font-bold text-gray-900">
-                    TRUONG THANH DANH
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-x-2">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Số tiền:
-                  </span>
-                  <span className="col-span-2 font-mono font-black text-emerald-600">
-                    {finalTotal.toLocaleString("vi-VN")}₫
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-x-2">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Nội dung CK:
-                  </span>
-                  <span className="col-span-2 rounded-sm bg-gray-100 p-1 text-center font-mono font-bold text-gray-900">
-                    TECHVIE {phone || "ORDER"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-indigo-505 flex items-center gap-2 rounded-lg border border-indigo-100/50 bg-indigo-50 p-2.5 text-[10px]">
-              <Info size={14} />
-              <span>
-                Sau khi đặt hàng, hệ thống lưu đơn ở trạng thái chờ thanh toán.
-                Người bán kiểm tra biến động tài khoản rồi xác nhận trong trang
-                quản trị.
-              </span>
-            </div>
-          </motion.div>
-        );
+        return <SepayFields finalTotal={finalTotal} />;
       case "momo":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4 rounded-2xl border border-[#ffd1eb] bg-[#fff0f8] p-5 font-sans text-xs text-gray-700"
-          >
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#a50064] text-[10px] font-black text-white">
-                MoMo
-              </div>
-              <div>
-                <h4 className="mb-1 font-bold text-gray-900">
-                  QR Thanh Toán MoMo
-                </h4>
-                <p className="text-gray-550 leading-relaxed">
-                  Quét mã MoMo bên dưới để chuyển tiền. Trạng thái chỉ chuyển
-                  sang đã thanh toán sau khi người bán kiểm chứng giao dịch.
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 items-center gap-4 rounded-xl border border-[#ffd1eb] bg-white p-4 md:grid-cols-[150px_1fr]">
-              <img
-                src="/src/assets/images/momo.jpg"
-                alt="QR thanh toán MoMo"
-                className="mx-auto h-[190px] w-[150px] rounded-xl border border-pink-100 object-cover cursor-zoom-in hover:brightness-90 transition-all"
-                onClick={() => setZoomImageSrc("/src/assets/images/momo.jpg")}
-                title="Nhấp vào để phóng to mã QR"
-              />
-              <div className="space-y-2">
-                <div className="flex justify-between gap-3">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Ví điện tử
-                  </span>
-                  <span className="font-black text-[#a50064]">MoMo</span>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Chủ ví
-                  </span>
-                  <span className="font-bold text-gray-900">
-                    TRƯƠNG THÀNH DANH
-                  </span>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Số tiền
-                  </span>
-                  <span className="font-mono font-black text-emerald-600">
-                    {finalTotal.toLocaleString("vi-VN")}₫
-                  </span>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Trạng thái
-                  </span>
-                  <span className="font-bold text-amber-700">Chờ đối soát</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        );
-      case "zalopay":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4 rounded-2xl border border-blue-100 bg-blue-50/80 p-5 font-sans text-xs text-gray-700"
-          >
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#0068ff] text-[10px] font-black text-white">
-                Zalo
-              </div>
-              <div>
-                <h4 className="mb-1 font-bold text-gray-900">
-                  QR Thanh Toán ZaloPay
-                </h4>
-                <p className="text-gray-550 leading-relaxed">
-                  Quét mã ZaloPay để chuyển tiền. Đơn hàng được lưu ở MongoDB và
-                  chờ người bán xác nhận giao dịch thực tế.
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 items-center gap-4 rounded-xl border border-blue-100 bg-white p-4 md:grid-cols-[150px_1fr]">
-              <img
-                src="/src/assets/images/zalopay.jpg"
-                alt="QR thanh toán ZaloPay"
-                className="mx-auto h-[190px] w-[150px] rounded-xl border border-blue-100 object-cover cursor-zoom-in hover:brightness-90 transition-all"
-                onClick={() => setZoomImageSrc("/src/assets/images/zalopay.jpg")}
-                title="Nhấp vào để phóng to mã QR"
-              />
-              <div className="space-y-2">
-                <div className="flex justify-between gap-3">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Ví điện tử
-                  </span>
-                  <span className="font-black text-[#0068ff]">ZaloPay</span>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Chủ ví
-                  </span>
-                  <span className="font-bold text-gray-900">
-                    TRƯƠNG THÀNH DANH
-                  </span>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Số tiền
-                  </span>
-                  <span className="font-mono font-black text-emerald-600">
-                    {finalTotal.toLocaleString("vi-VN")}₫
-                  </span>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span className="text-[9px] font-bold tracking-wider text-gray-400 uppercase">
-                    Trạng thái
-                  </span>
-                  <span className="font-bold text-amber-700">Chờ đối soát</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        );
+        return <MomoFields finalTotal={finalTotal} />;
+      case "vnpay":
+        return <VnpayFields finalTotal={finalTotal} />;
       case "cod":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-start gap-2.5 rounded-2xl border border-gray-200 bg-gray-50 p-4 font-sans text-xs text-gray-600"
-          >
-            <Truck className="mt-0.5 flex-shrink-0 text-gray-400" size={16} />
-            <p className="leading-relaxed">
-              Bạn sẽ thanh toán trực tiếp số tiền{" "}
-              <strong className="font-semibold text-black">
-                {finalTotal.toLocaleString("vi-VN")}₫
-              </strong>{" "}
-              bằng tiền mặt hoặc chuyển khoản với bưu tá khi nhận sản phẩm tại
-              nhà. TechVie khuyên bạn nên đồng kiểm hàng nguyên seal trước khi
-              đồng thuận nhận hàng.
-            </p>
-          </motion.div>
-        );
+        return <CodFields finalTotal={finalTotal} />;
       default:
         return null;
     }
@@ -521,11 +307,11 @@ export default function CheckoutForm({
             <div className="mb-2 flex items-center gap-2 border-b border-gray-100 pb-3">
               <span className="h-3.5 w-1.5 rounded-full bg-black" />
               <h3 className="text-xs font-black tracking-widest text-gray-800 uppercase">
-                III. Trực Quan Phương Thức Thanh Toán
+                III. Phương Thức Thanh Toán
               </h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <button
                 type="button"
                 onClick={() => setPaymentMethod("bank")}
@@ -547,20 +333,20 @@ export default function CheckoutForm({
                     : "text-gray-650 border-gray-200 hover:bg-gray-50"
                 }`}
               >
-                <QrCode size={16} />
+                <span className="text-[13px] leading-none h-4 flex items-center justify-center font-extrabold font-sans">M</span>
                 MoMo
               </button>
               <button
                 type="button"
-                onClick={() => setPaymentMethod("zalopay")}
+                onClick={() => setPaymentMethod("vnpay")}
                 className={`flex flex-col items-center gap-2 rounded-xl border px-3 py-3.5 font-sans text-[10px] font-black tracking-wider uppercase transition-all ${
-                  paymentMethod === "zalopay"
+                  paymentMethod === "vnpay"
                     ? "border-black bg-black text-white"
                     : "text-gray-650 border-gray-200 hover:bg-gray-50"
                 }`}
               >
-                <QrCode size={16} />
-                ZaloPay
+                <CreditCard size={16} />
+                VNPAY
               </button>
               <button
                 type="button"
@@ -572,7 +358,7 @@ export default function CheckoutForm({
                 }`}
               >
                 <Smartphone size={16} />
-                COD (Nhận thanh toán)
+                COD
               </button>
             </div>
 

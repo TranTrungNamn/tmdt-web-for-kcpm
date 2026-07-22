@@ -1,6 +1,6 @@
 const Order = require("../models/Order");
 
-const PAYMENT_METHODS = ["cod", "card_online", "bank_transfer", "momo", "zalopay"];
+const PAYMENT_METHODS = ["cod", "card_online", "bank_transfer", "momo", "zalopay", "vnpay"];
 const PAYMENT_STATUSES = ["pending", "paid", "failed", "cancelled"];
 
 const paymentLabels = {
@@ -9,6 +9,7 @@ const paymentLabels = {
   bank_transfer: "Chuyển khoản ngân hàng",
   momo: "Ví điện tử MoMo",
   zalopay: "Ví điện tử ZaloPay",
+  vnpay: "Cổng thanh toán VNPAY",
 };
 
 const paymentStatusLabels = {
@@ -25,6 +26,7 @@ const normalizePaymentMethod = (paymentMethod = "") => {
   if (PAYMENT_METHODS.includes(raw)) return raw;
   if (pmLower.includes("momo")) return "momo";
   if (pmLower.includes("zalo")) return "zalopay";
+  if (pmLower.includes("vnpay") || pmLower.includes("vn pay")) return "vnpay";
   if (pmLower.includes("bank") || pmLower.includes("transfer") || pmLower.includes("chuyển khoản") || pmLower.includes("chuyen khoan") || pmLower.includes("ngân hàng") || pmLower.includes("ngan hang")) {
     return "bank_transfer";
   }
@@ -436,6 +438,154 @@ exports.getUserOrders = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Lỗi kết nối máy chủ khi tải đơn hàng.",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Nhận thông tin thông báo thanh toán tự động (IPN Webhook) từ SePay
+// @route   POST /api/checkout/payment/sepay-ipn
+// @access  Public (Xác thực bằng Token trong Header)
+exports.handleSepayIpn = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const secretKey = process.env.SEPAY_SECRET_KEY || "your_secret_key";
+
+    // 1. Xác thực nguồn gửi Webhook
+    if (!authHeader || !authHeader.includes(secretKey)) {
+      return res.status(401).json({
+        success: false,
+        message: "Không có quyền truy cập Webhook. Token không hợp lệ.",
+      });
+    }
+
+    const { id, content, transferAmount, transferType } = req.body;
+
+    // 2. Chỉ xử lý các giao dịch dòng tiền nhận vào (transferType = "in")
+    if (transferType !== "in") {
+      return res.status(200).json({
+        success: true,
+        message: "Bỏ qua giao dịch chi tiền ra.",
+      });
+    }
+
+    // 3. Sử dụng Regex trích xuất mã đối soát đơn hàng TECHVIE-XXXXXX hoặc TECHVIE XXXXXX
+    const match = String(content || "").match(/TECHVIE[- ]?([A-Z0-9]{6})/i);
+    if (!match) {
+      return res.status(400).json({
+        success: false,
+        message: "Nội dung chuyển khoản không chứa mã đơn hàng TechVie hợp lệ.",
+      });
+    }
+
+    const code = match[1].toUpperCase();
+    const paymentReference = `TECHVIE-${code}`;
+
+    // 4. Tìm đơn hàng khớp mã đối soát trong DB
+    const order = await Order.findOne({ payment_reference: paymentReference });
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: `Không tìm thấy đơn hàng tương ứng với mã đối soát: ${paymentReference}`,
+      });
+    }
+
+    // Nếu đơn hàng đã thanh toán rồi thì trả về thành công luôn để tránh lặp lại
+    if (order.payment_status === "paid") {
+      return res.status(200).json({
+        success: true,
+        message: "Đơn hàng này đã được xác nhận thanh toán trước đó.",
+      });
+    }
+
+    // 5. So sánh số tiền giao dịch
+    const parseTotalToNum = (totalStr) => {
+      if (!totalStr) return 0;
+      const clean = totalStr.replace(/\D/g, "");
+      return parseInt(clean, 10) || 0;
+    };
+    const orderAmount = parseTotalToNum(order.final_total);
+
+    if (Number(transferAmount) < orderAmount) {
+      return res.status(400).json({
+        success: false,
+        message: `Số tiền chuyển khoản (${transferAmount}đ) không đủ so với tổng hóa đơn (${orderAmount}đ).`,
+      });
+    }
+
+    // 6. Ghi nhận thanh toán và cập nhật trạng thái đơn hàng
+    order.payment_status = "paid";
+    order.transaction_id = id || `SEPAY_${Date.now()}`;
+    order.paid_at = new Date();
+
+    if (order.status === "Chờ xác nhận thanh toán") {
+      order.status = "Đã xác nhận thanh toán";
+      order.status_type = "processing";
+    }
+
+    await order.save();
+
+    console.log(`[SEPAY Webhook] Thanh toán tự động thành công cho đơn hàng: ${paymentReference}, số tiền: ${transferAmount}đ`);
+
+    res.status(200).json({
+      success: true,
+      message: "Đối soát và cập nhật đơn hàng thành công!",
+    });
+  } catch (error) {
+    console.error("Lỗi xử lý Webhook SePay IPN:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi hệ thống khi xử lý Webhook thanh toán.",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Giả lập Webhook SePay đối soát tự động phục vụ Sandbox Testing
+// @route   POST /api/checkout/payment/sepay-ipn/simulate/:orderId
+// @access  Public (Tự ký bằng SEPAY_SECRET_KEY nội bộ)
+exports.simulateSepayIpn = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    
+    // Tìm đơn hàng theo ID
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy đơn hàng để giả lập thanh toán.",
+      });
+    }
+
+    const parseTotalToNum = (totalStr) => {
+      if (!totalStr) return 0;
+      const clean = totalStr.replace(/\D/g, "");
+      return parseInt(clean, 10) || 0;
+    };
+    const orderAmount = parseTotalToNum(order.final_total);
+
+    // Xây dựng payload giả lập tương tự SePay Webhook
+    const mockPayload = {
+      id: `MOCK_SP_${Date.now().toString().slice(-6)}`,
+      content: order.payment_reference ? order.payment_reference.replace("-", " ") : `TECHVIE ORDER`,
+      transferAmount: orderAmount,
+      transferType: "in",
+    };
+
+    // Tự động ký Header Authorization bằng API Key của dự án để vượt qua xác thực
+    const secretKey = process.env.SEPAY_SECRET_KEY || "your_secret_key";
+    req.headers.authorization = `Bearer ${secretKey}`;
+    req.body = mockPayload;
+
+    console.log(`[SEPAY SIMULATION] Bắt đầu kích hoạt giả lập thanh toán SePay cho đơn: ${order.payment_reference}`);
+    
+    // Gọi tiếp hàm xử lý webhook chính
+    return exports.handleSepayIpn(req, res);
+  } catch (error) {
+    console.error("Lỗi giả lập Webhook SePay:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi hệ thống khi giả lập thanh toán.",
       error: error.message,
     });
   }

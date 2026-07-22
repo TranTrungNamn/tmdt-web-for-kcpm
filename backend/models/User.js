@@ -298,6 +298,15 @@ const User = {
     });
     return !!result;
   },
+
+  // Xóa hẳn tài khoản chưa xác thực theo email
+  hardDeleteUnverifiedByEmail: async (email) => {
+    const result = await UserModel.deleteMany({
+      email: email.toLowerCase(),
+      isEmailVerified: false,
+    });
+    return result.deletedCount > 0;
+  },
 };
 
 module.exports = User;

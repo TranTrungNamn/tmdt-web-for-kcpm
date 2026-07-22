@@ -14,8 +14,9 @@ import {
 import { showSuccess, showError } from "../utils/toast";
 import { teamMembers } from "../demo/data_mockdata";
 import { sendContactInquiry } from "../services/api";
+import { SEPAY_CONFIG } from "../config/paymentConfig";
 // @ts-ignore
-import heroImage from "../assets/images/contact.png";
+import heroImage from "../assets/images/contact-page/contact.png";
 
 export default function ContactPage() {
   const [formName, setFormName] = useState("");
@@ -188,18 +189,18 @@ export default function ContactPage() {
                 <div className="space-y-10">
                   <div className="group">
                     <h4 className="mb-2 font-sans text-2xl font-black tracking-tight text-gray-950 md:text-3xl">
-                      TechVie Office
+                      {SEPAY_CONFIG.store}
                     </h4>
                     <p className="text-xs leading-relaxed font-semibold tracking-wide text-gray-500 uppercase">
-                      02 Võ Oanh, Phường Thạnh Mỹ Tây, TP. Hồ Chí Minh, Việt Nam
+                      {SEPAY_CONFIG.address}
                     </p>
                     <p className="mt-3 flex items-center gap-2 text-sm font-bold text-gray-900">
                       <Phone size={14} className="text-secondary" />
-                      0909-826-249
+                      {SEPAY_CONFIG.phone}
                     </p>
                     <p className="mt-3 flex items-center gap-2 text-sm font-bold text-gray-900">
                       <Mail size={14} className="text-secondary" />
-                      contact@techvie-store.com
+                      {SEPAY_CONFIG.email}
                     </p>
                   </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Product, TabType } from "../types";
+import { Product, TabType } from "../../types";
 import {
   ArrowLeftRight,
   Activity,
@@ -10,22 +10,28 @@ import {
   Check,
   Send,
   Plus,
+  X,
+  Clock3,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
-import { subscribeNewsletter, API_BASE_URL } from "../services/api";
-import ProductCard from "./ProductPage/ProductCard";
-import ProductDetail from "./ProductPage/ProductDetail";
-import SloganQuote from "./SloganQuote";
-import slide1 from "../assets/slideshow/slide1.png";
-import slide2 from "../assets/slideshow/slide2.png";
-import slide3 from "../assets/slideshow/slide3.png";
-import slide4 from "../assets/slideshow/slide4.png";
-import slide5 from "../assets/slideshow/slide5.png";
-import img_card from "../assets/images/home_page_card.png";
+import { subscribeNewsletter, API_BASE_URL, getCheckoutPaymentStatus } from "../../services/api";
+import ProductCard from "../ProductPage/ProductCard";
+import ProductDetail from "../ProductPage/ProductDetail";
+import SloganQuote from "../SloganQuote";
+import slide1 from "../../assets/slideshow/slide1.png";
+import slide2 from "../../assets/slideshow/slide2.png";
+import slide3 from "../../assets/slideshow/slide3.png";
+import slide4 from "../../assets/slideshow/slide4.png";
+import slide5 from "../../assets/slideshow/slide5.png";
+import img_card from "../../assets/images/home-page/home_page_card.png";
 
 interface HomePageProps {
   products?: Product[];
   onNavigate: (tab: TabType) => void;
-  onAddToCart: (product: Product) => void;
+  onAddToCart: (product: Product, selectedColor?: string) => void;
   isLoggedIn?: boolean;
   userEmail?: string;
   userProfile?: any;
@@ -102,6 +108,65 @@ export default function HomePage({
     { id: number; startX: number; startY: number; image: string }[]
   >([]);
 
+  // Payment redirect detection state
+  const [paymentOrderId, setPaymentOrderId] = useState<string | null>(null);
+  const [paymentDetails, setPaymentDetails] = useState<any | null>(null);
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+  const [paymentStatusMessage, setPaymentStatusMessage] = useState("");
+  const [paymentError, setPaymentError] = useState("");
+
+  const fetchPaymentStatus = async (orderId: string) => {
+    setIsCheckingPayment(true);
+    setPaymentError("");
+    setPaymentStatusMessage("");
+    try {
+      const data = await getCheckoutPaymentStatus(orderId);
+      if (data.success) {
+        setPaymentDetails(data.payment || data.order || null);
+        const status = data.payment?.status || data.order?.paymentStatus;
+        if (status === 'paid') {
+          setPaymentStatusMessage('Đơn hàng đã thanh toán thành công.');
+        } else if (status === 'failed') {
+          setPaymentStatusMessage('Thanh toán đang được đánh dấu lỗi.');
+        } else if (status === 'cancelled') {
+          setPaymentStatusMessage('Thanh toán đã bị hủy bỏ.');
+        } else {
+          setPaymentStatusMessage('Đơn hàng vẫn đang chờ đối soát giao dịch.');
+        }
+      } else {
+        setPaymentError(data.message || "Không thể kiểm tra trạng thái thanh toán lúc này.");
+      }
+    } catch (err) {
+      setPaymentError("Lỗi kết nối đến máy chủ. Vui lòng tải lại trang.");
+    } finally {
+      setIsCheckingPayment(false);
+    }
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("orderId") || params.get("order_id");
+    if (orderId) {
+      setPaymentOrderId(orderId);
+      fetchPaymentStatus(orderId);
+    }
+  }, []);
+
+  const handleRefreshPaymentStatus = () => {
+    if (paymentOrderId) {
+      fetchPaymentStatus(paymentOrderId);
+    }
+  };
+
+  const handleClosePaymentModal = () => {
+    setPaymentOrderId(null);
+    setPaymentDetails(null);
+    setPaymentStatusMessage("");
+    setPaymentError("");
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+  };
+
   // Scroll reveal — IntersectionObserver
   const revealRefs = useRef<(HTMLElement | null)[]>([]);
   useEffect(() => {
@@ -124,12 +189,13 @@ export default function HomePage({
 
   const handleAddToCartWithSuccess = (
     product: Product,
+    selectedColor?: string,
     e?: React.MouseEvent<HTMLButtonElement>,
   ) => {
     let startX = window.innerWidth / 2;
     let startY = window.innerHeight / 2;
 
-    if (e) {
+    if (e && typeof e.currentTarget?.getBoundingClientRect === "function") {
       const buttonRect = e.currentTarget.getBoundingClientRect();
       startX = buttonRect.left + buttonRect.width / 2;
       startY = buttonRect.top + buttonRect.height / 2;
@@ -155,7 +221,7 @@ export default function HomePage({
       setMagneticRefId(null);
     }, 600);
 
-    onAddToCart(product);
+    onAddToCart(product, selectedColor);
     setJustAddedId(product.id);
     setTimeout(() => {
       setJustAddedId(null);
@@ -169,47 +235,6 @@ export default function HomePage({
     slide4,
     slide5,
   ]);
-
-  // Fetch slider images dynamically from backend express API (port 5000)
-  /*
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
-    const fetchImages = () => {
-      fetch(`${API_BASE_URL}/api/hero-images`)
-        .then((res) => {
-          if (!res.ok) throw new Error("API server unreachable");
-          return res.json();
-        })
-        .then((data) => {
-          if (Array.isArray(data) && data.length > 0) {
-            setImages(data);
-            setIsLoadedFromApi(true);
-            // Đảm bảo chỉ số slide hiện tại không vượt quá mảng dữ liệu mới từ backend
-            setCurrentSlide((prev) => (prev >= data.length ? 0 : prev));
-          } else {
-            throw new Error("Received empty image list");
-          }
-        })
-        .catch((error) => {
-          console.warn(
-            "Fallback to local slide images used safely. Detail:",
-            error.message || error,
-          );
-          setIsLoadedFromApi(false);
-        });
-    };
-
-    // Chạy tải dữ liệu ngay lập tức
-    fetchImages();
-
-    // Nếu chưa tải được API, thử lại sau mỗi 5 giây. Nếu đã tải thành công, cập nhật định kỳ mỗi 30 giây.
-    const intervalTime = isLoadedFromApi ? 30000 : 5000;
-    intervalId = setInterval(fetchImages, intervalTime);
-
-    return () => clearInterval(intervalId);
-  }, [isLoadedFromApi]);
-  */
 
   // Rotating slider effect
   useEffect(() => {
@@ -257,7 +282,6 @@ export default function HomePage({
               className="absolute inset-0 h-full w-full object-cover"
             />
           </AnimatePresence>
-          {/* Lớp phủ màu đen mờ giúp tăng độ tương phản cho slideshow */}
           <div className="absolute inset-0 bg-black/5" />
         </div>
 
@@ -270,11 +294,6 @@ export default function HomePage({
               transition={{ duration: 0.8 }}
               className="relative max-w-2xl rounded-2xl border border-white/60 bg-white/45 p-6 shadow-[0_30px_70px_rgba(0,0,0,0.1)] backdrop-blur-[35px] sm:rounded-3xl sm:p-8 md:p-10 lg:p-14"
             >
-              {/* <div className="absolute top-0 right-0 p-6 flex flex-col items-end opacity-35 text-[9px] font-mono tracking-widest text-gray-800">
-                <span>MÃ LƯỚI: 48.85 / 2.35</span>
-                <div className="w-12 h-px bg-gray-800 mt-1"></div>
-              </div> */}
-
               <div className="via-secondary/40 absolute top-1/4 -left-px h-24 w-1 bg-gradient-to-b from-transparent to-transparent"></div>
 
               <span className="text-secondary mb-4 block text-xs font-bold tracking-[0.25em] uppercase sm:text-sm lg:mb-6">
@@ -326,12 +345,6 @@ export default function HomePage({
                     />
                   </span>
                 </button>
-                {/* <button
-                  onClick={() => onNavigate("products")}
-                  className="bg-white/80 hover:bg-white text-gray-900 border border-gray-300 px-8 py-4 rounded-full font-sans font-extrabold uppercase tracking-wider text-[13px] transition-all flex items-center justify-center cursor-pointer"
-                >
-                  Bộ Sưu Tập
-                </button> */}
               </div>
             </motion.div>
           </div>
@@ -556,6 +569,174 @@ export default function HomePage({
         onNavigate={onNavigate}
         isLoggedIn={isLoggedIn}
       />
+
+      {/* Backend Payment Status Modal (Redirected from checkout/product) */}
+      <AnimatePresence>
+        {paymentOrderId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white/95 border border-gray-150 rounded-3xl shadow-2xl max-w-lg w-full p-6 md:p-8 relative overflow-hidden my-8"
+            >
+              {/* Specular Highlight */}
+              <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-white/80 via-white/50 to-transparent" />
+
+              {/* Close Button */}
+              <button
+                onClick={handleClosePaymentModal}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-950 transition-colors w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+
+              {isCheckingPayment ? (
+                <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                  <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-xs uppercase tracking-widest font-black text-gray-500 font-sans animate-pulse">Đang truy xuất thông tin giao dịch...</p>
+                </div>
+              ) : paymentError ? (
+                <div className="text-center py-6 space-y-4 font-sans">
+                  <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                    <AlertCircle size={28} />
+                  </div>
+                  <h3 className="text-lg font-black text-gray-900 uppercase tracking-wide">Truy xuất thất bại</h3>
+                  <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">{paymentError}</p>
+                  <div className="pt-2 flex justify-center gap-3">
+                    <button
+                      onClick={handleRefreshPaymentStatus}
+                      className="bg-black hover:bg-neutral-800 text-white py-3 px-6 rounded-xl text-xs uppercase tracking-widest font-black transition-all active:scale-95 cursor-pointer flex items-center gap-2"
+                    >
+                      <RefreshCw size={14} className="animate-spin-slow" /> Thử lại
+                    </button>
+                    <button
+                      onClick={handleClosePaymentModal}
+                      className="bg-gray-105 hover:bg-gray-200 text-gray-800 py-3 px-6 rounded-xl text-xs uppercase tracking-widest font-black transition-all active:scale-95 cursor-pointer"
+                    >
+                      Đóng
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Status header */}
+                  {(() => {
+                    const status = paymentDetails?.status || paymentDetails?.paymentStatus || 'pending';
+                    const provider = paymentDetails?.provider || paymentDetails?.paymentProvider || 'cod';
+                    const isPaid = status === 'paid';
+                    const isWaiting = status !== 'paid' && provider !== 'cod';
+
+                    return (
+                      <>
+                        <div className="text-center space-y-3">
+                          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto shadow-sm ${
+                            isPaid ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
+                            isWaiting ? 'bg-amber-50 text-amber-600 border border-amber-100' : 
+                            'bg-rose-50 text-rose-600 border border-rose-100'
+                          }`}>
+                            {isPaid ? <CheckCircle2 size={32} className="animate-bounce" /> :
+                             isWaiting ? <Clock3 size={32} className="animate-pulse" /> :
+                             <XCircle size={32} />}
+                          </div>
+                          <h3 className="text-xl font-black text-gray-900 uppercase tracking-wide">
+                            {isPaid ? 'Thanh toán thành công!' :
+                             isWaiting ? 'Đã ghi nhận đơn hàng' :
+                             'Giao dịch thất bại'}
+                          </h3>
+                          <p className="text-xs text-gray-500 max-w-sm mx-auto font-sans leading-relaxed">
+                            {paymentStatusMessage || 'Đang chờ đối soát từ hệ thống.'}
+                          </p>
+                        </div>
+
+                        {/* Bill receipt details */}
+                        <div className="border border-gray-150 rounded-2xl p-4 bg-gray-50/50 font-sans text-xs space-y-3">
+                          <div className="flex justify-between pb-2 border-b border-gray-200 font-mono text-[9px] text-gray-400">
+                            <span>ĐƠN HÀNG #{paymentOrderId.substring(0, 8).toUpperCase()}</span>
+                            <span>MÃ ĐỐI SOÁT: {paymentDetails?.paymentReference || paymentDetails?.reference || 'N/A'}</span>
+                          </div>
+
+                          <div className="space-y-1.5 py-1">
+                            <div className="flex justify-between">
+                              <span className="text-gray-400 font-bold uppercase text-[9px]">Khách hàng</span>
+                              <span className="font-extrabold text-gray-900">{paymentDetails?.fullName || paymentDetails?.full_name || 'Khách vãng lai'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400 font-bold uppercase text-[9px]">Phương thức</span>
+                              <span className="font-bold text-gray-900">
+                                {provider === 'bank_transfer' ? 'Chuyển khoản ngân hàng' :
+                                 provider === 'momo' ? 'Ví MoMo' :
+                                 provider === 'zalopay' ? 'Ví ZaloPay' :
+                                 provider === 'cod' ? 'Thanh toán khi nhận hàng (COD)' : 'Trực tuyến'}
+                              </span>
+                            </div>
+                            {paymentDetails?.finalTotal && (
+                              <div className="flex justify-between pt-2 border-t border-gray-200">
+                                <span className="text-gray-400 font-bold uppercase text-[9px]">Tổng thanh toán</span>
+                                <span className="font-black text-sm text-indigo-700">{paymentDetails.finalTotal}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Show QR / transfer instructions if pending & online transfer */}
+                          {isWaiting && (
+                            <div className="pt-3 border-t border-gray-200 text-center space-y-3">
+                              <p className="text-[10px] text-gray-500 font-semibold leading-relaxed">
+                                Vui lòng quét mã QR hoặc chuyển khoản đúng nội dung bên dưới để hoàn tất:
+                              </p>
+                              {provider === 'bank_transfer' && (
+                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
+                                  <img src="/src/assets/images/payment-qr/nganhang.jpg" alt="QR Ngân Hàng" className="w-full h-auto" />
+                                </div>
+                              )}
+                              {provider === 'momo' && (
+                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
+                                  <img src="/src/assets/images/payment-qr/momo.jpg" alt="QR MoMo" className="w-full h-auto" />
+                                </div>
+                              )}
+                              {provider === 'zalopay' && (
+                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
+                                  <img src="/src/assets/images/payment-qr/zalopay.jpg" alt="QR ZaloPay" className="w-full h-auto" />
+                                </div>
+                              )}
+                              <div className="bg-white border border-gray-200 rounded-xl p-2.5 text-left font-mono text-[10px] space-y-1">
+                                <div><span className="text-gray-400 font-sans font-bold text-[8px] uppercase block">Lời nhắn/Nội dung CK</span> <strong className="text-black font-extrabold">{paymentDetails?.paymentNote || paymentDetails?.note || 'TECHVIE'}</strong></div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* CTA buttons */}
+                        <div className="pt-2 flex justify-center gap-3">
+                          {isWaiting && (
+                            <button
+                              onClick={handleRefreshPaymentStatus}
+                              className="bg-black hover:bg-neutral-800 text-white py-3 px-6 rounded-xl text-xs uppercase tracking-widest font-black transition-all active:scale-95 cursor-pointer flex items-center gap-2"
+                            >
+                              <RefreshCw size={14} className={isCheckingPayment ? "animate-spin" : ""} /> Cập nhật trạng thái
+                            </button>
+                          )}
+                          <button
+                            onClick={handleClosePaymentModal}
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-6 rounded-xl text-xs uppercase tracking-widest font-black transition-all active:scale-95 cursor-pointer"
+                          >
+                            Đóng cửa sổ
+                          </button>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Flying Particles for Cart Magnet */}
       <div className="pointer-events-none fixed inset-0 z-[101]">

@@ -10,7 +10,7 @@ import TabOrders from "./TabOrders";
 import TabDevices from "./TabDevices";
 import TabSecurity from "./TabSecurity";
 
-import backgroundImage from "../../assets/images/huum-8fSitumSVw8-unsplash.jpg";
+import backgroundImage from "../../assets/images/account-page/huum-8fSitumSVw8-unsplash.jpg";
 
 const defaultUserProfile = {
   name: "Khách hàng TechVie",
@@ -58,6 +58,12 @@ export default function AccountPage({
   const [accountTab, setAccountTab] = useState<
     "profile" | "orders" | "devices" | "security"
   >("profile");
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 50);
+  }, [accountTab]);
 
   // Interactive user data state matching Premium TechVie standards
   const [localUserProfile, localSetUserProfile] = useState(defaultUserProfile);
@@ -303,7 +309,7 @@ export default function AccountPage({
                   />
 
                   {/* RIGHT MAIN PANEL: Dynamic Content Section */}
-                  <div className="mt-8 lg:col-span-8 lg:mt-0 overflow-y-auto max-h-[75vh] hide-scrollbar pr-1">
+                  <div className="mt-8 lg:col-span-8 lg:mt-0 pr-1">
                     <AnimatePresence mode="wait">
                       {accountTab === "profile" && (
                         <motion.div

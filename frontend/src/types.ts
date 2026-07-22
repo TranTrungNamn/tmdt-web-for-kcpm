@@ -15,6 +15,7 @@ export interface Product {
   averageRating?: number;
   reviewCount?: number;
   stock?: number;
+  badge?: 'PREMIUM' | 'TRENDY' | 'FLAGSHIP' | 'LIMITED' | 'NORMAL';
 }
 
 export interface ReviewUser {
