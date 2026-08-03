@@ -81,33 +81,47 @@ export default function AdminDemoPanel({
   const handleCreateMockOrder = async () => {
     setIsCreatingOrder(true);
     try {
+      // Lấy danh sách sản phẩm thật trên hệ thống (hoặc fallback từ products data_mockdata)
+      let availableProducts = await getProducts();
+      if (!availableProducts || availableProducts.length === 0) {
+        const { products } = await import('./data_mockdata');
+        availableProducts = products;
+      }
+
+      // Lựa chọn ngẫu nhiên từ 1 đến 3 sản phẩm thật từ danh sách
+      const numItems = Math.floor(Math.random() * 3) + 1;
+      const shuffled = [...availableProducts].sort(() => 0.5 - Math.random());
+      const selectedProducts = shuffled.slice(0, Math.min(numItems, availableProducts.length));
+
+      let calculatedTotal = 0;
+      const cartItems = selectedProducts.map((prod) => {
+        const quantity = Math.floor(Math.random() * 2) + 1;
+        calculatedTotal += prod.price * quantity;
+        return {
+          product: {
+            id: prod.id,
+            name: prod.name,
+            price: prod.price,
+            image: prod.image,
+            category: prod.category,
+            stock: prod.stock,
+            description: prod.description,
+            specs: prod.specs || []
+          },
+          quantity: quantity
+        };
+      });
+
       const mockOrderPayload = {
         fullName: "ĐỘ XUM XUÊ (Khách Demo)",
         phone: "0987654321",
         email: "customer@techvie.com",
         address: "180 Cao Lỗ, Quận 8, TP.HCM",
-        notes: "Đơn hàng thử nghiệm tạo nhanh từ Admin Panel",
+        notes: "Đơn hàng thử nghiệm tạo từ sản phẩm có sẵn trong hệ thống",
         paymentMethod: "cod",
         deliveryMethod: "standard",
-        cart: [
-          {
-            product: {
-              id: "keyboard-custom-demo",
-              name: "Bàn phím cơ Custom TechVie premium edition",
-              price: 3500000,
-              image: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=800&q=80",
-              category: "Keyboard",
-              stock: 15,
-              description: "Bàn phím custom chất lượng hi-end gõ cực kỳ êm ái.",
-              specs: [
-                { label: "Switches", value: "Linear Gateron Oil King" },
-                { label: "Layout", value: "75% compact" }
-              ]
-            },
-            quantity: 1
-          }
-        ],
-        finalTotal: "3500000"
+        cart: cartItems,
+        finalTotal: calculatedTotal.toString()
       };
 
       const response = await fetch(`${API_BASE_URL}/api/checkout`, {
@@ -118,7 +132,7 @@ export default function AdminDemoPanel({
       
       const data = await response.json();
       if (data.success) {
-        console.log("Đơn hàng thử nghiệm đã được tạo thành công cho mintzinfinity898@gmail.com!");
+        console.log("Đơn hàng thử nghiệm từ sản phẩm thực tế đã được tạo thành công!");
         onRefreshOrders();
       } else {
         console.log("Tạo đơn hàng thất bại: " + (data.message || "Lỗi chưa rõ"));
@@ -385,19 +399,31 @@ export default function AdminDemoPanel({
             TẠO ĐƠN HÀNG MẪU
           </button>
 
-          <button
-            type="button"
-            onClick={handleClearOrders}
-            disabled={isClearingOrders}
-            className="w-full flex items-center justify-center gap-2 bg-rose-600/30 hover:bg-rose-600/45 disabled:bg-gray-700/50 text-rose-200 border border-rose-500/20 py-2.5 rounded-xl text-[10.5px] font-bold tracking-wider transition-all active:scale-95 cursor-pointer font-jakarta mt-1.5"
-          >
-            {isClearingOrders ? (
-              <RefreshCw size={12} className="animate-spin" />
-            ) : (
-              <Trash2 size={12} />
-            )}
-            XÓA SẠCH ĐƠN HÀNG
-          </button>
+          <div className="relative group/tooltip">
+            <button
+              type="button"
+              onClick={handleClearOrders}
+              disabled={isClearingOrders}
+              className="w-full flex items-center justify-center gap-2 bg-rose-600/30 hover:bg-rose-600/45 disabled:bg-gray-700/50 text-rose-200 border border-rose-500/20 py-2.5 rounded-xl text-[10.5px] font-bold tracking-wider transition-all active:scale-95 cursor-pointer font-jakarta mt-1.5"
+            >
+              {isClearingOrders ? (
+                <RefreshCw size={12} className="animate-spin" />
+              ) : (
+                <Trash2 size={12} />
+              )}
+              XÓA SẠCH ĐƠN HÀNG
+            </button>
+
+            {/* Tooltip cảnh báo xóa mềm */}
+            <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 w-80 p-3 bg-neutral-950/95 border border-amber-500/40 rounded-xl shadow-2xl backdrop-blur-md opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-[10000]">
+              <p className="text-[11px] leading-relaxed text-amber-200/90 font-medium">
+                ⚠️ <strong className="text-amber-400 font-semibold">Lưu ý:</strong>
+                <span className="block mt-1">
+                  Thao tác này là <span className="underline font-bold text-white">xóa mềm</span> (soft delete). Đơn hàng sẽ được chuyển trạng thái ẩn chứ không mất hoàn toàn trong Database.
+                </span>
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-1">
@@ -430,19 +456,31 @@ export default function AdminDemoPanel({
             TẠO SẢN PHẨM MẪU
           </button>
 
-          <button
-            type="button"
-            onClick={handleClearProducts}
-            disabled={isClearingProducts}
-            className="w-full flex items-center justify-center gap-2 bg-rose-600/30 hover:bg-rose-600/45 disabled:bg-gray-700/50 text-rose-200 border border-rose-500/20 py-2.5 rounded-xl text-[10.5px] font-bold tracking-wider transition-all active:scale-95 cursor-pointer font-jakarta mt-1.5"
-          >
-            {isClearingProducts ? (
-              <RefreshCw size={12} className="animate-spin" />
-            ) : (
-              <Trash2 size={12} />
-            )}
-            XÓA SẠCH SẢN PHẨM
-          </button>
+          <div className="relative group/tooltip">
+            <button
+              type="button"
+              onClick={handleClearProducts}
+              disabled={isClearingProducts}
+              className="w-full flex items-center justify-center gap-2 bg-rose-600/30 hover:bg-rose-600/45 disabled:bg-gray-700/50 text-rose-200 border border-rose-500/20 py-2.5 rounded-xl text-[10.5px] font-bold tracking-wider transition-all active:scale-95 cursor-pointer font-jakarta mt-1.5"
+            >
+              {isClearingProducts ? (
+                <RefreshCw size={12} className="animate-spin" />
+              ) : (
+                <Trash2 size={12} />
+              )}
+              XÓA SẠCH SẢN PHẨM
+            </button>
+
+            {/* Tooltip cảnh báo xóa mềm */}
+            <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 w-80 p-3 bg-neutral-950/95 border border-amber-500/40 rounded-xl shadow-2xl backdrop-blur-md opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-[10000]">
+              <p className="text-[11px] leading-relaxed text-amber-200/90 font-medium">
+                ⚠️ <strong className="text-amber-400 font-semibold">Lưu ý:</strong>
+                <span className="block mt-1">
+                  Thao tác này là <span className="underline font-bold text-white">xóa mềm</span> (soft delete). Sản phẩm chỉ ẩn khỏi giao diện bán hàng chứ không mất hoàn toàn trong Database.
+                </span>
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-1 pt-1 border-t border-white/10">

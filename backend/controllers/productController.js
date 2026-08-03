@@ -1,5 +1,7 @@
 const Product = require("../models/Product");
 const { uploadToCloudinary, deleteFromCloudinary } = require("../config/cloudinary");
+const { uploadImage } = require("../services/uploadService");
+
 
 // Helper trích xuất public_id từ Cloudinary URL
 const getPublicIdFromUrl = (url) => {
@@ -120,11 +122,13 @@ const productController = {
         count++;
       }
 
-      // Upload ảnh lên Cloudinary nếu có file được gửi lên
+      // Upload ảnh với cơ chế Fallback (ImageKit -> Cloudinary)
       let imageUrl = req.body.image || "";
       if (req.file) {
-        imageUrl = await uploadToCloudinary(req.file.buffer, "techvie_products");
+        const uploadResult = await uploadImage(req.file.buffer, req.file.originalname, "techvie_products");
+        imageUrl = uploadResult.url;
       }
+
 
       // Parse specs từ JSON string (nếu gửi bằng form-data)
       let parsedSpecs = [];
@@ -225,7 +229,9 @@ const productController = {
             );
           }
         }
-        product.image = await uploadToCloudinary(req.file.buffer, "techvie_products");
+        const uploadResult = await uploadImage(req.file.buffer, req.file.originalname, "techvie_products");
+        product.image = uploadResult.url;
+
       } else if (req.body.image !== undefined) {
         product.image = req.body.image;
       }

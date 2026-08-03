@@ -21,12 +21,43 @@ import { subscribeNewsletter, API_BASE_URL, getCheckoutPaymentStatus } from "../
 import ProductCard from "../ProductPage/ProductCard";
 import ProductDetail from "../ProductPage/ProductDetail";
 import SloganQuote from "../SloganQuote";
-import slide1 from "../../assets/slideshow/slide1.png";
-import slide2 from "../../assets/slideshow/slide2.png";
-import slide3 from "../../assets/slideshow/slide3.png";
-import slide4 from "../../assets/slideshow/slide4.png";
-import slide5 from "../../assets/slideshow/slide5.png";
 import img_card from "../../assets/images/home-page/home_page_card.png";
+import ImageWithFallback from "../shared/ImageWithFallback";
+import imagekitAssets from "../../config/imagekitAssets.json";
+
+// Import tất cả ảnh slideshow local động (kể cả file mới thêm mà không cần import cứng từng file)
+const localSlideshowModules = import.meta.glob<{ default: string }>(
+  "../../assets/slideshow/*.{png,jpg,jpeg,webp,svg}",
+  { eager: true }
+);
+const defaultLocalSlides = Object.values(localSlideshowModules).map((m) => m.default);
+
+// Fallback ảnh mẫu online nếu không tìm thấy file nào
+const onlineFallbackSlides = [
+  "https://images.unsplash.com/photo-1581063683670-6df2247f1d8e?q=80&w=2080&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2080&auto=format&fit=crop",
+];
+
+// Helper lấy danh sách ảnh ngẫu nhiên từ slideshow
+const getRandomSlideshowImages = (count: number = 5): string[] => {
+  const assets = imagekitAssets as Record<string, string>;
+  // Lấy tất cả các URL thuộc folder slideshow trong imagekitAssets
+  const slideshowUrls = Object.keys(assets)
+    .filter((key) => key.startsWith("slideshow/"))
+    .map((key) => assets[key]);
+
+  // Gom pool ảnh: ưu tiên URL ImageKit -> local slides -> online fallback
+  const pool = Array.from(
+    new Set([...slideshowUrls, ...defaultLocalSlides, ...onlineFallbackSlides])
+  );
+
+  // Trộn ngẫu nhiên (Fisher-Yates Shuffle)
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+};
+
+
+
 
 interface HomePageProps {
   products?: Product[];
@@ -66,7 +97,7 @@ const normalizeProduct = (p: any): Product => {
     price: typeof p.price === "number" ? p.price : Number(p.price) || 0,
     image:
       p.image ||
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1581063683670-6df2247f1d8e?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: p.category || "Thiết bị",
     description: p.description || "Mô tả đang được cập nhật.",
     specs: safeSpecs,
@@ -228,13 +259,9 @@ export default function HomePage({
     }, 2000);
   };
 
-  const [images, setImages] = useState<string[]>([
-    slide1,
-    slide2,
-    slide3,
-    slide4,
-    slide5,
-  ]);
+  const [images, setImages] = useState<string[]>(() => getRandomSlideshowImages(5));
+
+
 
   // Rotating slider effect
   useEffect(() => {

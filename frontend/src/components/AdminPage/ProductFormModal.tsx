@@ -323,7 +323,7 @@ export default function ProductFormModal({
           {/* Prominent Section 1: Thông tin chung */}
           <section
             className={`border rounded-3xl p-6 text-left transition-all duration-300 ${
-              d ? "bg-[#0d1117]/60 border-black" : "bg-slate-50 border-gray-100"
+              d ? "bg-[#0d1117]/60 border-[#30363d]" : "bg-slate-50 border-gray-100"
             }`}
           >
             <div className="flex items-center gap-2 mb-4">
@@ -751,29 +751,43 @@ export default function ProductFormModal({
                     className={`h-px flex-1 ${d ? "bg-[#30363d]/60" : "bg-gray-200/60"}`}
                   ></div>
                 </div>
-                <div className="flex-1 flex flex-col space-y-4">
+                <div className="flex-1 flex flex-col space-y-3">
+                  {/* Hidden File Input */}
+                  <input
+                    type="file"
+                    id="product-image-file-input"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setImageFile(e.target.files[0]);
+                      }
+                    }}
+                    className="hidden"
+                  />
+
+                  {/* Preview & Upload Dropzone Container */}
                   <div
-                    className={`relative group border border-dashed rounded-2xl p-6 flex-1 flex flex-col items-center justify-center gap-3 transition-all min-h-[160px] ${
+                    className={`relative group border border-dashed rounded-2xl p-4 flex-1 flex flex-col items-center justify-center gap-2 transition-all min-h-[170px] ${
                       d
                         ? "border-[#30363d] bg-[#161b22] hover:bg-[#21262d]/45"
                         : "border-gray-200 bg-white hover:bg-slate-50"
                     }`}
                   >
                     {imageFile || prodImage ? (
-                      <div className="relative w-full h-full flex items-center justify-center overflow-hidden min-h-[120px]">
+                      <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden min-h-[130px]">
                         <img
                           referrerPolicy="no-referrer"
                           src={
                             imageFile ? URL.createObjectURL(imageFile) : prodImage
                           }
                           alt="Mockup preview"
-                          className={`max-h-[120px] object-contain p-2 group-hover:scale-105 transition-transform duration-300 ${d ? "" : "mix-blend-multiply"}`}
+                          className={`max-h-[110px] object-contain p-1 group-hover:scale-105 transition-transform duration-300 ${d ? "" : "mix-blend-multiply"}`}
                           onError={(e) => {
                             (e.target as HTMLElement).style.display = "none";
                           }}
                         />
                         <div
-                          className={`absolute top-1 left-1 px-1.5 py-0.5 rounded border text-[8px] font-mono tracking-widest font-bold uppercase flex items-center gap-0.5 ${
+                          className={`absolute top-0 left-0 px-1.5 py-0.5 rounded border text-[8px] font-mono tracking-widest font-bold uppercase flex items-center gap-0.5 ${
                             d
                               ? "bg-[#0d1117] border-[#30363d] text-gray-400"
                               : "bg-gray-50 border-gray-200 text-gray-500"
@@ -781,56 +795,57 @@ export default function ProductFormModal({
                         >
                           preview
                         </div>
+
+                        {/* Button chọn ảnh mới gọn gàng ngay bên dưới preview */}
+                        <label
+                          htmlFor="product-image-file-input"
+                          className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-bold tracking-wide transition-all cursor-pointer shadow-sm active:scale-95 ${
+                            d
+                              ? "bg-[#21262d] border-[#30363d] text-gray-200 hover:bg-[#30363d] hover:text-white"
+                              : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-150 hover:text-black"
+                          }`}
+                        >
+                          <UploadCloud className="w-3.5 h-3.5" />
+                          <span>Tải ảnh mới từ máy</span>
+                        </label>
                       </div>
                     ) : (
-                      <>
-                        <div className={`p-4 rounded-2xl ${d ? "bg-[#21262d]" : "bg-slate-100"}`}>
-                          <Layers className="text-gray-400 animate-pulse" size={24} />
+                      <label
+                        htmlFor="product-image-file-input"
+                        className="flex flex-col items-center justify-center gap-2 cursor-pointer w-full h-full p-2"
+                      >
+                        <div className={`p-3 rounded-2xl ${d ? "bg-[#21262d]" : "bg-slate-100"}`}>
+                          <UploadCloud className="text-gray-400 animate-pulse" size={22} />
                         </div>
-                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
-                          Không có file mockup
-                        </span>
-                      </>
+
+                        <div className="text-center space-y-0.5">
+                          <span className="text-xs font-bold text-gray-700 dark:text-gray-200 block">
+                            Nhấn vào đây để tải ảnh từ máy
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium block">
+                            Hỗ trợ PNG, JPG, WEBP, SVG
+                          </span>
+                        </div>
+                      </label>
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block">
-                        Tải ảnh mới từ máy tính
-                      </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            setImageFile(e.target.files[0]);
-                          }
-                        }}
-                        className={`w-full rounded-xl px-3 py-2 text-xs border focus:outline-none focus:ring-1 cursor-pointer ${
-                          d
-                            ? "bg-[#161b22] border-[#30363d] focus:!border-white focus:!ring-white text-gray-300"
-                            : "bg-white border-gray-200 focus:border-black focus:ring-black text-gray-900"
-                        }`}
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block">
-                        URL Đường dẫn ảnh
-                      </label>
-                      <input
-                        type="text"
-                        value={prodImage}
-                        onChange={(e) => setProdImage(e.target.value)}
-                        placeholder="Dán liên kết hình ảnh độc bản..."
-                        className={`w-full focus:outline-none focus:ring-1 rounded-xl px-3 py-2 text-xs transition-all font-mono ${
-                          d
-                            ? "bg-[#161b22] border border-[#30363d] focus:!border-white focus:!ring-white !text-white placeholder-gray-500"
-                            : "bg-white border border-gray-200 focus:border-black focus:ring-black text-gray-900 placeholder-gray-400"
-                        }`}
-                      />
-                    </div>
+                  {/* Input nhập URL giữ nguyên phía dưới */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block">
+                      Hoặc dán URL Đường dẫn ảnh
+                    </label>
+                    <input
+                      type="text"
+                      value={prodImage}
+                      onChange={(e) => setProdImage(e.target.value)}
+                      placeholder="Dán liên kết hình ảnh"
+                      className={`w-full focus:outline-none focus:ring-1 rounded-xl px-3 py-2 text-xs transition-all font-mono ${
+                        d
+                          ? "bg-[#161b22] border border-[#30363d] focus:!border-white focus:!ring-white !text-white placeholder-gray-500"
+                          : "bg-white border border-gray-200 focus:border-black focus:ring-black text-gray-900 placeholder-gray-400"
+                      }`}
+                    />
                   </div>
                 </div>
               </section>
