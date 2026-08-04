@@ -82,7 +82,8 @@ export default function AdminDemoPanel({
     setIsCreatingOrder(true);
     try {
       // Lấy danh sách sản phẩm thật trên hệ thống (hoặc fallback từ products data_mockdata)
-      let availableProducts = await getProducts();
+      const res = await getProducts();
+      let availableProducts = res.success && res.products ? res.products : [];
       if (!availableProducts || availableProducts.length === 0) {
         const { products } = await import('./data_mockdata');
         availableProducts = products;

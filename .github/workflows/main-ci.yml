@@ -1,0 +1,57 @@
+name: TMDT Project CI
+
+# Kích hoạt workflow khi code được push hoặc có PR vào nhánh main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  # JOB 1: KIỂM TRA BACKEND
+  backend-ci:
+    runs-on: ubuntu-latest
+    # Lệnh này chỉ định tất cả các 'run' bên dưới sẽ chạy trong thư mục backend/
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Cài đặt Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # Hoặc phiên bản Node.js bạn đang dùng
+
+    - name: Cài đặt thư viện Backend
+      run: npm install
+
+    # (Tùy chọn) Chạy test nếu trong backend/package.json có script "test"
+    - name: Chạy Backend Test
+      run: npm test --if-present
+
+  # JOB 2: KIỂM TRA FRONTEND
+  frontend-ci:
+    runs-on: ubuntu-latest
+    # Lệnh này chỉ định tất cả các 'run' bên dưới sẽ chạy trong thư mục frontend/
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Cài đặt Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Cài đặt thư viện Frontend
+      run: npm install
+
+    - name: Kiểm tra Build Frontend
+      run: npm run build
