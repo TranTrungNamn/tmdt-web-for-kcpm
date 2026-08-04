@@ -28,7 +28,9 @@ Thumbs.db
 *.tmp
 
 # Custom ignored folders
+.postman/
 _kiemchungphanmem/
 _postmanlearning/
 backend/scratch/
 scratch/
+.postman
