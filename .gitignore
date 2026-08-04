@@ -28,6 +28,7 @@ Thumbs.db
 *.tmp
 
 # Custom ignored folders
+.github/workflows/study_/
 .postman/
 _kiemchungphanmem/
 _postmanlearning/

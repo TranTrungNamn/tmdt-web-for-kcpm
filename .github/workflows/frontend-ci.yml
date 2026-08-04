@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - github-actions-test
+      - github-actions-test-002
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'

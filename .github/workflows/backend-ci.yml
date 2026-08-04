@@ -1,16 +1,17 @@
 name: Backend CI
 
-on:
+on: # Chạy cho MỌI nhánh khi có commit được push
   push:
     branches:
       - main
-      - github-actions-test
+      - github-actions-test-002
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
     branches:
       - main
+      - github-actions-test-002
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
