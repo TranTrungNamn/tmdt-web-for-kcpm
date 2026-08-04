@@ -2,6 +2,7 @@ export type TabType = 'home' | 'brand' | 'products' | 'news' | 'contact' | 'chec
 
 export interface Product {
   id: string;
+  _id?: string;
   name: string;
   price: number;
   image: string;
