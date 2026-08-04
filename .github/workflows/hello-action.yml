@@ -1,0 +1,24 @@
+name: Hello GitHub Actions
+
+on:
+  push:
+    branches:
+      - github-actions-test-002
+      - github-actions-test
+
+  workflow_dispatch:
+
+jobs:
+  hello:
+    name: Hello Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print message
+        run: echo "Hello GitHub Actions"
+
+      - name: Show runner information
+        run: |
+          echo "Operating system: $RUNNER_OS"
+          node --version
+          npm --version
