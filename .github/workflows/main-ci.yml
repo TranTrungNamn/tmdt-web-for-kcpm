@@ -1,57 +1,86 @@
-name: TMDT Project CI
+name: KCPM TechVie CI
 
-# Kích hoạt workflow khi code được push hoặc có PR vào nhánh main
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - github-actions-test
+
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+env:
+  NODE_ENV: test
+  APP_NAME: TechVie
+
 jobs:
-  # JOB 1: KIỂM TRA BACKEND
-  backend-ci:
+  frontend:
+    name: Frontend - Lint and Build
     runs-on: ubuntu-latest
-    # Lệnh này chỉ định tất cả các 'run' bên dưới sẽ chạy trong thư mục backend/
+
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: frontend
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout source code
+        uses: actions/checkout@v7
 
-    - name: Cài đặt Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20' # Hoặc phiên bản Node.js bạn đang dùng
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
-    - name: Cài đặt thư viện Backend
-      run: npm install
+      - name: Install frontend dependencies
+        run: npm ci
 
-    # (Tùy chọn) Chạy test nếu trong backend/package.json có script "test"
-    - name: Chạy Backend Test
-      run: npm test --if-present
+      - name: Lint frontend
+        run: npm run lint
 
-  # JOB 2: KIỂM TRA FRONTEND
-  frontend-ci:
+      - name: Build frontend
+        run: npm run build
+
+  backend:
+    name: Backend - Install and Syntax Check
     runs-on: ubuntu-latest
-    # Lệnh này chỉ định tất cả các 'run' bên dưới sẽ chạy trong thư mục frontend/
+
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: backend
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout source code
+        uses: actions/checkout@v7
 
-    - name: Cài đặt Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
-    - name: Cài đặt thư viện Frontend
-      run: npm install
+      - name: Install backend dependencies
+        run: npm ci
 
-    - name: Kiểm tra Build Frontend
-      run: npm run build
+      - name: Check backend syntax
+        run: node --check server.js
+
+      - name: Run backend tests if configured
+        shell: bash
+        run: |
+          TEST_SCRIPT=$(node -p "require('./package.json').scripts?.test || ''")
+
+          if [ -z "$TEST_SCRIPT" ]; then
+            echo "Backend chưa khai báo script test."
+          elif echo "$TEST_SCRIPT" | grep -q "no test specified"; then
+            echo "Backend đang dùng script test mặc định, tạm thời bỏ qua."
+          else
+            npm test
+          fi
