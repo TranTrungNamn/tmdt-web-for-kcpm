@@ -1,3 +1,5 @@
+export type PaymentMethodType = 'bank' | 'cod' | 'momo' | 'vnpay';
+
 export type TabType = 'home' | 'brand' | 'products' | 'news' | 'contact' | 'checkout' | 'account' | 'login' | 'register' | 'admin' | 'policy' | 'reset-password';
 
 export interface Product {

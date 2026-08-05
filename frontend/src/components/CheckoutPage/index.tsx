@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CartItem } from '../../types';
+import { CartItem, PaymentMethodType } from '../../types';
 import { getCheckoutPaymentStatus, submitCheckoutOrder, getVouchers } from '../../services/api';
 import { Gift, Info } from 'lucide-react';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
@@ -19,7 +19,6 @@ interface CheckoutPageProps {
   userProfile?: any;
 }
 
-type PaymentMethodType = 'bank' | 'cod' | 'momo' | 'vnpay';
 type DeliveryMethodType = 'standard' | 'express';
 
 export default function CheckoutPage({

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CartItem } from "../../types";
+import { CartItem, PaymentMethodType } from "../../types";
 import {
   ArrowLeft,
   Truck,
@@ -32,8 +32,8 @@ interface CheckoutFormProps {
   notes: string;
   setNotes: (val: string) => void;
 
-  paymentMethod: "bank" | "cod";
-  setPaymentMethod: (method: "bank" | "cod") => void;
+  paymentMethod: PaymentMethodType;
+  setPaymentMethod: (method: PaymentMethodType) => void;
   deliveryMethod: "standard" | "express";
   setDeliveryMethod: (method: "standard" | "express") => void;
 
