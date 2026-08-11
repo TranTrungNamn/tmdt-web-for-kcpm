@@ -321,7 +321,9 @@ body::-webkit-scrollbar {
   color: #a5b4fc !important;
 }
 
-.admin-dashboard-root.dark .text-[#6366f1] {
+
+/* Escape ký tự [ ] và # theo chuẩn CSS */
+.admin-dashboard-root.dark .\text-\[\#6366f1\] {
   color: #a5b4fc !important;
 }
 
