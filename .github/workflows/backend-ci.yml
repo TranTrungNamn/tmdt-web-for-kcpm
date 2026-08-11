@@ -1,0 +1,40 @@
+name: 📦 Backend CI
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  backend-ci:
+    name: Kiểm tra & Test Backend
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: 📥 Tải code từ Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Khởi tạo Node.js v20 & Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './backend/package-lock.json'
+
+      - name: 📥 Cài đặt thư viện Backend
+        run: npm ci || npm install
+
+      - name: 🧪 Chạy Backend Test
+        run: npm test --if-present
