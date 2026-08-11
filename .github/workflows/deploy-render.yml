@@ -1,4 +1,4 @@
-name: 🚀 Deploy Render (CD)
+name: Deploy Render (CD)
 
 on:
   push:
@@ -7,18 +7,18 @@ on:
 
 jobs:
   deploy-to-render:
-    name: Kích hoạt Render Deploy Hooks
+    name: Trigger Render Deployment Webhooks
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🌐 Gọi Deploy Hook Backend Render
+      - name: Trigger Backend Render Deploy Hook
         if: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK != '' }}
         run: |
-          echo "Đang kích hoạt Render tự động deploy Backend..."
+          echo "Triggering Render Backend automatic deployment..."
           curl -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}"
 
-      - name: 🌐 Gọi Deploy Hook Frontend Render
+      - name: Trigger Frontend Render Deploy Hook
         if: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK != '' }}
         run: |
-          echo "Đang kích hoạt Render tự động deploy Frontend..."
+          echo "Triggering Render Frontend automatic deployment..."
           curl -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}"

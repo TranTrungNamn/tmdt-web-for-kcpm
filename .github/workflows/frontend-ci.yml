@@ -1,4 +1,4 @@
-name: 🎨 Frontend CI
+name: Frontend CI
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   frontend-ci:
-    name: Kiểm tra & Build Frontend
+    name: Frontend Build and Verify
     runs-on: ubuntu-latest
     
     defaults:
@@ -23,20 +23,20 @@ jobs:
         working-directory: ./frontend
 
     steps:
-      - name: 📥 Tải code từ Repository
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: 🟢 Khởi tạo Node.js v20 & Cache
+      - name: Setup Node.js v20 with npm cache
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: './frontend/package-lock.json'
 
-      - name: 📥 Cài đặt thư viện Frontend
+      - name: Install Frontend dependencies
         run: npm ci || npm install
 
-      - name: 🏗️ Đóng gói (Build) Frontend
+      - name: Build Frontend bundle
         env:
           VITE_API_URL: https://techvie-backend.onrender.com
         run: npm run build

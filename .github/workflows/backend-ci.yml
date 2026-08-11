@@ -1,4 +1,4 @@
-name: 📦 Backend CI
+name: Backend CI
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   backend-ci:
-    name: Kiểm tra & Test Backend
+    name: Backend Lint and Test
     runs-on: ubuntu-latest
     
     defaults:
@@ -23,18 +23,18 @@ jobs:
         working-directory: ./backend
 
     steps:
-      - name: 📥 Tải code từ Repository
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: 🟢 Khởi tạo Node.js v20 & Cache
+      - name: Setup Node.js v20 with npm cache
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: './backend/package-lock.json'
 
-      - name: 📥 Cài đặt thư viện Backend
+      - name: Install Backend dependencies
         run: npm ci || npm install
 
-      - name: 🧪 Chạy Backend Test
+      - name: Run Backend tests
         run: npm test --if-present
