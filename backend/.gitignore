@@ -1,5 +1,7 @@
 node_modules/
 .env
+.env.*
+!.env.example
 *.log
 .system_generated/
 .vscode/
@@ -7,7 +9,6 @@ node_modules/
 .DS_Store
 Thumbs.db
 desktop.ini
-
 
 # file nạp dữ liệu [KHÔNG UPLOAD LÊN]
 scratch/

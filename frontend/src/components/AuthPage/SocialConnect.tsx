@@ -1,5 +1,6 @@
 import React from 'react';
 import { showError } from '../../utils/toast';
+import { API_BASE_URL } from '../../services/api';
 
 interface SocialConnectProps {
   mode: 'login' | 'register';
@@ -14,7 +15,7 @@ export default function SocialConnect({
 }: SocialConnectProps) {
   const handleGoogleClick = async () => {
     try {
-      const response = await fetch('/api/auth/google');
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`);
       const data = await response.json();
       if (data.success && data.url) {
         window.location.href = data.url;

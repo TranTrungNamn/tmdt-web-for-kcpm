@@ -89,7 +89,8 @@ const authController = {
         maxAge: 24 * 60 * 60 * 1000
       });
 
-      return res.redirect(`http://localhost:3000/?token=Bearer ${token}`);
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      return res.redirect(`${frontendUrl}/?token=Bearer ${token}`);
     } catch (error) {
       console.error("OAuth callback error:", error);
       return res.status(500).json({ success: false, message: "Lỗi hệ thống khi đăng nhập Google OAuth2." });
