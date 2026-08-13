@@ -12,7 +12,6 @@ import {
   ZoomIn,
   X,
   ShoppingCart,
-  Zap,
 } from "lucide-react";
 import { Product, TabType, Review, ReviewSummary } from "../../types";
 import {
@@ -408,7 +407,7 @@ export default function ProductDetail({
                       <ShoppingCart className="h-5 w-5" />
                     </motion.button>
 
-                    {/* Nút 2: MUA NGAY & THANH TOÁN - Tỉ lệ ~8/10 */}
+                    {/* Nút 2: MUA NGAY - Tỉ lệ ~8/10 */}
                     <motion.button
                       onClick={() => {
                         onAddToCart(product, selectedColor);
@@ -425,10 +424,9 @@ export default function ProductDetail({
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                       transition={{ type: "spring", damping: 16, stiffness: 400 }}
-                      className="flex flex-grow cursor-pointer items-center justify-center gap-2 rounded-full bg-black py-3.5 text-center font-sans text-xs font-black tracking-widest text-white uppercase transition-all hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-black"
+                      className="flex-grow cursor-pointer rounded-full bg-black py-3.5 text-center font-sans text-xs font-black tracking-widest text-white uppercase transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-black"
                     >
-                      <span>MUA NGAY & THANH TOÁN</span>
-                      <Zap className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      MUA NGAY
                     </motion.button>
                   </div>
                 </div>
