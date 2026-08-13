@@ -24,12 +24,6 @@ import SloganQuote from "../SloganQuote";
 import img_card from "../../assets/images/home-page/home_page_card.png";
 import ImageWithFallback from "../shared/ImageWithFallback";
 import imagekitAssets from "../../config/imagekitAssets.json";
-// @ts-ignore
-import qrNganHang from "../../assets/images/payment-qr/nganhang.jpg";
-// @ts-ignore
-import qrMomo from "../../assets/images/payment-qr/momo.jpg";
-// @ts-ignore
-import qrZalopay from "../../assets/images/payment-qr/zalopay.jpg";
 
 // Import tất cả ảnh slideshow local động (kể cả file mới thêm mà không cần import cứng từng file)
 const localSlideshowModules = import.meta.glob<{ default: string }>(
