@@ -45,13 +45,7 @@ const authController = {
       }
 
       if (!code) {
-        return res.status(400).json({ success: false, message: "Thiếu mã xác thực." });
-      }
-
-      // Chỉ kiểm tra state nếu trình duyệt hỗ trợ gửi cookie lưu trữ trước đó
-      if (storedState && state && state !== storedState) {
-        logger.warn("OAuth state mismatch", { state, storedState });
-        return res.status(403).json({ success: false, message: "Cảnh báo bảo mật: Yêu cầu không hợp lệ." });
+        return res.status(400).json({ success: false, message: "Thiếu mã xác thực (code)." });
       }
 
       const tokens = await exchangeCodeForTokens(code);
