@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 // @ts-ignore
 import vietQrLogo from '../../../assets/images/checkout-form/logo-payment/viet_qr_1.png';
+// @ts-ignore
+import sumupBg from '../../../assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg';
 
 interface SepayFieldsProps {
   finalTotal: number;
@@ -18,7 +20,7 @@ export default function SepayFields({ finalTotal }: SepayFieldsProps) {
     >
       {/* Background Image */}
       <img
-        src="/src/assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg"
+        src={sumupBg}
         alt="VietQR Payment Background"
         decoding="async"
         onLoad={() => setLoaded(true)}

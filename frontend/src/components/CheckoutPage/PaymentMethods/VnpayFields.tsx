@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 // @ts-ignore
 import vnpayLogo from '../../../assets/images/checkout-form/logo-payment/Icon-VNPAY-QR.webp';
+// @ts-ignore
+import sumupBg from '../../../assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg';
 
 interface VnpayFieldsProps {
   finalTotal: number;
@@ -18,7 +20,7 @@ export default function VnpayFields({ finalTotal }: VnpayFieldsProps) {
     >
       {/* Background Image */}
       <img
-        src="/src/assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg"
+        src={sumupBg}
         alt="VNPAY Payment Background"
         decoding="async"
         onLoad={() => setLoaded(true)}

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Truck } from 'lucide-react';
+// @ts-ignore
+import codBg from '../../../assets/images/checkout-form/ruwell-salatan-kqo8P16y0YY-unsplash (small).jpg';
 
 interface CodFieldsProps {
   finalTotal: number;
@@ -17,7 +19,7 @@ export default function CodFields({ finalTotal }: CodFieldsProps) {
     >
       {/* Background Image */}
       <img
-        src="/src/assets/images/checkout-form/ruwell-salatan-kqo8P16y0YY-unsplash (small).jpg"
+        src={codBg}
         alt="COD Delivery Background"
         decoding="async"
         onLoad={() => setLoaded(true)}

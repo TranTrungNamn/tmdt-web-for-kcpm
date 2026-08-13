@@ -24,6 +24,12 @@ import SloganQuote from "../SloganQuote";
 import img_card from "../../assets/images/home-page/home_page_card.png";
 import ImageWithFallback from "../shared/ImageWithFallback";
 import imagekitAssets from "../../config/imagekitAssets.json";
+// @ts-ignore
+import qrNganHang from "../../assets/images/payment-qr/nganhang.jpg";
+// @ts-ignore
+import qrMomo from "../../assets/images/payment-qr/momo.jpg";
+// @ts-ignore
+import qrZalopay from "../../assets/images/payment-qr/zalopay.jpg";
 
 // Import tất cả ảnh slideshow local động (kể cả file mới thêm mà không cần import cứng từng file)
 const localSlideshowModules = import.meta.glob<{ default: string }>(
@@ -718,17 +724,17 @@ export default function HomePage({
                               </p>
                               {provider === 'bank_transfer' && (
                                 <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src="/src/assets/images/payment-qr/nganhang.jpg" alt="QR Ngân Hàng" className="w-full h-auto" />
+                                  <img src={qrNganHang} alt="QR Ngân Hàng" className="w-full h-auto" />
                                 </div>
                               )}
                               {provider === 'momo' && (
                                 <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src="/src/assets/images/payment-qr/momo.jpg" alt="QR MoMo" className="w-full h-auto" />
+                                  <img src={qrMomo} alt="QR MoMo" className="w-full h-auto" />
                                 </div>
                               )}
                               {provider === 'zalopay' && (
                                 <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src="/src/assets/images/payment-qr/zalopay.jpg" alt="QR ZaloPay" className="w-full h-auto" />
+                                  <img src={qrZalopay} alt="QR ZaloPay" className="w-full h-auto" />
                                 </div>
                               )}
                               <div className="bg-white border border-gray-200 rounded-xl p-2.5 text-left font-mono text-[10px] space-y-1">
