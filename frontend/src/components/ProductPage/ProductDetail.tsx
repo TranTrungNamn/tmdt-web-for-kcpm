@@ -11,6 +11,8 @@ import {
   MessageSquare,
   ZoomIn,
   X,
+  ShoppingCart,
+  Zap,
 } from "lucide-react";
 import { Product, TabType, Review, ReviewSummary } from "../../types";
 import {
@@ -386,23 +388,49 @@ export default function ProductDetail({
                         ⚠ Vui lòng chọn màu sắc trước khi thêm vào giỏ
                       </p>
                     )}
-                  <motion.button
-                    onClick={() => {
-                      onAddToCart(product, selectedColor);
-                      onClose();
-                    }}
-                    disabled={
-                      Array.isArray(product.colors) &&
-                      product.colors.length > 0 &&
-                      !selectedColor
-                    }
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: "spring", damping: 16, stiffness: 400 }}
-                    className="flex-grow cursor-pointer rounded-full bg-black py-4 text-center font-sans text-xs font-black tracking-widest text-white uppercase transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-black"
-                  >
-                    Thành lập liên kết & Thêm vào giỏ
-                  </motion.button>
+                  <div className="flex items-center gap-3">
+                    {/* Nút 1: Thêm vào giỏ hàng (Icon Cart SVG) - Tỉ lệ ~2/10 */}
+                    <motion.button
+                      title="Thêm vào giỏ hàng"
+                      onClick={() => {
+                        onAddToCart(product, selectedColor);
+                      }}
+                      disabled={
+                        Array.isArray(product.colors) &&
+                        product.colors.length > 0 &&
+                        !selectedColor
+                      }
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", damping: 16, stiffness: 400 }}
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-black"
+                    >
+                      <ShoppingCart className="h-5 w-5" />
+                    </motion.button>
+
+                    {/* Nút 2: MUA NGAY & THANH TOÁN - Tỉ lệ ~8/10 */}
+                    <motion.button
+                      onClick={() => {
+                        onAddToCart(product, selectedColor);
+                        onClose();
+                        if (onNavigate) {
+                          onNavigate("checkout");
+                        }
+                      }}
+                      disabled={
+                        Array.isArray(product.colors) &&
+                        product.colors.length > 0 &&
+                        !selectedColor
+                      }
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ type: "spring", damping: 16, stiffness: 400 }}
+                      className="flex flex-grow cursor-pointer items-center justify-center gap-2 rounded-full bg-black py-3.5 text-center font-sans text-xs font-black tracking-widest text-white uppercase transition-all hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-black"
+                    >
+                      <span>MUA NGAY & THANH TOÁN</span>
+                      <Zap className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    </motion.button>
+                  </div>
                 </div>
               </div>
             </div>
