@@ -34,8 +34,7 @@ const defaultLocalSlides = Object.values(localSlideshowModules).map((m) => m.def
 
 // Fallback ảnh mẫu online nếu không tìm thấy file nào
 const onlineFallbackSlides = [
-  "https://images.unsplash.com/photo-1581063683670-6df2247f1d8e?q=80&w=2080&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2080&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1542315192-1f61a1792f33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 ];
 
 // Helper lấy danh sách ảnh ngẫu nhiên từ slideshow
@@ -97,7 +96,7 @@ const normalizeProduct = (p: any): Product => {
     price: typeof p.price === "number" ? p.price : Number(p.price) || 0,
     image:
       p.image ||
-      "https://images.unsplash.com/photo-1581063683670-6df2247f1d8e?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1542315192-1f61a1792f33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: p.category || "Thiết bị",
     description: p.description || "Mô tả đang được cập nhật.",
     specs: safeSpecs,
