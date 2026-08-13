@@ -710,29 +710,15 @@ export default function HomePage({
                             )}
                           </div>
 
-                          {/* Show QR / transfer instructions if pending & online transfer */}
+                          {/* Show transfer instructions if pending */}
                           {isWaiting && (
-                            <div className="pt-3 border-t border-gray-200 text-center space-y-3">
+                            <div className="pt-3 border-t border-gray-200 text-center space-y-2">
                               <p className="text-[10px] text-gray-500 font-semibold leading-relaxed">
-                                Vui lòng quét mã QR hoặc chuyển khoản đúng nội dung bên dưới để hoàn tất:
+                                Vui lòng chuyển khoản đúng nội dung bên dưới để hệ thống tự động kiểm tra:
                               </p>
-                              {provider === 'bank_transfer' && (
-                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src={qrNganHang} alt="QR Ngân Hàng" className="w-full h-auto" />
-                                </div>
-                              )}
-                              {provider === 'momo' && (
-                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src={qrMomo} alt="QR MoMo" className="w-full h-auto" />
-                                </div>
-                              )}
-                              {provider === 'zalopay' && (
-                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src={qrZalopay} alt="QR ZaloPay" className="w-full h-auto" />
-                                </div>
-                              )}
-                              <div className="bg-white border border-gray-200 rounded-xl p-2.5 text-left font-mono text-[10px] space-y-1">
-                                <div><span className="text-gray-400 font-sans font-bold text-[8px] uppercase block">Lời nhắn/Nội dung CK</span> <strong className="text-black font-extrabold">{paymentDetails?.paymentNote || paymentDetails?.note || 'TECHVIE'}</strong></div>
+                              <div className="bg-white border border-gray-200 rounded-xl p-2.5 text-left font-mono text-[10px]">
+                                <span className="text-gray-400 font-sans font-bold text-[8px] uppercase block">Lời nhắn/Nội dung CK</span>
+                                <strong className="text-black font-extrabold">{paymentDetails?.paymentNote || paymentDetails?.note || 'TECHVIE'}</strong>
                               </div>
                             </div>
                           )}
