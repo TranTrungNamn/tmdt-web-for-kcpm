@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const logger = require("./logger");
 
 /**
  * Gửi email sử dụng Nodemailer
@@ -22,7 +23,7 @@ const sendEmail = async ({ to, subject, html }) => {
   };
 
   const info = await transporter.sendMail(mailOptions);
-  console.log(`[EMAIL] Đã gửi email đến ${to} — Message ID: ${info.messageId}`);
+  logger.info(`[EMAIL] Đã gửi email đến ${to} — Message ID: ${info.messageId}`);
   return info;
 };
 

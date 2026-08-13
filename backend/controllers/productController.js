@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const { uploadToCloudinary, deleteFromCloudinary } = require("../config/cloudinary");
 const { uploadImage } = require("../services/uploadService");
+const logger = require("../utils/logger");
 
 
 // Helper trích xuất public_id từ Cloudinary URL
@@ -13,7 +14,7 @@ const getPublicIdFromUrl = (url) => {
     const cleanPath = pathAfterUpload.replace(/^v\d+\//, "");
     return cleanPath.substring(0, cleanPath.lastIndexOf("."));
   } catch (err) {
-    console.error("Lỗi trích xuất publicId từ URL:", err);
+    logger.error("Lỗi trích xuất publicId từ URL:", { error: err.message });
     return null;
   }
 };
@@ -34,11 +35,11 @@ const productController = {
           const disabledCategories = await Category.find({ isDeleted: true }, 'name');
           if (disabledCategories.length > 0) {
             const disabledNames = disabledCategories.map(cat => cat.name);
-            console.log('[BACKEND] Hiding products under disabled categories:', disabledNames);
+            logger.info('[BACKEND] Hiding products under disabled categories:', { disabledNames });
             query.category = { $nin: disabledNames };
           }
         } catch (catError) {
-          console.error("Lỗi khi tìm danh mục bị tắt:", catError);
+          logger.error("Lỗi khi tìm danh mục bị tắt:", { error: catError.message });
         }
       }
       
@@ -82,14 +83,14 @@ const productController = {
             ip: req.ip || req.connection.remoteAddress
           });
         } catch (logErr) {
-          console.error("Lỗi ghi log tìm kiếm:", logErr);
+          logger.error("Lỗi ghi log tìm kiếm:", { error: logErr.message });
         }
       }
       
       const products = await Product.find(query);
       return res.status(200).json(products);
     } catch (error) {
-      console.error("Lỗi lấy danh sách sản phẩm:", error);
+      logger.error("Lỗi lấy danh sách sản phẩm:", { error: error.message });
       return res.status(500).json({
         success: false,
         message: "Không thể lấy danh sách sản phẩm từ database!",
@@ -136,7 +137,7 @@ const productController = {
         try {
           parsedSpecs = typeof specs === "string" ? JSON.parse(specs) : specs;
         } catch (e) {
-          console.warn("Lỗi parse specs JSON:", e);
+          logger.warn("Lỗi parse specs JSON:", { error: e.message });
           parsedSpecs = [];
         }
       }
@@ -147,7 +148,7 @@ const productController = {
         try {
           parsedColors = typeof colors === "string" ? JSON.parse(colors) : colors;
         } catch (e) {
-          console.warn("Lỗi parse colors JSON:", e);
+          logger.warn("Lỗi parse colors JSON:", { error: e.message });
           parsedColors = [];
         }
       }
@@ -173,7 +174,7 @@ const productController = {
         product: newProduct,
       });
     } catch (error) {
-      console.error("Lỗi thêm sản phẩm:", error);
+      logger.error("Lỗi thêm sản phẩm:", { error: error.message });
       return res.status(500).json({
         success: false,
         message: "Có lỗi xảy ra khi thêm sản phẩm!",
@@ -206,7 +207,7 @@ const productController = {
         try {
           product.specs = typeof specs === "string" ? JSON.parse(specs) : specs;
         } catch (e) {
-          console.warn("Lỗi parse specs JSON khi update:", e);
+          logger.warn("Lỗi parse specs JSON khi update:", { error: e.message });
         }
       }
 
@@ -214,7 +215,7 @@ const productController = {
         try {
           product.colors = typeof colors === "string" ? JSON.parse(colors) : colors;
         } catch (e) {
-          console.warn("Lỗi parse colors JSON khi update:", e);
+          logger.warn("Lỗi parse colors JSON khi update:", { error: e.message });
         }
       }
 
@@ -223,9 +224,9 @@ const productController = {
         if (product.image) {
           const oldPublicId = getPublicIdFromUrl(product.image);
           if (oldPublicId) {
-            console.log(`[CLOUDINARY] Xóa ảnh cũ khi cập nhật sản phẩm: ${oldPublicId}`);
+            logger.info(`[CLOUDINARY] Xóa ảnh cũ khi cập nhật sản phẩm: ${oldPublicId}`);
             await deleteFromCloudinary(oldPublicId).catch(err => 
-              console.error("Lỗi xóa ảnh cũ khi cập nhật:", err)
+              logger.error("Lỗi xóa ảnh cũ khi cập nhật:", { error: err.message })
             );
           }
         }
@@ -244,7 +245,7 @@ const productController = {
         product,
       });
     } catch (error) {
-      console.error("Lỗi cập nhật sản phẩm:", error);
+      logger.error("Lỗi cập nhật sản phẩm:", { error: error.message });
       return res.status(500).json({
         success: false,
         message: "Có lỗi xảy ra khi cập nhật sản phẩm!",
@@ -277,7 +278,7 @@ const productController = {
         deletedProduct: product,
       });
     } catch (error) {
-      console.error("Lỗi xóa sản phẩm:", error);
+      logger.error("Lỗi xóa sản phẩm:", { error: error.message });
       return res.status(500).json({
         success: false,
         message: "Có lỗi xảy ra khi xóa sản phẩm!",
@@ -309,7 +310,7 @@ const productController = {
         restoredProduct: product,
       });
     } catch (error) {
-      console.error("Lỗi khôi phục sản phẩm:", error);
+      logger.error("Lỗi khôi phục sản phẩm:", { error: error.message });
       return res.status(500).json({
         success: false,
         message: "Có lỗi xảy ra khi khôi phục sản phẩm!",

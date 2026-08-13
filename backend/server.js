@@ -6,6 +6,7 @@ const chalk = require("chalk");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db"); // Trỏ đúng đến file db.js trong thư mục config
+const logger = require("./utils/logger");
 const User = require("./models/User");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
@@ -93,7 +94,7 @@ app.get("/test-db", async (req, res) => {
       throw new Error(`Trạng thái kết nối: ${state}`);
     }
   } catch (err) {
-    console.error(chalk.red("✖ Lỗi kết nối database:"), err);
+    logger.error("Lỗi kết nối database:", { error: err.message });
     res.status(500).json({
       success: false,
       message: "Kết nối Database thất bại!",
@@ -132,18 +133,16 @@ app.use("/api/reviews", reviewRoutes);
 // 15. Định nghĩa API Vouchers
 app.use("/api/vouchers", voucherRoutes);
 
-// Endpoint nhận log từ Client và in ra CMD của server
+// Endpoint nhận log từ Client và in ra server log
 app.post("/api/logs", (req, res) => {
   const { level, message, details } = req.body;
-  const time = new Date().toLocaleTimeString('vi-VN');
-  const detailStr = details ? JSON.stringify(details) : '';
   
   if (level === 'error') {
-    console.error(`\x1b[31m[CLIENT ERROR][${time}] ${message}\x1b[0m`, detailStr);
+    logger.error(`[CLIENT ERROR] ${message}`, details || {});
   } else if (level === 'warn') {
-    console.warn(`\x1b[33m[CLIENT WARN][${time}] ${message}\x1b[0m`, detailStr);
+    logger.warn(`[CLIENT WARN] ${message}`, details || {});
   } else {
-    console.log(`\x1b[36m[CLIENT LOG][${time}] ${message}\x1b[0m`, detailStr);
+    logger.info(`[CLIENT LOG] ${message}`, details || {});
   }
   return res.status(200).json({ success: true });
 });
@@ -162,7 +161,7 @@ app.get("/api/hero-images", async (req, res) => {
     const cloudinary = require("cloudinary").v2;
     // Kiểm tra cấu hình Cloudinary trước khi gọi
     if (!cloudinary.config().cloud_name) {
-      console.warn("[CLOUDINARY] Chưa được cấu hình! Trả về danh sách ảnh dự phòng.");
+      logger.warn("[CLOUDINARY] Chưa được cấu hình! Trả về danh sách ảnh dự phòng.");
       return res.status(200).json(fallbackImages);
     }
 
@@ -172,14 +171,14 @@ app.get("/api/hero-images", async (req, res) => {
     
     if (result && result.resources && result.resources.length > 0) {
       const urls = result.resources.map(r => r.secure_url);
-      console.log(`[CLOUDINARY] Lấy thành công ${urls.length} ảnh từ folder 'wallpaper-slideshow-for-homePage'`);
+      logger.info(`[CLOUDINARY] Lấy thành công ${urls.length} ảnh từ folder 'wallpaper-slideshow-for-homePage'`);
       return res.status(200).json(urls);
     } else {
-      console.log("[CLOUDINARY] Thư mục 'wallpaper-slideshow-for-homePage' trống hoặc không tìm thấy ảnh. Sử dụng ảnh dự phòng.");
+      logger.info("[CLOUDINARY] Thư mục 'wallpaper-slideshow-for-homePage' trống hoặc không tìm thấy ảnh. Sử dụng ảnh dự phòng.");
       return res.status(200).json(fallbackImages);
     }
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách ảnh từ Cloudinary:", error);
+    logger.error("Lỗi khi lấy danh sách ảnh từ Cloudinary:", { error: error.message });
     return res.status(200).json(fallbackImages);
   }
 });
@@ -187,7 +186,7 @@ app.get("/api/hero-images", async (req, res) => {
 // Route 2: Nhận email đăng ký nhận tin từ Homepage
 app.post("/api/subscribe", (req, res) => {
   const { email } = req.body;
-  console.log(chalk.cyan(`[NEWSLETTER] Nhận email đăng ký từ Frontend: ${email}`));
+  logger.info(`[NEWSLETTER] Nhận email đăng ký từ Frontend: ${email}`);
   
   if (!email) {
     return res.status(400).json({ success: false, message: "Email không được để trống!" });
@@ -214,12 +213,12 @@ async function seedDefaultCategories() {
         { name: "Phụ kiện" }
       ];
       await Category.insertMany(defaultCategories);
-      console.log(chalk.green.bold("✔ [SEED] Đã tự động chèn các danh mục mặc định vào database!"));
+      logger.info("[SEED] Đã tự động chèn các danh mục mặc định vào database!");
     } else {
-      console.log(chalk.blue("ℹ [SEED] Danh mục đã tồn tại trong database, không cần seed."));
+      logger.info("[SEED] Danh mục đã tồn tại trong database, không cần seed.");
     }
   } catch (error) {
-    console.error(chalk.red("✖ Lỗi tự động seed danh mục:"), error);
+    logger.error("Lỗi tự động seed danh mục:", { error: error.message });
   }
 }
 
@@ -228,36 +227,21 @@ connectDB().then(async (conn) => {
   if (conn) {
     await seedDefaultCategories();
   } else {
-    console.log(chalk.red.bold("⚠ [DATABASE] Không có kết nối Database, bỏ qua seed danh mục mặc định."));
+    logger.warn("[DATABASE] Không có kết nối Database, bỏ qua seed danh mục mặc định.");
   }
 
   app.listen(PORT, () => {
-    console.log(
-      chalk.green.bold(`✔ [SERVER] Server đang chạy tại http://localhost:${PORT}`)
-    );
+    logger.info(`[SERVER] Server đang chạy tại http://localhost:${PORT}`);
     if (conn) {
-      console.log(
-        chalk.blue.bold(`ℹ [DATABASE] Máy chủ Database: ${mongoose.connection.host}`)
-      );
-      console.log(
-        chalk.blue.bold(`ℹ [DATABASE] Tên Database đang sử dụng: ${mongoose.connection.name}`)
-      );
+      logger.info(`[DATABASE] Máy chủ Database: ${mongoose.connection.host}`);
+      logger.info(`[DATABASE] Tên Database đang sử dụng: ${mongoose.connection.name}`);
     } else {
-      console.log(
-        chalk.red.bold(`⚠ [DATABASE] Kết nối Database thất bại hoặc chưa sẵn sàng!`)
-      );
+      logger.error(`[DATABASE] Kết nối Database thất bại hoặc chưa sẵn sàng!`);
     }
-    console.log(
-      chalk.blue(`ℹ [DATABASE] Trạng thái kết nối Mongoose: ${mongoose.connection.readyState}`)
-    );
+    logger.info(`[DATABASE] Trạng thái kết nối Mongoose: ${mongoose.connection.readyState}`);
 
     // Báo cáo cấu hình môi trường (.env)
-    console.log(chalk.cyan.bold("\n======================================================="));
-    console.log(chalk.cyan.bold("⚙ [ENV CONFIGURATION REPORT] Trạng thái cấu hình môi trường:"));
-    
-    // 1. MONGODB_URI
     if (process.env.MONGODB_URI) {
-      // Trích xuất địa chỉ máy chủ (host) để hiển thị, ẩn hoàn toàn tên đăng nhập và mật khẩu
       let hostInfo = "Đã cấu hình";
       try {
         const urlParts = process.env.MONGODB_URI.split("@");
@@ -265,41 +249,35 @@ connectDB().then(async (conn) => {
           hostInfo = urlParts[urlParts.length - 1].split("?")[0];
         }
       } catch (e) {}
-      console.log(chalk.green(`✔ [ENV] MONGODB_URI: `) + chalk.white(`${hostInfo} (Đã ẩn thông tin đăng nhập & mật khẩu)`));
+      logger.info(`[ENV] MONGODB_URI: ${hostInfo} (Đã ẩn thông tin đăng nhập & mật khẩu)`);
     } else {
-      console.log(chalk.red("✖ [ENV] MONGODB_URI: CHƯA ĐỊNH NGHĨA hoặc trống!"));
+      logger.error("[ENV] MONGODB_URI: CHƯA ĐỊNH NGHĨA hoặc trống!");
     }
 
-    // 2. JWT_SECRET
     if (process.env.JWT_SECRET) {
-      console.log(chalk.green(`✔ [ENV] JWT_SECRET: `) + chalk.white("Đã cấu hình (Được mã hóa bảo mật)"));
+      logger.info("[ENV] JWT_SECRET: Đã cấu hình (Được mã hóa bảo mật)");
     } else {
-      console.log(chalk.red("✖ [ENV] JWT_SECRET: CHƯA ĐỊNH NGHĨA hoặc trống!"));
+      logger.error("[ENV] JWT_SECRET: CHƯA ĐỊNH NGHĨA hoặc trống!");
     }
 
-    // 3. CLOUDINARY
     const cloudinary = require("cloudinary").v2;
     const cloudConfig = cloudinary.config();
     if (cloudConfig.cloud_name && cloudConfig.api_key && cloudConfig.api_secret) {
-      console.log(chalk.green(`✔ [ENV] CLOUDINARY: `) + chalk.white(`Đã kết nối với Cloud: ${cloudConfig.cloud_name}`));
+      logger.info(`[ENV] CLOUDINARY: Đã kết nối với Cloud: ${cloudConfig.cloud_name}`);
     } else {
-      console.log(chalk.red("✖ [ENV] CLOUDINARY: Thiếu CLOUDINARY_CLOUD_NAME, API_KEY hoặc API_SECRET!"));
+      logger.error("[ENV] CLOUDINARY: Thiếu CLOUDINARY_CLOUD_NAME, API_KEY hoặc API_SECRET!");
     }
 
-    // 4. GOOGLE OAUTH2
     if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REDIRECT_URI) {
-      console.log(chalk.green(`✔ [ENV] GOOGLE OAUTH2: `) + chalk.white(`Đã cấu hình. Client ID: ${process.env.GOOGLE_CLIENT_ID.substring(0, 15)}...`));
+      logger.info(`[ENV] GOOGLE OAUTH2: Đã cấu hình. Client ID: ${process.env.GOOGLE_CLIENT_ID.substring(0, 15)}...`);
     } else {
-      console.log(chalk.yellow("⚠ [ENV] GOOGLE OAUTH2: Chưa cấu hình đầy đủ (Đăng nhập bằng Google sẽ không hoạt động)"));
+      logger.warn("[ENV] GOOGLE OAUTH2: Chưa cấu hình đầy đủ (Đăng nhập bằng Google sẽ không hoạt động)");
     }
 
-    // 5. EMAIL CONFIG
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      console.log(chalk.green(`✔ [ENV] SMTP EMAIL: `) + chalk.white(`Đã cấu hình với tài khoản ${process.env.EMAIL_USER}`));
+      logger.info(`[ENV] SMTP EMAIL: Đã cấu hình với tài khoản ${process.env.EMAIL_USER}`);
     } else {
-      console.log(chalk.yellow("⚠ [ENV] SMTP EMAIL: Chưa cấu hình EMAIL_USER & EMAIL_PASS (Sẽ tự động in mã xác thực/đổi mật khẩu ra Terminal)"));
+      logger.warn("[ENV] SMTP EMAIL: Chưa cấu hình EMAIL_USER & EMAIL_PASS (Sẽ tự động in mã xác thực/đổi mật khẩu ra Terminal)");
     }
-
-    console.log(chalk.cyan.bold("=======================================================\n"));
   });
 });

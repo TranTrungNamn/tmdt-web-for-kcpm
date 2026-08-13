@@ -5,6 +5,7 @@ const User = require("../models/User");
 const Order = require("../models/Order");
 const mongoose = require("mongoose");
 const sendEmail = require("../utils/sendEmail");
+const logger = require("../utils/logger");
 const { oauthConfig } = require("../config/oauth");
 const { exchangeCodeForTokens, fetchGoogleUserProfile } = require("../services/oauthService");
 
@@ -30,7 +31,7 @@ const authController = {
       });
       return res.status(200).json({ success: true, url: `${authUrl}?${params.toString()}` });
     } catch (error) {
-      console.error("Error generating Google Auth URL:", error);
+      logger.error("Error generating Google Auth URL:", { error: error.message });
       return res.status(500).json({ success: false, message: "Không thể tạo URL đăng nhập bằng Google." });
     }
   },
@@ -92,7 +93,7 @@ const authController = {
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
       return res.redirect(`${frontendUrl}/?token=Bearer ${token}`);
     } catch (error) {
-      console.error("OAuth callback error:", error);
+      logger.error("OAuth callback error:", { error: error.message });
       return res.status(500).json({ success: false, message: "Lỗi hệ thống khi đăng nhập Google OAuth2." });
     }
   },
