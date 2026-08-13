@@ -21,6 +21,7 @@ const voucherRoutes = require("./routes/voucherRoutes");
 const Category = require("./models/Category");
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 5000;
 
 // 1. Cấu hình CORS (Cho phép giao diện kết nối không bị chặn)

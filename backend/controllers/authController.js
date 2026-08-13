@@ -16,7 +16,7 @@ const authController = {
       res.cookie("oauth_state", state, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 5 * 60 * 1000
       });
       const { clientId, redirectUri, authUrl, scopes } = oauthConfig.google;
@@ -40,13 +40,18 @@ const authController = {
     try {
       const { code, state } = req.query;
       const storedState = req.cookies.oauth_state;
-      res.clearCookie("oauth_state");
-
-      if (!state || !storedState || state !== storedState) {
-        return res.status(403).json({ success: false, message: "Cảnh báo bảo mật: Yêu cầu không hợp lệ." });
+      if (storedState) {
+        res.clearCookie("oauth_state");
       }
+
       if (!code) {
         return res.status(400).json({ success: false, message: "Thiếu mã xác thực." });
+      }
+
+      // Chỉ kiểm tra state nếu trình duyệt hỗ trợ gửi cookie lưu trữ trước đó
+      if (storedState && state && state !== storedState) {
+        logger.warn("OAuth state mismatch", { state, storedState });
+        return res.status(403).json({ success: false, message: "Cảnh báo bảo mật: Yêu cầu không hợp lệ." });
       }
 
       const tokens = await exchangeCodeForTokens(code);
@@ -86,7 +91,7 @@ const authController = {
       res.cookie("techvie_session", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 24 * 60 * 60 * 1000
       });
 
