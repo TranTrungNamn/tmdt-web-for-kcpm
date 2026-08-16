@@ -180,6 +180,17 @@ exports.createOrder = async (req, res) => {
         message: "Giỏ hàng rỗng.",
       });
     }
+    // FIX TVKCPM-36: quantity phải >= 1
+  for (const item of cart) {
+  const quantity = Number(item.quantity);
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    return res.status(400).json({
+      success: false,
+      message: "Số lượng sản phẩm phải lớn hơn hoặc bằng 1.",
+    });
+  }
+}
 
     const normalizedPayment = normalizePaymentMethod(paymentMethod);
     const normalizedDelivery = normalizeDeliveryMethod(deliveryMethod);
@@ -190,7 +201,7 @@ exports.createOrder = async (req, res) => {
         product_id: prod.id || prod._id || "unknown-product-id",
         product_name: prod.name || "Sản phẩm TechVie",
         product_price: Number(prod.price) || 0,
-        quantity: Number(item.quantity) || 1,
+        quantity: Number(item.quantity),
       };
     });
 
