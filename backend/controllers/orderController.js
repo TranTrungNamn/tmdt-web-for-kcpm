@@ -1,6 +1,5 @@
 const Order = require("../models/Order");
-
-const PAYMENT_METHODS = ["cod", "card_online", "bank_transfer", "momo", "zalopay", "vnpay"];
+const Product = require("../models/Product");
 const PAYMENT_STATUSES = ["pending", "paid", "failed", "cancelled"];
 
 const paymentLabels = {
@@ -183,6 +182,21 @@ exports.createOrder = async (req, res) => {
 
     const normalizedPayment = normalizePaymentMethod(paymentMethod);
     const normalizedDelivery = normalizeDeliveryMethod(deliveryMethod);
+
+    // TC-BVA-CHK-009: Kiểm tra stock khả dụng trước khi Checkout
+    for (const item of cart) {
+      const prod = item.product || {};
+      const productId = prod.id || prod._id;
+      if (productId) {
+        const productInDb = await Product.findById(productId);
+        if (productInDb && productInDb.stock < (Number(item.quantity) || 1)) {
+          return res.status(400).json({
+            success: false,
+            message: `Sản phẩm ${productInDb.name} vượt quá số lượng tồn kho (còn ${productInDb.stock}).`,
+          });
+        }
+      }
+    }
 
     const items = cart.map((item) => {
       const prod = item.product || {};
