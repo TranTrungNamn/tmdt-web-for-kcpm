@@ -34,8 +34,7 @@ const defaultLocalSlides = Object.values(localSlideshowModules).map((m) => m.def
 
 // Fallback ảnh mẫu online nếu không tìm thấy file nào
 const onlineFallbackSlides = [
-  "https://images.unsplash.com/photo-1581063683670-6df2247f1d8e?q=80&w=2080&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2080&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1542315192-1f61a1792f33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 ];
 
 // Helper lấy danh sách ảnh ngẫu nhiên từ slideshow
@@ -97,7 +96,7 @@ const normalizeProduct = (p: any): Product => {
     price: typeof p.price === "number" ? p.price : Number(p.price) || 0,
     image:
       p.image ||
-      "https://images.unsplash.com/photo-1581063683670-6df2247f1d8e?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1542315192-1f61a1792f33?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     category: p.category || "Thiết bị",
     description: p.description || "Mô tả đang được cập nhật.",
     specs: safeSpecs,
@@ -710,29 +709,15 @@ export default function HomePage({
                             )}
                           </div>
 
-                          {/* Show QR / transfer instructions if pending & online transfer */}
+                          {/* Show transfer instructions if pending */}
                           {isWaiting && (
-                            <div className="pt-3 border-t border-gray-200 text-center space-y-3">
+                            <div className="pt-3 border-t border-gray-200 text-center space-y-2">
                               <p className="text-[10px] text-gray-500 font-semibold leading-relaxed">
-                                Vui lòng quét mã QR hoặc chuyển khoản đúng nội dung bên dưới để hoàn tất:
+                                Vui lòng chuyển khoản đúng nội dung bên dưới để hệ thống tự động kiểm tra:
                               </p>
-                              {provider === 'bank_transfer' && (
-                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src="/src/assets/images/payment-qr/nganhang.jpg" alt="QR Ngân Hàng" className="w-full h-auto" />
-                                </div>
-                              )}
-                              {provider === 'momo' && (
-                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src="/src/assets/images/payment-qr/momo.jpg" alt="QR MoMo" className="w-full h-auto" />
-                                </div>
-                              )}
-                              {provider === 'zalopay' && (
-                                <div className="max-w-[160px] mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                                  <img src="/src/assets/images/payment-qr/zalopay.jpg" alt="QR ZaloPay" className="w-full h-auto" />
-                                </div>
-                              )}
-                              <div className="bg-white border border-gray-200 rounded-xl p-2.5 text-left font-mono text-[10px] space-y-1">
-                                <div><span className="text-gray-400 font-sans font-bold text-[8px] uppercase block">Lời nhắn/Nội dung CK</span> <strong className="text-black font-extrabold">{paymentDetails?.paymentNote || paymentDetails?.note || 'TECHVIE'}</strong></div>
+                              <div className="bg-white border border-gray-200 rounded-xl p-2.5 text-left font-mono text-[10px]">
+                                <span className="text-gray-400 font-sans font-bold text-[8px] uppercase block">Lời nhắn/Nội dung CK</span>
+                                <strong className="text-black font-extrabold">{paymentDetails?.paymentNote || paymentDetails?.note || 'TECHVIE'}</strong>
                               </div>
                             </div>
                           )}

@@ -18,6 +18,10 @@ import SepayFields from "./PaymentMethods/SepayFields";
 import CodFields from "./PaymentMethods/CodFields";
 import MomoFields from "./PaymentMethods/MomoFields";
 import VnpayFields from "./PaymentMethods/VnpayFields";
+// @ts-ignore
+import codBg from "../../assets/images/checkout-form/ruwell-salatan-kqo8P16y0YY-unsplash (small).jpg";
+// @ts-ignore
+import sumupBg from "../../assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg";
 
 interface CheckoutFormProps {
   cart: CartItem[];
@@ -91,9 +95,9 @@ export default function CheckoutForm({
   // Preload background images to eliminate lag on tab switch
   React.useEffect(() => {
     const img1 = new Image();
-    img1.src = "/src/assets/images/checkout-form/ruwell-salatan-kqo8P16y0YY-unsplash (small).jpg";
+    img1.src = codBg;
     const img2 = new Image();
-    img2.src = "/src/assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg";
+    img2.src = sumupBg;
   }, []);
 
   // Render sub-sections based on payment selection

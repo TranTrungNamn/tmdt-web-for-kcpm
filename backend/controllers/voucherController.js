@@ -20,9 +20,13 @@ exports.createVoucher = async (req, res) => {
       return res.status(400).json({ success: false, message: "Mã voucher đã tồn tại" });
     }
 
+    // TC-BVA-VOCH-002 003 
+    // Chuẩn hóa discount: nếu nhập 10 (tức 10%), tự động chuyển thành 0.10
+    const normalizedDiscount = typeof discount === "number" && discount > 1 ? discount / 100 : Number(discount);
+
     const newVoucher = new Voucher({
       code: code.toUpperCase(),
-      discount,
+      discount: normalizedDiscount,
       description,
       minOrderVal: minOrderVal || 0,
       isActive: isActive !== undefined ? isActive : true,

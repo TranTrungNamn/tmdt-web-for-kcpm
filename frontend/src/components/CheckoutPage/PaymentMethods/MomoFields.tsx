@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 // @ts-ignore
 import momoLogo from '../../../assets/images/checkout-form/logo-payment/MoMo_Logo_App.svg.webp';
+// @ts-ignore
+import sumupBg from '../../../assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg';
 
 interface MomoFieldsProps {
   finalTotal: number;
@@ -18,7 +20,7 @@ export default function MomoFields({ finalTotal }: MomoFieldsProps) {
     >
       {/* Background Image */}
       <img
-        src="/src/assets/images/checkout-form/sumup-Z-o7nk0joVQ-unsplash.jpg"
+        src={sumupBg}
         alt="MoMo Payment Background"
         decoding="async"
         onLoad={() => setLoaded(true)}
