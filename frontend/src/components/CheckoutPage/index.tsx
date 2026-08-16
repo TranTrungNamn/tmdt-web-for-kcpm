@@ -162,8 +162,12 @@ export default function CheckoutPage({
   // Calculations
   const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const deliveryFee = deliveryMethod === 'express' ? 120000 : 0;
-  const discountAmount = subtotal * appliedDiscount;
-  const finalTotal = subtotal + deliveryFee - discountAmount;
+
+  // TC-BVA-VOCH-002 & 003
+  // Chuẩn hóa tỷ lệ giảm giá: nếu discount > 1 (ví dụ 10%), tự động chia 100 thành 0.10
+  const normalizedDiscountRate = appliedDiscount > 1 ? appliedDiscount / 100 : appliedDiscount;
+  const discountAmount = Math.min(subtotal, Math.round(subtotal * normalizedDiscountRate));
+  const finalTotal = Math.max(0, subtotal + deliveryFee - discountAmount);
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,7 +216,10 @@ export default function CheckoutPage({
         return;
       }
       setAppliedDiscount(foundPromo.discount);
-      setPromoSuccess(`Áp dụng thành công: ${foundPromo.description || `Giảm ${(foundPromo.discount * 100).toFixed(0)}%`}`);
+      
+      // TC-BVA-VOCH-002 & 003
+      const displayPercent = foundPromo.discount > 1 ? foundPromo.discount : (foundPromo.discount * 100).toFixed(0);
+      setPromoSuccess(`Áp dụng thành công: ${foundPromo.description || `Giảm ${displayPercent}%`}`);
     } else {
       setPromoError('Mã ưu đãi không chính xác hoặc đã hết hạn.');
     }
