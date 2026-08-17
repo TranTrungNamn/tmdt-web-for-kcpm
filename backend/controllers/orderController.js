@@ -1,6 +1,21 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
-const PAYMENT_STATUSES = ["pending", "paid", "failed", "cancelled"];
+
+const PAYMENT_METHODS = [
+  "cod",
+  "card_online",
+  "bank_transfer",
+  "momo",
+  "zalopay",
+  "vnpay",
+];
+
+const PAYMENT_STATUSES = [
+  "pending",
+  "paid",
+  "failed",
+  "cancelled",
+];
 
 const paymentLabels = {
   cod: "Thanh toán khi nhận hàng (COD)",
