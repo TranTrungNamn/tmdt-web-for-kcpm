@@ -259,7 +259,7 @@ exports.deleteReview = async (req, res) => {
     const updatedReview = await Review.findByIdAndUpdate(
       reviewId,
       { isDeleted: true },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     return res.status(200).json({
@@ -395,7 +395,7 @@ exports.restoreReview = async (req, res) => {
     const updatedReview = await Review.findByIdAndUpdate(
       reviewId,
       { isDeleted: false },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     return res.status(200).json({

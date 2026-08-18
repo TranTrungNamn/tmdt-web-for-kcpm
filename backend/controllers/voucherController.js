@@ -22,7 +22,11 @@ exports.createVoucher = async (req, res) => {
 
     // TC-BVA-VOCH-002 003 
     // Chuẩn hóa discount: nếu nhập 10 (tức 10%), tự động chuyển thành 0.10
-    const normalizedDiscount = typeof discount === "number" && discount > 1 ? discount / 100 : Number(discount);
+    let parsedDiscount = Number(discount);
+    if (isNaN(parsedDiscount)) {
+      return res.status(400).json({ success: false, message: "Discount không hợp lệ" });
+    }
+    const normalizedDiscount = parsedDiscount > 1 ? parsedDiscount / 100 : parsedDiscount;
 
     const newVoucher = new Voucher({
       code: code.toUpperCase(),
@@ -36,6 +40,36 @@ exports.createVoucher = async (req, res) => {
     res.status(201).json({ success: true, promo: newVoucher });
   } catch (error) {
     console.error("Lỗi khi tạo voucher:", error);
+    res.status(500).json({ success: false, message: "Lỗi Server" });
+  }
+};
+
+// Áp dụng voucher
+exports.applyVoucher = async (req, res) => {
+  const { code, subtotal } = req.body;
+  try {
+    const voucher = await Voucher.findOne({ code: code.toUpperCase() });
+
+    if (!voucher) {
+      return res.status(404).json({ success: false, message: "Mã voucher không tồn tại" });
+    }
+
+    if (!voucher.isActive) {
+      return res.status(400).json({ success: false, message: "Voucher này không còn hoạt động" });
+    }
+
+    if (subtotal < voucher.minOrderVal) {
+      return res.status(400).json({ success: false, message: `Đơn hàng tối thiểu phải từ ${voucher.minOrderVal}đ để áp dụng voucher này` });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Áp dụng voucher thành công",
+      discount: voucher.discount,
+      promo: voucher
+    });
+  } catch (error) {
+    console.error("Lỗi khi áp dụng voucher:", error);
     res.status(500).json({ success: false, message: "Lỗi Server" });
   }
 };

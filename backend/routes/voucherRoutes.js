@@ -8,6 +8,10 @@ router.get("/", voucherController.getVouchers);
 // Tạo voucher mới
 router.post("/", voucherController.createVoucher);
 
+// Áp dụng voucher
+// TC-BVA-VOCH-002,003 - Bug
+router.post("/apply", voucherController.applyVoucher);
+
 // Bật/Tắt trạng thái voucher
 router.put("/:id/toggle", voucherController.toggleVoucher);
 
