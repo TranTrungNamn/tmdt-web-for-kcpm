@@ -457,6 +457,7 @@ const authController = {
         console.log("=======================================================\n");
         return res.status(200).json({
           success: true,
+          resetToken: process.env.NODE_ENV !== 'production' ? resetToken : undefined,
           message:
             "Yêu cầu đặt lại mật khẩu đã được xử lý (Vui lòng kiểm tra Terminal/Console của server backend để lấy link đặt lại mật khẩu!)",
         });
@@ -464,6 +465,8 @@ const authController = {
 
       return res.status(200).json({
         success: true,
+        // Khi deploy sẽ luôn trả về undefined
+        resetToken: process.env.NODE_ENV !== 'production' ? resetToken : undefined,
         message:
           "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu. Vui lòng kiểm tra hộp thư!",
       });

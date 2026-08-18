@@ -179,7 +179,7 @@ exports.createOrder = async (req, res) => {
       deliveryMethod,
       cart,
       finalTotal,
-    } = req.body;
+    } = req.body || {};
 
     if (!fullName || !phone || !email || !address) {
       return res.status(400).json({
@@ -214,6 +214,8 @@ exports.createOrder = async (req, res) => {
       const prod = item.product || {};
       const productId = prod.id || prod._id;
       if (productId) {
+        // Chỉ import Product model ở đây để tránh lỗi circular/mất dòng require ở trên cùng
+        const Product = require("../models/Product");
         const productInDb = await Product.findById(productId);
         if (productInDb && productInDb.stock < (Number(item.quantity) || 1)) {
           return res.status(400).json({

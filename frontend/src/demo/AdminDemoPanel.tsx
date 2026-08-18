@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Key, ChevronRight, RefreshCw, Layers, ShoppingBag, Trash2 } from 'lucide-react';
+import { Key, ChevronRight, RefreshCw, Layers, ShoppingBag, Trash2, Ticket } from 'lucide-react';
 import { createProduct, clearAllOrdersFromServer, deleteProduct, getProducts, API_BASE_URL } from '../services/api';
 import CustomAlert from '../components/CustomAlert';
+import { seedDemoVouchers } from './DemoVoucher';
 
 interface AdminDemoPanelProps {
   token: string;
@@ -35,6 +36,7 @@ export default function AdminDemoPanel({
   const [isSwitching, setIsSwitching] = useState(false);
   const [isClearingOrders, setIsClearingOrders] = useState(false);
   const [isClearingProducts, setIsClearingProducts] = useState(false);
+  const [isCreatingVouchers, setIsCreatingVouchers] = useState(false);
   const [mockProductCount, setMockProductCount] = useState<number>(100);
 
   // Custom alert configuration
@@ -354,6 +356,17 @@ export default function AdminDemoPanel({
     onSwitchAccount("customer@techvie.com");
   };
 
+  const handleCreateMockVouchers = async () => {
+    setIsCreatingVouchers(true);
+    try {
+      await seedDemoVouchers(20);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsCreatingVouchers(false);
+    }
+  };
+
   return (
     <div
       ref={panelRef}
@@ -482,6 +495,25 @@ export default function AdminDemoPanel({
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="space-y-1">
+          <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-white/50 block font-jakarta">
+            Dữ liệu Khuyến mãi
+          </span>
+          <button
+            type="button"
+            onClick={handleCreateMockVouchers}
+            disabled={isCreatingVouchers}
+            className="w-full flex items-center justify-center gap-2 bg-amber-600/30 hover:bg-amber-600/45 disabled:bg-gray-700/50 text-amber-200 border border-amber-500/20 py-2.5 rounded-xl text-[10.5px] font-bold tracking-wider transition-all active:scale-95 cursor-pointer font-jakarta"
+          >
+            {isCreatingVouchers ? (
+              <RefreshCw size={12} className="animate-spin" />
+            ) : (
+              <Ticket size={12} />
+            )}
+            TẠO VOUCHER MẪU (20)
+          </button>
         </div>
 
         <div className="space-y-1 pt-1 border-t border-white/10">

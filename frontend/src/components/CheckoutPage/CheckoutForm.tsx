@@ -36,8 +36,8 @@ interface CheckoutFormProps {
   notes: string;
   setNotes: (val: string) => void;
 
-  paymentMethod: "bank" | "cod";
-  setPaymentMethod: (method: "bank" | "cod") => void;
+  paymentMethod: "bank" | "cod" | "momo" | "vnpay";
+  setPaymentMethod: (method: "bank" | "cod" | "momo" | "vnpay") => void;
   deliveryMethod: "standard" | "express";
   setDeliveryMethod: (method: "standard" | "express") => void;
 
