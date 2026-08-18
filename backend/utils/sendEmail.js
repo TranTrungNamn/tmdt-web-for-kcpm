@@ -6,6 +6,18 @@ const logger = require("./logger");
  * @param {Object} options - { to, subject, html }
  */
 const sendEmail = async ({ to, subject, html }) => {
+  // 1. Bypass (Mock) Gửi mail nếu không phải môi trường Production (ví dụ: đang test ở máy Local)
+  if (process.env.NODE_ENV !== 'production') {
+    logger.info(`[MOCK EMAIL] Bypass gửi mail thật...`);
+    logger.info(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
+    // In nội dung HTML ra terminal (có thể rất dài nên bạn chú ý)
+    logger.info(`[MOCK EMAIL] Content: \n${html}\n===============================`);
+    
+    // Trả về một kết quả giả lập để các hàm phía sau không bị lỗi
+    return { messageId: 'mock-message-id-' + Date.now() };
+  }
+
+  // 2. Chạy thật nếu ở môi trường Production (Deploy thật)
   // Cấu hình transporter - sử dụng Gmail SMTP (hoặc dịch vụ khác qua biến môi trường)
   const transporter = nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE || "gmail",
