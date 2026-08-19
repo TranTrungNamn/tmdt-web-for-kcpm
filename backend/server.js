@@ -1,11 +1,39 @@
 require("dotenv").config();
+// Phải nạp thêm mới hoạt động được
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+// ----
+
+/*
+Mục lục
+  1. Cấu hình CORS
+  2. Cấu hình đọc dữ liệu JSON & URL-encoded & Cookies
+  3. Logger Middleware với Chalk
+  4. Route mặc định kiểm tra trạng thái hoạt động Backend
+  5. Route kiểm tra kết nối database (/test-db)
+  6. Authentication Routes (/api/auth)
+  7. Products Routes (/api/products)
+  8. Categories Routes (/api/categories)
+  9. Users Routes (/api/users)
+  10. Contacts / Inquiries Routes (/api/contacts)
+  11. Orders Routes (/api/orders)
+  12. Checkout Routes (/api/checkout)
+  13. Search Logs Routes (/api/search)
+  14. Reviews Routes (/api/reviews)
+  15. Vouchers Routes (/api/vouchers)
+  16. Endpoint nhận log từ Client (/api/logs)
+  17. Endpoint lấy ảnh Hero Cloudinary (/api/hero-images)
+  18. Hàm tự động seed danh mục mặc định
+  19. Khởi chạy Server (Kết nối MongoDB trước khi chạy)
+*/
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const chalk = require("chalk");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-const connectDB = require("./config/db"); // Trỏ đúng đến file db.js trong thư mục config
+const connectDB = require("./config/db");
 const logger = require("./utils/logger");
 const User = require("./models/User");
 const authRoutes = require("./routes/authRoutes");
@@ -134,7 +162,7 @@ app.use("/api/reviews", reviewRoutes);
 // 15. Định nghĩa API Vouchers
 app.use("/api/vouchers", voucherRoutes);
 
-// Endpoint nhận log từ Client và in ra server log
+// 16. Endpoint nhận log từ Client và in ra server log
 app.post("/api/logs", (req, res) => {
   const { level, message, details } = req.body;
   
@@ -148,7 +176,7 @@ app.post("/api/logs", (req, res) => {
   return res.status(200).json({ success: true });
 });
 
-// Endpoint GET /api/hero-images truy xuất ảnh từ thư mục wallpaper-slideshow-for-homePage trên Cloudinary
+// 17. Endpoint GET /api/hero-images truy xuất ảnh từ thư mục wallpaper-slideshow-for-homePage trên Cloudinary
 app.get("/api/hero-images", async (req, res) => {
   const fallbackImages = [
     'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=1200&q=80',
@@ -184,22 +212,7 @@ app.get("/api/hero-images", async (req, res) => {
   }
 });
 
-// Route 2: Nhận email đăng ký nhận tin từ Homepage
-app.post("/api/subscribe", (req, res) => {
-  const { email } = req.body;
-  logger.info(`[NEWSLETTER] Nhận email đăng ký từ Frontend: ${email}`);
-  
-  if (!email) {
-    return res.status(400).json({ success: false, message: "Email không được để trống!" });
-  }
-  
-  res.status(200).json({ 
-    success: true, 
-    message: "Đăng ký thành công! Email đã được ghi nhận trên backend." 
-  });
-});
-
-// Hàm tự động seed danh mục mặc định nếu trống
+// 18. Hàm tự động seed danh mục mặc định nếu trống
 async function seedDefaultCategories() {
   try {
     const count = await Category.countDocuments();
@@ -223,7 +236,7 @@ async function seedDefaultCategories() {
   }
 }
 
-// 7. Khởi chạy Server (Kết nối MongoDB trước khi chạy)
+// 19. Khởi chạy Server (Kết nối MongoDB trước khi chạy)
 connectDB().then(async (conn) => {
   if (conn) {
     await seedDefaultCategories();
