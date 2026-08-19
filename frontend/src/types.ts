@@ -2,6 +2,10 @@ export type TabType = 'home' | 'brand' | 'products' | 'news' | 'contact' | 'chec
 
 export interface Product {
   id: string;
+  /*
+  src/App.tsx(156,86): error TS2339: Property '_id' does not exist on type 'Product'.
+  */
+  _id?: string; // ? là Optional
   name: string;
   price: number;
   image: string;
