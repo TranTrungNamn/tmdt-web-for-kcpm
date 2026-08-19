@@ -282,8 +282,9 @@ connectDB().then(async (conn) => {
       logger.error("[ENV] CLOUDINARY: Thiếu CLOUDINARY_CLOUD_NAME, API_KEY hoặc API_SECRET!");
     }
 
-    if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REDIRECT_URI) {
-      logger.info(`[ENV] GOOGLE OAUTH2: Đã cấu hình. Client ID: ${process.env.GOOGLE_CLIENT_ID.substring(0, 15)}...`);
+    const { oauthConfig } = require("./config/oauth");
+    if (oauthConfig.google.clientId && oauthConfig.google.clientSecret && oauthConfig.google.redirectUri) {
+      logger.info(`[ENV] GOOGLE OAUTH2: Đã cấu hình. Callback: ${oauthConfig.google.redirectUri}`);
     } else {
       logger.warn("[ENV] GOOGLE OAUTH2: Chưa cấu hình đầy đủ (Đăng nhập bằng Google sẽ không hoạt động)");
     }
