@@ -57,19 +57,25 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:3000",
   "http://localhost:5000",
-  "http://localhost:5173"
+  "http://localhost:5173",
 ].filter(Boolean);
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server)
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
-      return callback(null, true);
-    }
-    return callback(null, true); // Chấp nhận tất cả origin để tránh lỗi CORS trên Render
-  },
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        process.env.NODE_ENV !== "production"
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true); // Chấp nhận tất cả origin để tránh lỗi CORS trên Render
+    },
+    credentials: true,
+  }),
+);
 
 // 2. Cấu hình đọc dữ liệu JSON & URL-encoded & Cookies
 app.use(express.json());
@@ -97,7 +103,7 @@ app.use(
       statusColor(status),
       chalk.gray(`${tokens["response-time"](req, res)} ms`),
     ].join(" ");
-  })
+  }),
 );
 
 // 4. Route mặc định kiểm tra trạng thái hoạt động của Backend
@@ -165,10 +171,10 @@ app.use("/api/vouchers", voucherRoutes);
 // 16. Endpoint nhận log từ Client và in ra server log
 app.post("/api/logs", (req, res) => {
   const { level, message, details } = req.body;
-  
-  if (level === 'error') {
+
+  if (level === "error") {
     logger.error(`[CLIENT ERROR] ${message}`, details || {});
-  } else if (level === 'warn') {
+  } else if (level === "warn") {
     logger.warn(`[CLIENT WARN] ${message}`, details || {});
   } else {
     logger.info(`[CLIENT LOG] ${message}`, details || {});
@@ -179,35 +185,43 @@ app.post("/api/logs", (req, res) => {
 // 17. Endpoint GET /api/hero-images truy xuất ảnh từ thư mục wallpaper-slideshow-for-homePage trên Cloudinary
 app.get("/api/hero-images", async (req, res) => {
   const fallbackImages = [
-    'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=80'
+    "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=80",
   ];
 
   try {
     const cloudinary = require("cloudinary").v2;
     // Kiểm tra cấu hình Cloudinary trước khi gọi
     if (!cloudinary.config().cloud_name) {
-      logger.warn("[CLOUDINARY] Chưa được cấu hình! Trả về danh sách ảnh dự phòng.");
+      logger.warn(
+        "[CLOUDINARY] Chưa được cấu hình! Trả về danh sách ảnh dự phòng.",
+      );
       return res.status(200).json(fallbackImages);
     }
 
     const result = await cloudinary.search
       .expression("folder:wallpaper-slideshow-for-homePage")
       .execute();
-    
+
     if (result && result.resources && result.resources.length > 0) {
-      const urls = result.resources.map(r => r.secure_url);
-      logger.info(`[CLOUDINARY] Lấy thành công ${urls.length} ảnh từ folder 'wallpaper-slideshow-for-homePage'`);
+      const urls = result.resources.map((r) => r.secure_url);
+      logger.info(
+        `[CLOUDINARY] Lấy thành công ${urls.length} ảnh từ folder 'wallpaper-slideshow-for-homePage'`,
+      );
       return res.status(200).json(urls);
     } else {
-      logger.info("[CLOUDINARY] Thư mục 'wallpaper-slideshow-for-homePage' trống hoặc không tìm thấy ảnh. Sử dụng ảnh dự phòng.");
+      logger.info(
+        "[CLOUDINARY] Thư mục 'wallpaper-slideshow-for-homePage' trống hoặc không tìm thấy ảnh. Sử dụng ảnh dự phòng.",
+      );
       return res.status(200).json(fallbackImages);
     }
   } catch (error) {
-    logger.error("Lỗi khi lấy danh sách ảnh từ Cloudinary:", { error: error.message });
+    logger.error("Lỗi khi lấy danh sách ảnh từ Cloudinary:", {
+      error: error.message,
+    });
     return res.status(200).json(fallbackImages);
   }
 });
@@ -224,7 +238,7 @@ async function seedDefaultCategories() {
         { name: "Âm thanh" },
         { name: "Bàn phím" },
         { name: "Combo" },
-        { name: "Phụ kiện" }
+        { name: "Phụ kiện" },
       ];
       await Category.insertMany(defaultCategories);
       logger.info("[SEED] Đã tự động chèn các danh mục mặc định vào database!");
@@ -241,18 +255,24 @@ connectDB().then(async (conn) => {
   if (conn) {
     await seedDefaultCategories();
   } else {
-    logger.warn("[DATABASE] Không có kết nối Database, bỏ qua seed danh mục mặc định.");
+    logger.warn(
+      "[DATABASE] Không có kết nối Database, bỏ qua seed danh mục mặc định.",
+    );
   }
 
   app.listen(PORT, () => {
     logger.info(`[SERVER] Server đang chạy tại http://localhost:${PORT}`);
     if (conn) {
       logger.info(`[DATABASE] Máy chủ Database: ${mongoose.connection.host}`);
-      logger.info(`[DATABASE] Tên Database đang sử dụng: ${mongoose.connection.name}`);
+      logger.info(
+        `[DATABASE] Tên Database đang sử dụng: ${mongoose.connection.name}`,
+      );
     } else {
       logger.error(`[DATABASE] Kết nối Database thất bại hoặc chưa sẵn sàng!`);
     }
-    logger.info(`[DATABASE] Trạng thái kết nối Mongoose: ${mongoose.connection.readyState}`);
+    logger.info(
+      `[DATABASE] Trạng thái kết nối Mongoose: ${mongoose.connection.readyState}`,
+    );
 
     // Báo cáo cấu hình môi trường (.env)
     if (process.env.MONGODB_URI) {
@@ -263,7 +283,9 @@ connectDB().then(async (conn) => {
           hostInfo = urlParts[urlParts.length - 1].split("?")[0];
         }
       } catch (e) {}
-      logger.info(`[ENV] MONGODB_URI: ${hostInfo} (Đã ẩn thông tin đăng nhập & mật khẩu)`);
+      logger.info(
+        `[ENV] MONGODB_URI: ${hostInfo} (Đã ẩn thông tin đăng nhập & mật khẩu)`,
+      );
     } else {
       logger.error("[ENV] MONGODB_URI: CHƯA ĐỊNH NGHĨA hoặc trống!");
     }
@@ -276,23 +298,67 @@ connectDB().then(async (conn) => {
 
     const cloudinary = require("cloudinary").v2;
     const cloudConfig = cloudinary.config();
-    if (cloudConfig.cloud_name && cloudConfig.api_key && cloudConfig.api_secret) {
-      logger.info(`[ENV] CLOUDINARY: Đã kết nối với Cloud: ${cloudConfig.cloud_name}`);
+    if (
+      cloudConfig.cloud_name &&
+      cloudConfig.api_key &&
+      cloudConfig.api_secret
+    ) {
+      logger.info(
+        `[ENV] CLOUDINARY: Đã kết nối với Cloud: ${cloudConfig.cloud_name}`,
+      );
     } else {
-      logger.error("[ENV] CLOUDINARY: Thiếu CLOUDINARY_CLOUD_NAME, API_KEY hoặc API_SECRET!");
+      logger.error(
+        "[ENV] CLOUDINARY: Thiếu CLOUDINARY_CLOUD_NAME, API_KEY hoặc API_SECRET!",
+      );
     }
 
     const { oauthConfig } = require("./config/oauth");
-    if (oauthConfig.google.clientId && oauthConfig.google.clientSecret && oauthConfig.google.redirectUri) {
-      logger.info(`[ENV] GOOGLE OAUTH2: Đã cấu hình. Callback: ${oauthConfig.google.redirectUri}`);
+    if (
+      oauthConfig.google.clientId &&
+      oauthConfig.google.clientSecret &&
+      oauthConfig.google.redirectUri
+    ) {
+      logger.info(
+        `[ENV] GOOGLE OAUTH2: Đã cấu hình. Callback: ${oauthConfig.google.redirectUri}`,
+      );
     } else {
-      logger.warn("[ENV] GOOGLE OAUTH2: Chưa cấu hình đầy đủ (Đăng nhập bằng Google sẽ không hoạt động)");
+      logger.warn(
+        "[ENV] GOOGLE OAUTH2: Chưa cấu hình đầy đủ (Đăng nhập bằng Google sẽ không hoạt động)",
+      );
     }
 
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      logger.info(`[ENV] SMTP EMAIL: Đã cấu hình với tài khoản ${process.env.EMAIL_USER}`);
+      logger.info(
+        `[ENV] SMTP EMAIL: Đã cấu hình với tài khoản ${process.env.EMAIL_USER}`,
+      );
     } else {
-      logger.warn("[ENV] SMTP EMAIL: Chưa cấu hình EMAIL_USER & EMAIL_PASS (Sẽ tự động in mã xác thực/đổi mật khẩu ra Terminal)");
+      logger.warn(
+        "[ENV] SMTP EMAIL: Chưa cấu hình EMAIL_USER & EMAIL_PASS (Sẽ tự động in mã xác thực/đổi mật khẩu ra Terminal)",
+      );
+    }
+
+    // Báo cáo trạng thái tính năng Test
+    const isTestRoutesActive =
+      process.env.NODE_ENV !== "production" ||
+      process.env.ENABLE_TEST_ROUTES === "true";
+    if (isTestRoutesActive) {
+      logger.info(
+        `[TEST ROUTES] ENABLE_TEST_ROUTES: ON (Đang mở các route test tại /api/auth/test/*)`,
+      );
+    } else {
+      logger.warn(
+        `[TEST ROUTES] ENABLE_TEST_ROUTES: OFF (Đã khóa 404 các route test trên Production)`,
+      );
+    }
+
+    // Báo cáo trạng thái tính năng Demo
+    const isDemoEnabled = process.env.ENABLE_DEMO_PANEL !== "false";
+    if (isDemoEnabled) {
+      logger.info(
+        `[DEMO PANEL] DEMO CONTROLS: ON (Admin Demo Panel, Demo Quick Login, Mock Payment & Vouchers)`,
+      );
+    } else {
+      logger.warn(`[DEMO PANEL] DEMO CONTROLS: OFF`);
     }
   });
 });

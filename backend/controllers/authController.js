@@ -757,6 +757,7 @@ const authController = {
     } catch (error) {
       console.error("Lỗi gửi email xác thực:", error);
       return res.status(500).json({ success: false, message: "Lỗi hệ thống khi gửi email xác thực." });
+    }
   },
 
   // 9. Xác thực email thông qua token nhận được từ liên kết
