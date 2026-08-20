@@ -763,7 +763,10 @@ const authController = {
   // TEST ONLY - Tạo Reset Token với tuổi giả lập cho Automation BVA
 setResetTokenTimeForTest: async (req, res) => {
   try {
-    if (process.env.NODE_ENV === "production") {
+    if (
+      process.env.NODE_ENV === "production" &&
+      process.env.ENABLE_TEST_ROUTES !== "true"
+    ) {
       return res.status(404).json({
         success: false,
         message: "Not found"
@@ -841,7 +844,10 @@ setResetTokenTimeForTest: async (req, res) => {
 // TEST ONLY - Tạo Verification Token với tuổi giả lập cho Automation BVA
 setVerificationTokenTimeForTest: async (req, res) => {
   try {
-    if (process.env.NODE_ENV === "production") {
+    if (
+      process.env.NODE_ENV === "production" &&
+      process.env.ENABLE_TEST_ROUTES !== "true"
+    ) {
       return res.status(404).json({
         success: false,
         message: "Not found"
