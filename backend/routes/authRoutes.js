@@ -27,16 +27,9 @@ router.put("/profile", authMiddleware, authController.updateProfile);
 // → Gửi email chứa link đặt lại mật khẩu (token hết hạn sau 15 phút)
 router.post("/forgot-password", authController.forgotPassword);
 
-// TEST ONLY - Automation BVA time boundaries
-router.post(
-  "/test/set-reset-token-time",
-  authController.setResetTokenTimeForTest
-);
-
-router.post(
-  "/test/set-verification-token-time",
-  authController.setVerificationTokenTimeForTest
-);
+// TEST ONLY - Sub-routes dành riêng cho kiểm thử / Automation BVA
+const test_authRoutes = require("./test_authRoutes");
+router.use("/test", test_authRoutes);
 
 // Route Đặt Lại Mật Khẩu: POST /api/auth/reset-password/:token
 // Params: token (lấy từ link email)
