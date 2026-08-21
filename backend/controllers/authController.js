@@ -681,6 +681,7 @@ const authController = {
             message: `Yêu cầu gửi mail xác thực quá nhanh. Vui lòng thử lại sau ${secondsLeft} giây.`
           });
         }
+        // Qua 60s → Cho phép gửi lại → 200 
       }
 
       // Tạo verification token
