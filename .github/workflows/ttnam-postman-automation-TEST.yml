@@ -7,6 +7,7 @@ jobs:
   run-postman-tests:
     name: Execute TTNam Postman Automation Collections
     runs-on: ubuntu-latest
+    # Thay đổi tên Enviroment
     environment: "Testing Env"
 
     steps:
