@@ -1,4 +1,4 @@
-name: TTNam Postman Automation TEST
+name: TTNam - Postman Core API & Cleanup Automation
 
 on:
   workflow_dispatch: # Chỉ chạy khi bạn bấm nút "Run workflow" trên GitHub
@@ -7,7 +7,6 @@ jobs:
   run-postman-tests:
     name: Execute TTNam Postman Automation Collections
     runs-on: ubuntu-latest
-    # Thay đổi tên Enviroment
     environment: "Testing Env"
 
     steps:
