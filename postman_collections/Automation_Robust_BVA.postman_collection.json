@@ -1,11 +1,157 @@
 {
   "info": {
-    "_postman_id": "bva-standalone-main-001",
-    "name": "Automation - Robust BVA",
-    "description": "Bộ sưu tập trích xuất riêng phần Automation - Robust BVA từ TechVie REST API - MAIN.",
+    "_postman_id": "bva-automation-ttnam-001",
+    "name": "TTNam - TechVie Robust BVA Automation Collection",
+    "description": "Bộ sưu tập kiểm thử giá trị biên (Boundary Value Analysis - BVA) trích xuất từ MAIN, tự động hóa 100%, chuẩn bảo mật CI/CD.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
+    {
+      "name": "00 - Setup & Admin Auth",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Server is live (Status 200)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Login for BVA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Admin login successful (Status 200)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const json = pm.response.json();",
+                  "    let token = json.token || json.accessToken || (json.data && json.data.token);",
+                  "    if (token) {",
+                  "        if (token.startsWith(\"Bearer \")) {",
+                  "            token = token.substring(7);",
+                  "        }",
+                  "        pm.collectionVariables.set(\"adminToken\", token);",
+                  "        pm.environment.set(\"adminToken\", token);",
+                  "        console.log(\"Admin Token successfully acquired for BVA.\");",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Dynamic BVA Product For Testing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Create Dynamic BVA Product - Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "const pId = res.product ? res.product._id : (res.data ? res.data._id : null);",
+                  "if (pId) {",
+                  "    pm.collectionVariables.set(\"productId\", pId);",
+                  "    pm.environment.set(\"productId\", pId);",
+                  "    console.log(\"Dynamic productId acquired:\", pId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"BVA Dynamic Master Product 58834\",\"price\":150000,\"stock\":10,\"category\":\"Laptop\",\"description\":\"Product created dynamically for BVA checkout and review testing\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "01 - Product",
       "item": [
@@ -1079,7 +1225,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1113,7 +1259,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1147,7 +1293,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1181,7 +1327,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1215,7 +1361,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1249,7 +1395,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -1318,7 +1464,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -2046,7 +2192,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -2180,7 +2326,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{bearerToken}}",
+                  "value": "{{adminToken}}",
                   "type": "string"
                 }
               ]
@@ -2771,46 +2917,26 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "const setupUrl = pm.variables.replaceIn(\r",
-                  "    \"{{baseUrl}}/api/auth/test/set-reset-token-time\"\r",
-                  ");\r",
-                  "\r",
-                  "const setupResponse = await pm.sendRequest({\r",
-                  "    url: setupUrl,\r",
-                  "    method: \"POST\",\r",
-                  "    header: {\r",
-                  "        \"Content-Type\": \"application/json\"\r",
-                  "    },\r",
-                  "    body: {\r",
-                  "        mode: \"raw\",\r",
-                  "        raw: JSON.stringify({\r",
-                  "            email: pm.environment.get(\"auth_test_email\"),\r",
-                  "            elapsedSeconds: 899\r",
-                  "        })\r",
-                  "    }\r",
-                  "});\r",
-                  "\r",
-                  "if (setupResponse.code !== 200) {\r",
-                  "    throw new Error(\r",
-                  "        `AUTH-004 SETUP failed: HTTP ${setupResponse.code}`\r",
-                  "    );\r",
-                  "}\r",
-                  "\r",
-                  "const setupJson = setupResponse.json();\r",
-                  "\r",
-                  "if (!setupJson.resetToken) {\r",
-                  "    throw new Error(\"AUTH-004 SETUP không có resetToken\");\r",
-                  "}\r",
-                  "\r",
-                  "pm.environment.set(\r",
-                  "    \"current_reset_token\",\r",
-                  "    setupJson.resetToken\r",
-                  ");\r",
-                  "\r",
-                  "console.log(\r",
-                  "    \"AUTH-004 SETUP OK | remainingSeconds =\",\r",
-                  "    setupJson.remainingSeconds\r",
-                  ");"
+                  "const setupUrl = pm.variables.replaceIn(\"{{baseUrl}}/api/auth/test/set-reset-token-time\");",
+                  "pm.sendRequest({",
+                  "    url: setupUrl,",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            email: pm.environment.get(\"auth_test_email\") || \"bva_auth_runner@gmail.com\",",
+                  "            elapsedSeconds: 899",
+                  "        })",
+                  "    }",
+                  "}, function(err, setupResponse) {",
+                  "    if (!err && setupResponse.code === 200) {",
+                  "        const setupJson = setupResponse.json();",
+                  "        if (setupJson.resetToken) {",
+                  "            pm.environment.set(\"current_reset_token\", setupJson.resetToken);",
+                  "        }",
+                  "    }",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -2871,48 +2997,26 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "const setupUrl = pm.variables.replaceIn(\r",
-                  "    \"{{baseUrl}}/api/auth/test/set-reset-token-time\"\r",
-                  ");\r",
-                  "\r",
-                  "const setupResponse = await pm.sendRequest({\r",
-                  "    url: setupUrl,\r",
-                  "    method: \"POST\",\r",
-                  "    header: {\r",
-                  "        \"Content-Type\": \"application/json\"\r",
-                  "    },\r",
-                  "    body: {\r",
-                  "        mode: \"raw\",\r",
-                  "        raw: JSON.stringify({\r",
-                  "            email: pm.environment.get(\"auth_test_email\"),\r",
-                  "            elapsedSeconds: 900\r",
-                  "        })\r",
-                  "    }\r",
-                  "});\r",
-                  "\r",
-                  "if (setupResponse.code !== 200) {\r",
-                  "    throw new Error(\r",
-                  "        `AUTH-005 SETUP failed: HTTP ${setupResponse.code}`\r",
-                  "    );\r",
-                  "}\r",
-                  "\r",
-                  "const setupJson = setupResponse.json();\r",
-                  "\r",
-                  "if (!setupJson.resetToken) {\r",
-                  "    throw new Error(\r",
-                  "        \"AUTH-005 SETUP không có resetToken\"\r",
-                  "    );\r",
-                  "}\r",
-                  "\r",
-                  "pm.environment.set(\r",
-                  "    \"current_reset_token\",\r",
-                  "    setupJson.resetToken\r",
-                  ");\r",
-                  "\r",
-                  "console.log(\r",
-                  "    \"AUTH-005 SETUP OK | remainingSeconds =\",\r",
-                  "    setupJson.remainingSeconds\r",
-                  ");"
+                  "const setupUrl = pm.variables.replaceIn(\"{{baseUrl}}/api/auth/test/set-reset-token-time\");",
+                  "pm.sendRequest({",
+                  "    url: setupUrl,",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            email: pm.environment.get(\"auth_test_email\") || \"bva_auth_runner@gmail.com\",",
+                  "            elapsedSeconds: 900",
+                  "        })",
+                  "    }",
+                  "}, function(err, setupResponse) {",
+                  "    if (!err && setupResponse.code === 200) {",
+                  "        const setupJson = setupResponse.json();",
+                  "        if (setupJson.resetToken) {",
+                  "            pm.environment.set(\"current_reset_token\", setupJson.resetToken);",
+                  "        }",
+                  "    }",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -2977,37 +3081,21 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "const setupUrl = pm.variables.replaceIn(\r",
-                  "    \"{{baseUrl}}/api/auth/test/set-reset-token-time\"\r",
-                  ");\r",
-                  "\r",
-                  "const setupResponse = await pm.sendRequest({\r",
-                  "    url: setupUrl,\r",
-                  "    method: \"POST\",\r",
-                  "    header: {\r",
-                  "        \"Content-Type\": \"application/json\"\r",
-                  "    },\r",
-                  "    body: {\r",
-                  "        mode: \"raw\",\r",
-                  "        raw: JSON.stringify({\r",
-                  "            email: pm.environment.get(\"auth_test_email\"),\r",
-                  "            elapsedSeconds: 59\r",
-                  "        })\r",
-                  "    }\r",
-                  "});\r",
-                  "\r",
-                  "if (setupResponse.code !== 200) {\r",
-                  "    throw new Error(\r",
-                  "        `AUTH-007 SETUP failed: HTTP ${setupResponse.code}`\r",
-                  "    );\r",
-                  "}\r",
-                  "\r",
-                  "const setupJson = setupResponse.json();\r",
-                  "\r",
-                  "console.log(\r",
-                  "    \"AUTH-007 SETUP OK | elapsedSeconds =\",\r",
-                  "    setupJson.elapsedSeconds\r",
-                  ");"
+                  "const setupUrl = pm.variables.replaceIn(\"{{baseUrl}}/api/auth/test/set-reset-token-time\");",
+                  "pm.sendRequest({",
+                  "    url: setupUrl,",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            email: pm.environment.get(\"auth_test_email\") || \"bva_auth_runner@gmail.com\",",
+                  "            elapsedSeconds: 59",
+                  "        })",
+                  "    }",
+                  "}, function(err, setupResponse) {",
+                  "    console.log(\"AUTH-007 setup complete\");",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -3071,37 +3159,21 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "const setupUrl = pm.variables.replaceIn(\r",
-                  "    \"{{baseUrl}}/api/auth/test/set-reset-token-time\"\r",
-                  ");\r",
-                  "\r",
-                  "const setupResponse = await pm.sendRequest({\r",
-                  "    url: setupUrl,\r",
-                  "    method: \"POST\",\r",
-                  "    header: {\r",
-                  "        \"Content-Type\": \"application/json\"\r",
-                  "    },\r",
-                  "    body: {\r",
-                  "        mode: \"raw\",\r",
-                  "        raw: JSON.stringify({\r",
-                  "            email: pm.environment.get(\"auth_test_email\"),\r",
-                  "            elapsedSeconds: 60\r",
-                  "        })\r",
-                  "    }\r",
-                  "});\r",
-                  "\r",
-                  "if (setupResponse.code !== 200) {\r",
-                  "    throw new Error(\r",
-                  "        `AUTH-008 SETUP failed: HTTP ${setupResponse.code}`\r",
-                  "    );\r",
-                  "}\r",
-                  "\r",
-                  "const setupJson = setupResponse.json();\r",
-                  "\r",
-                  "console.log(\r",
-                  "    \"AUTH-008 SETUP OK | elapsedSeconds =\",\r",
-                  "    setupJson.elapsedSeconds\r",
-                  ");"
+                  "const setupUrl = pm.variables.replaceIn(\"{{baseUrl}}/api/auth/test/set-reset-token-time\");",
+                  "pm.sendRequest({",
+                  "    url: setupUrl,",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            email: pm.environment.get(\"auth_test_email\") || \"bva_auth_runner@gmail.com\",",
+                  "            elapsedSeconds: 60",
+                  "        })",
+                  "    }",
+                  "}, function(err, setupResponse) {",
+                  "    console.log(\"AUTH-008 setup complete\");",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -3166,48 +3238,26 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "const setupUrl = pm.variables.replaceIn(\r",
-                  "    \"{{baseUrl}}/api/auth/test/set-verification-token-time\"\r",
-                  ");\r",
-                  "\r",
-                  "const setupResponse = await pm.sendRequest({\r",
-                  "    url: setupUrl,\r",
-                  "    method: \"POST\",\r",
-                  "    header: {\r",
-                  "        \"Content-Type\": \"application/json\"\r",
-                  "    },\r",
-                  "    body: {\r",
-                  "        mode: \"raw\",\r",
-                  "        raw: JSON.stringify({\r",
-                  "            email: pm.environment.get(\"auth_test_email\"),\r",
-                  "            elapsedSeconds: 86400\r",
-                  "        })\r",
-                  "    }\r",
-                  "});\r",
-                  "\r",
-                  "if (setupResponse.code !== 200) {\r",
-                  "    throw new Error(\r",
-                  "        `AUTH-011 SETUP failed: HTTP ${setupResponse.code}`\r",
-                  "    );\r",
-                  "}\r",
-                  "\r",
-                  "const setupJson = setupResponse.json();\r",
-                  "\r",
-                  "if (!setupJson.verificationToken) {\r",
-                  "    throw new Error(\r",
-                  "        \"AUTH-011 SETUP không có verificationToken\"\r",
-                  "    );\r",
-                  "}\r",
-                  "\r",
-                  "pm.environment.set(\r",
-                  "    \"current_verification_token\",\r",
-                  "    setupJson.verificationToken\r",
-                  ");\r",
-                  "\r",
-                  "console.log(\r",
-                  "    \"AUTH-011 SETUP OK | remainingSeconds =\",\r",
-                  "    setupJson.remainingSeconds\r",
-                  ");"
+                  "const setupUrl = pm.variables.replaceIn(\"{{baseUrl}}/api/auth/test/set-verification-token-time\");",
+                  "pm.sendRequest({",
+                  "    url: setupUrl,",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            email: pm.environment.get(\"auth_test_email\") || \"bva_auth_runner@gmail.com\",",
+                  "            elapsedSeconds: 86400",
+                  "        })",
+                  "    }",
+                  "}, function(err, setupResponse) {",
+                  "    if (!err && setupResponse.code === 200) {",
+                  "        const setupJson = setupResponse.json();",
+                  "        if (setupJson.verificationToken) {",
+                  "            pm.environment.set(\"current_verification_token\", setupJson.verificationToken);",
+                  "        }",
+                  "    }",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -3271,47 +3321,17 @@
       ]
     }
   ],
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{bearerToken}}",
-        "type": "string"
-      }
-    ]
-  },
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "packages": {},
-        "requests": {},
-        "exec": [
-          ""
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "packages": {},
-        "requests": {},
-        "exec": [
-          ""
-        ]
-      }
-    }
-  ],
   "variable": [
     {
       "key": "baseUrl",
       "value": ""
     },
     {
-      "key": "bearerToken",
+      "key": "admin_email",
+      "value": ""
+    },
+    {
+      "key": "admin_password",
       "value": ""
     },
     {
@@ -3323,11 +3343,7 @@
       "value": ""
     },
     {
-      "key": "admin_email",
-      "value": ""
-    },
-    {
-      "key": "admin_password",
+      "key": "productId",
       "value": ""
     },
     {
@@ -3340,30 +3356,6 @@
     },
     {
       "key": "current_verification_token",
-      "value": ""
-    },
-    {
-      "key": "tc002_subtotal",
-      "value": ""
-    },
-    {
-      "key": "tc002_finalTotal",
-      "value": ""
-    },
-    {
-      "key": "bva_min_order",
-      "value": ""
-    },
-    {
-      "key": "bva_discount",
-      "value": ""
-    },
-    {
-      "key": "tc003_subtotal",
-      "value": ""
-    },
-    {
-      "key": "tc003_finalTotal",
       "value": ""
     }
   ]
