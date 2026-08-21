@@ -7,6 +7,7 @@ jobs:
   run-postman-tests:
     name: Execute TTNam Postman Automation Collections
     runs-on: ubuntu-latest
+    environment: "Testing Env"
 
     steps:
       - name: Checkout Source Code
@@ -29,6 +30,8 @@ jobs:
         run: |
           npx newman run "postman_collections/Core_API_CI.postman_collection.json" \
             --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
+            --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
+            --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export newman-reports/TTNam_Core_API_Report.html \
             --reporter-htmlextra-title "TTNam - CI Ready Core API Test Report"
@@ -39,6 +42,8 @@ jobs:
         run: |
           npx newman run "postman_collections/Cleanup_Restore.postman_collection.json" \
             --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
+            --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
+            --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export newman-reports/TTNam_Cleanup_Report.html \
             --reporter-htmlextra-title "TTNam - Cleanup & Maintenance Report"
