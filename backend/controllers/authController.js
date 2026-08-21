@@ -7,7 +7,10 @@ const mongoose = require("mongoose");
 const sendEmail = require("../utils/sendEmail");
 const logger = require("../utils/logger");
 const { oauthConfig } = require("../config/oauth");
-const { exchangeCodeForTokens, fetchGoogleUserProfile } = require("../services/oauthService");
+const {
+  exchangeCodeForTokens,
+  fetchGoogleUserProfile,
+} = require("../services/oauthService");
 
 const authController = {
   getGoogleAuthUrl: async (req, res) => {
@@ -17,7 +20,7 @@ const authController = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 5 * 60 * 1000
+        maxAge: 5 * 60 * 1000,
       });
       const { clientId, redirectUri, authUrl, scopes } = oauthConfig.google;
       const params = new URLSearchParams({
@@ -27,12 +30,19 @@ const authController = {
         scope: scopes.join(" "),
         state: state,
         access_type: "offline",
-        prompt: "consent"
+        prompt: "consent",
       });
-      return res.status(200).json({ success: true, url: `${authUrl}?${params.toString()}` });
+      return res
+        .status(200)
+        .json({ success: true, url: `${authUrl}?${params.toString()}` });
     } catch (error) {
-      logger.error("Error generating Google Auth URL:", { error: error.message });
-      return res.status(500).json({ success: false, message: "Không thể tạo URL đăng nhập bằng Google." });
+      logger.error("Error generating Google Auth URL:", {
+        error: error.message,
+      });
+      return res.status(500).json({
+        success: false,
+        message: "Không thể tạo URL đăng nhập bằng Google.",
+      });
     }
   },
 
@@ -45,7 +55,9 @@ const authController = {
       }
 
       if (!code) {
-        return res.status(400).json({ success: false, message: "Thiếu mã xác thực (code)." });
+        return res
+          .status(400)
+          .json({ success: false, message: "Thiếu mã xác thực (code)." });
       }
 
       const tokens = await exchangeCodeForTokens(code);
@@ -55,11 +67,17 @@ const authController = {
       let user = await User.findByEmail(email.toLowerCase());
       if (user) {
         if (user.status === "blocked") {
-          return res.status(403).json({ success: false, message: "Tài khoản của bạn đã bị khóa." });
+          return res
+            .status(403)
+            .json({ success: false, message: "Tài khoản của bạn đã bị khóa." });
         }
         if (!user.google_id) {
           // Tự động liên kết Google ID và cập nhật nhà cung cấp
-          user = await User.updateById(user.id, { google_id: googleId, auth_provider: "google", isEmailVerified: true });
+          user = await User.updateById(user.id, {
+            google_id: googleId,
+            auth_provider: "google",
+            isEmailVerified: true,
+          });
         }
       } else {
         user = await User.create({
@@ -71,7 +89,7 @@ const authController = {
           role: "user",
           vipStatus: "Normal",
           status: "active",
-          isEmailVerified: true
+          isEmailVerified: true,
         });
       }
 
@@ -79,34 +97,51 @@ const authController = {
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
         jwtSecret,
-        { expiresIn: "24h" }
+        { expiresIn: "24h" },
       );
 
       res.cookie("techvie_session", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 24 * 60 * 60 * 1000
+        maxAge: 24 * 60 * 60 * 1000,
       });
 
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
       return res.redirect(`${frontendUrl}/?token=Bearer ${token}`);
     } catch (error) {
       logger.error("OAuth callback error:", { error: error.message });
-      return res.status(500).json({ success: false, message: "Lỗi hệ thống khi đăng nhập Google OAuth2." });
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống khi đăng nhập Google OAuth2.",
+      });
     }
   },
 
   // 1. Đăng ký tài khoản
   register: async (req, res) => {
     try {
-      const { username, email, password } = req.body;
+      const email = req.body.email;
+      const password = req.body.password;
+      // Bản vá lỗi (PATCH) Giải quyết vấn đề va chạm 'usename' 'full_name'
+      const username =
+        req.body.username || req.body.full_name || req.body.fullName;
 
       // Validate thông tin
       if (!username || !email || !password) {
         return res.status(400).json({
           success: false,
-          message: "Vui lòng nhập đầy đủ các trường thông tin: username, email, password!",
+          message:
+            "Vui lòng nhập đầy đủ các trường thông tin: username, email, password!",
+        });
+      }
+
+      // Validate định dạng email (bắt lỗi thiếu @ hoặc domain)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          success: false,
+          message: "Email không đúng định dạng",
         });
       }
 
@@ -146,13 +181,13 @@ const authController = {
 
       // Tạo mã JWT Token tự động khi đăng ký thành công
       const token = jwt.sign(
-        { 
-          id: newUser.id, 
-          email: newUser.email, 
-          role: newUser.role || "user" 
+        {
+          id: newUser.id,
+          email: newUser.email,
+          role: newUser.role || "user",
         },
         process.env.JWT_SECRET || "techvie_jwt_secret_key_2026",
-        { expiresIn: "24h" }
+        { expiresIn: "24h" },
       );
 
       return res.status(201).json({
@@ -176,18 +211,25 @@ const authController = {
     try {
       const { email } = req.query;
       if (!email) {
-        return res.status(400).json({ success: false, message: "Thiếu email để kiểm tra!" });
+        return res
+          .status(400)
+          .json({ success: false, message: "Thiếu email để kiểm tra!" });
       }
       const existingUser = await User.findByEmail(email.toLowerCase());
       const isTaken = existingUser && existingUser.isEmailVerified;
       return res.status(200).json({
         success: true,
         exists: !!isTaken,
-        message: isTaken ? "Email này đã được sử dụng bởi tài khoản khác!" : "Email khả dụng."
+        message: isTaken
+          ? "Email này đã được sử dụng bởi tài khoản khác!"
+          : "Email khả dụng.",
       });
     } catch (error) {
       console.error("Lỗi kiểm tra email:", error);
-      return res.status(500).json({ success: false, message: "Lỗi kết nối máy chủ khi kiểm tra email." });
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi kết nối máy chủ khi kiểm tra email.",
+      });
     }
   },
 
@@ -205,12 +247,11 @@ const authController = {
       }
 
       // Kiểm tra người dùng tồn tại bằng UserModel gốc để lấy cả user đã xóa
-      const UserModel = require("../models/User").model ? require("../models/User").model("User") : require("mongoose").model("User");
+      const UserModel = require("../models/User").model
+        ? require("../models/User").model("User")
+        : require("mongoose").model("User");
       const fullUser = await UserModel.findOne({
-        $or: [
-          { email: email },
-          { username: email }
-        ]
+        $or: [{ email: email }, { username: email }],
       });
       if (!fullUser) {
         return res.status(401).json({
@@ -219,7 +260,7 @@ const authController = {
         });
       }
 
-      if (fullUser.isDeleted || fullUser.status === 'blocked') {
+      if (fullUser.isDeleted || fullUser.status === "blocked") {
         return res.status(403).json({
           success: false,
           message: "Tài khoản của bạn đã bị vô hiệu hóa hoặc khóa!",
@@ -229,7 +270,8 @@ const authController = {
       if (fullUser.auth_provider === "google") {
         return res.status(409).json({
           success: false,
-          message: "Tài khoản này được đăng ký bằng Google. Vui lòng đăng nhập bằng Google.",
+          message:
+            "Tài khoản này được đăng ký bằng Google. Vui lòng đăng nhập bằng Google.",
         });
       }
 
@@ -244,13 +286,13 @@ const authController = {
 
       // Tạo mã JWT Token
       const token = jwt.sign(
-        { 
-          id: fullUser._id.toString(), 
-          email: fullUser.email, 
-          role: fullUser.email === "admin@techvie.com" ? "admin" : "user" 
+        {
+          id: fullUser._id.toString(),
+          email: fullUser.email,
+          role: fullUser.role || "user",
         },
         process.env.JWT_SECRET || "techvie_jwt_secret_key_2026",
-        { expiresIn: "24h" }
+        { expiresIn: "24h" },
       );
 
       return res.status(200).json({
@@ -262,7 +304,7 @@ const authController = {
           username: fullUser.username,
           email: fullUser.email,
           created_at: fullUser.created_at,
-          role: fullUser.email === "admin@techvie.com" ? "admin" : "user",
+          role: fullUser.role || "user",
         },
       });
     } catch (error) {
@@ -309,7 +351,7 @@ const authController = {
       const updatedUser = await User.updateById(userId, {
         username: name,
         phone,
-        address
+        address,
       });
 
       if (!updatedUser) {
@@ -324,7 +366,7 @@ const authController = {
         message: "Cập nhật hồ sơ thành công!",
         user: {
           ...updatedUser,
-          name: updatedUser.username // Ánh xạ username thành name để khớp cấu trúc Frontend
+          name: updatedUser.username, // Ánh xạ username thành name để khớp cấu trúc Frontend
         },
       });
     } catch (error) {
@@ -364,19 +406,24 @@ const authController = {
       if (user.auth_provider === "google") {
         return res.status(409).json({
           success: false,
-          message: "Tài khoản của bạn đăng ký bằng Google. Vui lòng đăng nhập trực tiếp qua nút Đăng nhập bằng Google.",
+          message:
+            "Tài khoản của bạn đăng ký bằng Google. Vui lòng đăng nhập trực tiếp qua nút Đăng nhập bằng Google.",
         });
       }
 
       // Kiểm tra cooldown chống spam (chờ ít nhất 60 giây)
       if (user.resetPasswordToken && user.resetPasswordExpire) {
-        const timeElapsedSinceLastSent = 15 * 60 * 1000 - (new Date(user.resetPasswordExpire).getTime() - Date.now());
+        const timeElapsedSinceLastSent =
+          15 * 60 * 1000 -
+          (new Date(user.resetPasswordExpire).getTime() - Date.now());
         const cooldownMs = 60 * 1000;
         if (timeElapsedSinceLastSent < cooldownMs) {
-          const secondsLeft = Math.ceil((cooldownMs - timeElapsedSinceLastSent) / 1000);
+          const secondsLeft = Math.ceil(
+            (cooldownMs - timeElapsedSinceLastSent) / 1000,
+          );
           return res.status(429).json({
             success: false,
-            message: `Yêu cầu gửi mail đặt lại mật khẩu quá nhanh. Vui lòng thử lại sau ${secondsLeft} giây.`
+            message: `Yêu cầu gửi mail đặt lại mật khẩu quá nhanh. Vui lòng thử lại sau ${secondsLeft} giây.`,
           });
         }
       }
@@ -451,13 +498,20 @@ const authController = {
         });
       } catch (emailErr) {
         console.error("Lỗi gửi email đặt lại mật khẩu:", emailErr);
-        console.log("\n=======================================================");
-        console.log(`[DEV EMAIL FALLBACK] Reset password link for ${user.email}:`);
+        console.log(
+          "\n=======================================================",
+        );
+        console.log(
+          `[DEV EMAIL FALLBACK] Reset password link for ${user.email}:`,
+        );
         console.log(resetUrl);
-        console.log("=======================================================\n");
+        console.log(
+          "=======================================================\n",
+        );
         return res.status(200).json({
           success: true,
-          resetToken: process.env.NODE_ENV !== 'production' ? resetToken : undefined,
+          resetToken:
+            process.env.NODE_ENV !== "production" ? resetToken : undefined,
           message:
             "Yêu cầu đặt lại mật khẩu đã được xử lý (Vui lòng kiểm tra Terminal/Console của server backend để lấy link đặt lại mật khẩu!)",
         });
@@ -466,7 +520,8 @@ const authController = {
       return res.status(200).json({
         success: true,
         // Khi deploy sẽ luôn trả về undefined
-        resetToken: process.env.NODE_ENV !== 'production' ? resetToken : undefined,
+        resetToken:
+          process.env.NODE_ENV !== "production" ? resetToken : undefined,
         message:
           "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu. Vui lòng kiểm tra hộp thư!",
       });
@@ -495,8 +550,8 @@ const authController = {
   // 5. Đặt lại mật khẩu — Xác thực token và cập nhật mật khẩu mới vào DB
   resetPassword: async (req, res) => {
     try {
-      const { token } = req.params;       // Token gốc từ URL
-      const { newPassword } = req.body;   // Mật khẩu mới người dùng nhập
+      const { token } = req.params; // Token gốc từ URL
+      const { newPassword } = req.body; // Mật khẩu mới người dùng nhập
 
       if (!token) {
         return res.status(400).json({
@@ -524,7 +579,8 @@ const authController = {
       if (!user) {
         return res.status(400).json({
           success: false,
-          message: "Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn (15 phút)!",
+          message:
+            "Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn (15 phút)!",
         });
       }
 
@@ -610,9 +666,9 @@ const authController = {
   getMyDevices: async (req, res) => {
     try {
       const email = req.user.email;
-      const orders = await Order.find({ 
-        email: { $regex: new RegExp("^" + email + "$", "i") }, 
-        status_type: "success" 
+      const orders = await Order.find({
+        email: { $regex: new RegExp("^" + email + "$", "i") },
+        status_type: "success",
       }).sort({ created_at: -1 });
 
       const devices = [];
@@ -621,11 +677,15 @@ const authController = {
       for (const order of orders) {
         for (const item of order.items) {
           // Lấy thông số gốc từ collection Product để vẽ ra specs thật
-          const productDoc = await ProductModel.findOne({ id: item.product_id });
-          const specs = productDoc ? productDoc.specs : [
-            { label: "Bảo hành", value: "24 tháng" },
-            { label: "Trạng thái", value: "Chính hãng TechVie" }
-          ];
+          const productDoc = await ProductModel.findOne({
+            id: item.product_id,
+          });
+          const specs = productDoc
+            ? productDoc.specs
+            : [
+                { label: "Bảo hành", value: "24 tháng" },
+                { label: "Trạng thái", value: "Chính hãng TechVie" },
+              ];
 
           const purchaseDate = new Date(order.created_at);
           const warrantyDate = new Date(purchaseDate);
@@ -638,21 +698,21 @@ const authController = {
             purchaseDate: purchaseDate.toLocaleDateString("vi-VN"),
             warrantyDate: warrantyDate.toLocaleDateString("vi-VN"),
             specs: specs,
-            image: productDoc ? productDoc.image : null
+            image: productDoc ? productDoc.image : null,
           });
         }
       }
 
       return res.status(200).json({
         success: true,
-        devices
+        devices,
       });
     } catch (error) {
       console.error("Lỗi lấy danh sách thiết bị cá nhân:", error);
       return res.status(500).json({
         success: false,
         message: "Lỗi kết nối khi tải danh sách thiết bị.",
-        error: error.message
+        error: error.message,
       });
     }
   },
@@ -663,30 +723,41 @@ const authController = {
       const userId = req.user.id;
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ success: false, message: "Không tìm thấy người dùng!" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Không tìm thấy người dùng!" });
       }
 
       if (user.isEmailVerified) {
-        return res.status(400).json({ success: false, message: "Email này đã được xác thực rồi!" });
+        return res
+          .status(400)
+          .json({ success: false, message: "Email này đã được xác thực rồi!" });
       }
 
       // Kiểm tra cooldown chống spam (chờ ít nhất 60 giây)
       if (user.emailVerificationToken && user.emailVerificationExpire) {
-        const timeElapsedSinceLastSent = 24 * 60 * 60 * 1000 - (new Date(user.emailVerificationExpire).getTime() - Date.now());
+        const timeElapsedSinceLastSent =
+          24 * 60 * 60 * 1000 -
+          (new Date(user.emailVerificationExpire).getTime() - Date.now());
         const cooldownMs = 60 * 1000;
         if (timeElapsedSinceLastSent < cooldownMs) {
-          const secondsLeft = Math.ceil((cooldownMs - timeElapsedSinceLastSent) / 1000);
+          const secondsLeft = Math.ceil(
+            (cooldownMs - timeElapsedSinceLastSent) / 1000,
+          );
           return res.status(429).json({
             success: false,
-            message: `Yêu cầu gửi mail xác thực quá nhanh. Vui lòng thử lại sau ${secondsLeft} giây.`
+            message: `Yêu cầu gửi mail xác thực quá nhanh. Vui lòng thử lại sau ${secondsLeft} giây.`,
           });
         }
-        // Qua 60s → Cho phép gửi lại → 200 
+        // Qua 60s → Cho phép gửi lại → 200
       }
 
       // Tạo verification token
       const verificationToken = crypto.randomBytes(32).toString("hex");
-      const hashedToken = crypto.createHash("sha256").update(verificationToken).digest("hex");
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(verificationToken)
+        .digest("hex");
       const expireTime = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 giờ hiệu lực
 
       await User.updateById(userId, {
@@ -744,20 +815,34 @@ const authController = {
         });
       } catch (emailErr) {
         console.error("Lỗi gửi email xác thực:", emailErr);
-        console.log("\n=======================================================");
-        console.log(`[DEV EMAIL FALLBACK] Email verification link for ${user.email}:`);
+        console.log(
+          "\n=======================================================",
+        );
+        console.log(
+          `[DEV EMAIL FALLBACK] Email verification link for ${user.email}:`,
+        );
         console.log(verifyUrl);
-        console.log("=======================================================\n");
+        console.log(
+          "=======================================================\n",
+        );
         return res.status(200).json({
           success: true,
-          message: "Email xác thực đã được gửi (Vui lòng kiểm tra Terminal/Console của server backend để lấy link xác thực!)"
+          message:
+            "Email xác thực đã được gửi (Vui lòng kiểm tra Terminal/Console của server backend để lấy link xác thực!)",
         });
       }
 
-      return res.status(200).json({ success: true, message: "Email xác thực đã được gửi, vui lòng kiểm tra hộp thư của bạn!" });
+      return res.status(200).json({
+        success: true,
+        message:
+          "Email xác thực đã được gửi, vui lòng kiểm tra hộp thư của bạn!",
+      });
     } catch (error) {
       console.error("Lỗi gửi email xác thực:", error);
-      return res.status(500).json({ success: false, message: "Lỗi hệ thống khi gửi email xác thực." });
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống khi gửi email xác thực.",
+      });
     }
   },
 
@@ -769,11 +854,16 @@ const authController = {
         return res.status(400).send("Thiếu token xác thực.");
       }
 
-      const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
       const user = await User.findByVerificationToken(hashedToken);
 
       if (!user) {
-        return res.status(400).send("Liên kết xác thực không hợp lệ hoặc đã hết hạn.");
+        return res
+          .status(400)
+          .send("Liên kết xác thực không hợp lệ hoặc đã hết hạn.");
       }
 
       await User.updateById(user.id, {

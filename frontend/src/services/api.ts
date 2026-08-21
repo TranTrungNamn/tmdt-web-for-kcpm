@@ -477,7 +477,7 @@ export async function adminCreateUser(userData: any, token: string): Promise<{ s
 }
 
 // Thay đổi phân quyền thành viên (Chỉ dành cho Admin)
-export async function toggleUserRole(id: string, token: string): Promise<{ success: boolean; message: string; user?: any }> {
+export async function toggleUserRole(id: string, token: string, newRole?: string): Promise<{ success: boolean; message: string; user?: any }> {
   try {
     const cleanToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
     const response = await fetch(`${API_BASE_URL}/api/users/${id}/role`, {
@@ -486,6 +486,7 @@ export async function toggleUserRole(id: string, token: string): Promise<{ succe
         'Authorization': cleanToken,
         'Content-Type': 'application/json',
       },
+      body: newRole ? JSON.stringify({ role: newRole }) : undefined,
     });
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));

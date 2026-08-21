@@ -24,12 +24,23 @@ const userController = {
   // 2. Admin cấp tài khoản thành viên mới
   createUser: async (req, res) => {
     try {
-      const { username, email, phone, role, vipStatus } = req.body;
+      const email = req.body.email;
+      const phone = req.body.phone;
+      const role = req.body.role;
+      const vipStatus = req.body.vipStatus;
+      const username = req.body.username || req.body.full_name || req.body.fullName;
 
       if (!username || !email) {
         return res.status(400).json({
           success: false,
           message: "Vui lòng nhập đầy đủ các trường bắt buộc: Họ và Tên, Email!",
+        });
+      }
+
+      if (role && !["user", "employee", "admin"].includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: "Quyền truy cập không hợp lệ!",
         });
       }
 
@@ -77,6 +88,15 @@ const userController = {
   toggleRole: async (req, res) => {
     try {
       const { id } = req.params;
+
+      // Không cho phép tự hạ quyền chính mình
+      if (req.user && req.user.id === id) {
+        return res.status(403).json({
+          success: false,
+          message: "Bạn không thể tự thay đổi phân quyền của chính mình!",
+        });
+      }
+
       const user = await User.findById(id);
 
       if (!user) {
@@ -86,20 +106,28 @@ const userController = {
         });
       }
 
-      // Ngăn chặn đổi quyền của tài khoản Admin chính
-      if (user.email === "admin@techvie.com") {
-        return res.status(403).json({
+      let newRole = req.body.role;
+      if (!newRole) {
+        // Fallback tương thích với FE cũ (toggle 2 trạng thái)
+        newRole = user.role === "admin" ? "user" : "admin";
+      }
+
+      if (!["user", "employee", "admin"].includes(newRole)) {
+        return res.status(400).json({
           success: false,
-          message: "Không thể thay đổi phân quyền của tài khoản quản trị chính!",
+          message: "Quyền truy cập không hợp lệ!",
         });
       }
 
-      const newRole = user.role === "admin" ? "user" : "admin";
       const updatedUser = await User.updateById(id, { role: newRole });
+
+      let roleName = "Standard User";
+      if (newRole === "admin") roleName = "Administrator";
+      if (newRole === "employee") roleName = "Employee";
 
       return res.status(200).json({
         success: true,
-        message: `Thay đổi phân quyền thành ${newRole === "admin" ? "Administrator" : "Standard User"} thành công!`,
+        message: `Thay đổi phân quyền thành ${roleName} thành công!`,
         user: updatedUser,
       });
     } catch (error) {
@@ -165,13 +193,6 @@ const userController = {
         });
       }
 
-      if (user.email === "admin@techvie.com") {
-        return res.status(403).json({
-          success: false,
-          message: "Không thể khóa tài khoản quản trị chính!",
-        });
-      }
-
       const newStatus = user.status === "active" ? "blocked" : "active";
       const updatedUser = await User.updateById(id, { status: newStatus });
 
@@ -209,13 +230,6 @@ const userController = {
         return res.status(404).json({
           success: false,
           message: "Không tìm thấy thành viên!",
-        });
-      }
-
-      if (user.email === "admin@techvie.com") {
-        return res.status(403).json({
-          success: false,
-          message: "Không thể xóa tài khoản quản trị chính!",
         });
       }
 

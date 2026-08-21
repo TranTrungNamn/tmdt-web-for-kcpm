@@ -6,7 +6,7 @@ interface User {
   name: string;
   email: string;
   phone: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'employee' | 'admin';
   vipStatus: 'Normal' | 'Premium';
   status: 'active' | 'blocked';
   joinedDate: string;
@@ -15,7 +15,7 @@ interface User {
 interface UserManagerProps {
   systemUsers: User[];
   onAddUser: (user: User) => void;
-  onToggleUserRole: (id: string) => void;
+  onToggleUserRole: (id: string, newRole?: string) => void;
   onToggleUserVip: (id: string) => void;
   onToggleUserStatus: (id: string) => void;
   onDeleteUser: (id: string) => void;
@@ -40,7 +40,7 @@ export default function UserManager({
   const [newUsrName, setNewUsrName] = useState('');
   const [newUsrEmail, setNewUsrEmail] = useState('');
   const [newUsrPhone, setNewUsrPhone] = useState('');
-  const [newUsrRole, setNewUsrRole] = useState<'user' | 'admin'>('user');
+  const [newUsrRole, setNewUsrRole] = useState<'user' | 'employee' | 'admin'>('user');
   const [newUsrVip, setNewUsrVip] = useState<'Normal' | 'Premium'>('Normal');
 
   // Custom Dropdown States & Refs
@@ -197,18 +197,27 @@ export default function UserManager({
                     <td className="py-5 px-6 text-left">
                       <button
                         type="button"
-                        onClick={() => onToggleUserRole(usr.id)}
+                        onClick={() => {
+                          let nextRole: 'user' | 'employee' | 'admin' = 'admin';
+                          if (usr.role === 'admin') nextRole = 'user';
+                          else if (usr.role === 'user') nextRole = 'employee';
+                          onToggleUserRole(usr.id, nextRole);
+                        }}
                         className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all duration-300 hover:scale-95 active:scale-90 cursor-pointer ${
                           usr.role === 'admin'
                             ? d
                               ? 'bg-white! text-black hover:bg-gray-100! border-transparent font-black shadow-sm'
                               : 'bg-indigo-50 text-indigo-700 border border-indigo-100/60 font-black shadow-sm'
+                            : usr.role === 'employee'
+                            ? d
+                              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : d
                               ? 'bg-[#21262d] text-gray-300 hover:bg-[#30363d] hover:text-white border border-transparent'
                               : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800'
                         }`}
                       >
-                        {usr.role === 'admin' ? 'Administrator' : 'Standard User'}
+                        {usr.role === 'admin' ? 'Administrator' : usr.role === 'employee' ? 'Employee' : 'Standard User'}
                       </button>
                     </td>
 
@@ -400,7 +409,7 @@ export default function UserManager({
                         {newUsrRole === 'admin' ? <Shield className="w-3.5 h-3.5" /> : <UserIcon className="w-3.5 h-3.5" />}
                       </span>
                       <span>
-                        {newUsrRole === 'admin' ? 'Administrator' : 'Standard User'}
+                        {newUsrRole === 'admin' ? 'Administrator' : newUsrRole === 'employee' ? 'Employee' : 'Standard User'}
                       </span>
                     </div>
                     <ChevronDown size={14} className={`text-gray-400 transition-transform ${isRoleDropdownOpen ? 'rotate-180 text-black' : ''}`} />
@@ -436,6 +445,18 @@ export default function UserManager({
                         >
                           <span>Administrator</span>
                           {newUsrRole === 'admin' && <Check size={12} />}
+                        </li>
+                        <li
+                          onClick={() => { setNewUsrRole('employee'); setIsRoleDropdownOpen(false); }}
+                          className={`flex items-center justify-between px-3 py-2 cursor-pointer transition-colors mx-1.5 rounded-xl
+                            ${newUsrRole === 'employee'
+                              ? d ? 'bg-[#21262d] text-white font-black' : 'bg-slate-150 text-black font-black'
+                              : d ? 'text-gray-350 hover:bg-[#21262d]' : 'text-gray-600 hover:bg-slate-50'
+                            }
+                          `}
+                        >
+                          <span>Employee</span>
+                          {newUsrRole === 'employee' && <Check size={12} />}
                         </li>
                       </ul>
                     </div>
