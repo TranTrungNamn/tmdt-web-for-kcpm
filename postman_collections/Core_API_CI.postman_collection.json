@@ -4866,11 +4866,11 @@
     },
     {
       "key": "admin_email",
-      "value": "admin@techvie.com"
+      "value": ""
     },
     {
       "key": "admin_password",
-      "value": "admin123"
+      "value": ""
     },
     {
       "key": "userToken",
@@ -4894,7 +4894,7 @@
     },
     {
       "key": "baseUrl",
-      "value": "https://techvie-backend.onrender.com"
+      "value": ""
     }
   ]
 }

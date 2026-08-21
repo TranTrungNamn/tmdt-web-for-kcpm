@@ -785,15 +785,15 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://techvie-backend.onrender.com"
+      "value": ""
     },
     {
       "key": "admin_email",
-      "value": "admin@techvie.com"
+      "value": ""
     },
     {
       "key": "admin_password",
-      "value": "admin123"
+      "value": ""
     },
     {
       "key": "adminToken",
