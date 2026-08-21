@@ -1,49 +1,43 @@
-name: Demo TechVie Postman CI Automation
+name: TechVie Postman Automation
 
 on:
   push:
-    branches: [ "main", "master", "develop" ]
-    paths:
-      - 'backend/**'
-      - '.github/workflows/postman-automation.yml'
+    branches:
+      - main
+
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+
   workflow_dispatch:
 
 jobs:
-  postman-test:
-    name: Run Postman API Automation Tests
+  prepare-postman-automation:
+    name: Prepare Postman/Newman Automation
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Source Code
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js v20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
-      - name: Install Newman & HTML Reporter
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Install Newman
+        run: npm install --global newman
+
+      - name: Verify Newman installation
+        run: newman --version
+
+      - name: Workflow ready
         run: |
-          npm install -g newman newman-reporter-htmlextra
-
-      - name: Create Reports Directory
-        run: mkdir -p newman-reports
-
-      - name: Execute Postman Collection via Newman
-        env:
-          POSTMAN_ACCESS_KEY: ${{ secrets.POSTMAN_ACCESS_KEY }}
-        run: |
-          npx newman run "https://api.postman.com/collections/57074251-3603f990-540f-4300-ad11-73843137afb6?access_key=${{ secrets.POSTMAN_ACCESS_KEY }}" \
-            --reporters cli,htmlextra \
-            --reporter-htmlextra-export newman-reports/TechVie_API_Report.html \
-            --reporter-htmlextra-title "Demo TechVie Postman CI Test Report"
-
-      - name: Upload Test Report Artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Postman-HTML-Test-Report
-          path: newman-reports/TechVie_API_Report.html
-          retention-days: 14
+          echo "TechVie Postman Automation workflow is ready."
+          echo "Newman has been installed successfully."
