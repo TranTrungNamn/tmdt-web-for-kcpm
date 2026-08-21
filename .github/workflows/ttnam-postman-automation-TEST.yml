@@ -12,10 +12,10 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js v20
+      - name: Setup Node.js v22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "22"
 
       - name: Install Newman & HTML Reporter
         run: |
@@ -24,24 +24,20 @@ jobs:
       - name: Create Reports Directory
         run: mkdir -p newman-reports
 
-      # 1. Chạy Collection 1: CI Ready (Core API w BVA Tests qua Postman API Link)
+      # 1. Chạy Collection 1: CI Ready (Core API w BVA Tests qua file local)
       - name: Run CI Ready Collection
-        env:
-          POSTMAN_ACCESS_KEY: ${{ secrets.POSTMAN_ACCESS_KEY }}
         run: |
-          npx newman run "https://api.postman.com/collections/57074251-93dbebd1-a9da-4f93-9a58-0a2dada2c9d8?access_key=${{ secrets.POSTMAN_ACCESS_KEY }}" \
+          npx newman run "postman_collections/Core_API_CI.postman_collection.json" \
             --env-var "baseUrl=https://techvie-backend.onrender.com" \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export newman-reports/TTNam_Core_API_Report.html \
             --reporter-htmlextra-title "TTNam - CI Ready Core API Test Report"
 
-      # 2. Chạy Collection 2: Cleanup Collection (Xóa & dọn dẹp dữ liệu qua Postman API Link)
+      # 2. Chạy Collection 2: Cleanup Collection (Xóa & dọn dẹp dữ liệu qua file local)
       - name: Run Cleanup Collection
         if: always()
-        env:
-          POSTMAN_ACCESS_KEY: ${{ secrets.POSTMAN_ACCESS_KEY }}
         run: |
-          npx newman run "https://api.postman.com/collections/57074251-ab0f9d6b-7e48-49a0-b0a5-b6c1f441728f?access_key=${{ secrets.POSTMAN_ACCESS_KEY }}" \
+          npx newman run "postman_collections/Cleanup_Restore.postman_collection.json" \
             --env-var "baseUrl=https://techvie-backend.onrender.com" \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export newman-reports/TTNam_Cleanup_Report.html \
