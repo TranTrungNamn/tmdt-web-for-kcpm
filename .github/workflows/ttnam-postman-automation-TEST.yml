@@ -1,0 +1,57 @@
+name: TTNam Postman Automation TEST
+
+on:
+  workflow_dispatch: # Chỉ chạy khi bạn bấm nút "Run workflow" trên GitHub
+
+jobs:
+  run-postman-tests:
+    name: Execute TTNam Postman Automation Collections
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Newman & HTML Reporter
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      - name: Create Reports Directory
+        run: mkdir -p newman-reports
+
+      # 1. Chạy Collection 1: CI Ready (Core API w BVA Tests qua Postman API Link)
+      - name: Run CI Ready Collection
+        env:
+          POSTMAN_ACCESS_KEY: ${{ secrets.POSTMAN_ACCESS_KEY }}
+        run: |
+          npx newman run "https://api.postman.com/collections/57074251-93dbebd1-a9da-4f93-9a58-0a2dada2c9d8?access_key=${{ secrets.POSTMAN_ACCESS_KEY }}" \
+            --env-var "baseUrl=https://techvie-backend.onrender.com" \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export newman-reports/TTNam_Core_API_Report.html \
+            --reporter-htmlextra-title "TTNam - CI Ready Core API Test Report"
+
+      # 2. Chạy Collection 2: Cleanup Collection (Xóa & dọn dẹp dữ liệu qua Postman API Link)
+      - name: Run Cleanup Collection
+        if: always()
+        env:
+          POSTMAN_ACCESS_KEY: ${{ secrets.POSTMAN_ACCESS_KEY }}
+        run: |
+          npx newman run "https://api.postman.com/collections/57074251-ab0f9d6b-7e48-49a0-b0a5-b6c1f441728f?access_key=${{ secrets.POSTMAN_ACCESS_KEY }}" \
+            --env-var "baseUrl=https://techvie-backend.onrender.com" \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export newman-reports/TTNam_Cleanup_Report.html \
+            --reporter-htmlextra-title "TTNam - Cleanup & Maintenance Report"
+
+      # 3. Upload Test Reports Artifact
+      - name: Upload Test Reports Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TTNam-Postman-Test-Reports
+          path: newman-reports/
+          retention-days: 14
