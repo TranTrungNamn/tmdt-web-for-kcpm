@@ -29,7 +29,7 @@ jobs:
       # 1. Chạy Collection 1: CI Ready (Core API w BVA Tests qua file local)
       - name: Run CI Ready Collection
         run: |
-          npx newman run "postman_collections/Core_API_CI.postman_collection.json" \
+          npx newman run "postman_collections/TTNam/Core_API_CI.postman_collection.json" \
             --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
             --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
             --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
@@ -41,7 +41,7 @@ jobs:
       - name: Run Cleanup Collection
         if: always()
         run: |
-          npx newman run "postman_collections/Cleanup_Restore.postman_collection.json" \
+          npx newman run "postman_collections/TTNam/Cleanup_Restore.postman_collection.json" \
             --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
             --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
             --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
