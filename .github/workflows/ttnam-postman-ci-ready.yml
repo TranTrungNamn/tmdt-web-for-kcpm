@@ -1,0 +1,46 @@
+name: TTNam - Postman Core API & BVA (CI Ready)
+
+on:
+  workflow_dispatch: # Chạy thủ công khi bấm "Run workflow" trên GitHub
+
+jobs:
+  run-ttnam-ci-ready:
+    name: Execute TTNam Core API CI Ready Tests
+    runs-on: ubuntu-latest
+    environment: "Testing Env"
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Newman & HTML Reporter
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      - name: Create Reports Directory
+        run: mkdir -p newman-reports
+
+      # Chạy Collection Core API CI (có tích hợp BVA) của TTNam
+      - name: Run TTNam Core API CI Collection
+        run: |
+          npx newman run "postman_collections/TTNam/Core_API_CI.postman_collection.json" \
+            --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
+            --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
+            --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export newman-reports/TTNam_Core_API_Report.html \
+            --reporter-htmlextra-title "TTNam - Core API w BVA Test Report (CI Ready)"
+
+      # Upload Artifact báo cáo kiểm thử HTML
+      - name: Upload Test Reports Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TTNam-Core-API-CI-Reports
+          path: newman-reports/
+          retention-days: 14
