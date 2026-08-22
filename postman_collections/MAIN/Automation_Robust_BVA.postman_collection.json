@@ -6446,9 +6446,7 @@
                       "pm.test(\"TC-BVA-PROD-002 | price = 0\", function () {\r",
                       "    pm.expect(Number(json.product.price)).to.eql(0);\r",
                       "});\r",
-                      "pm.test(\"TEST PIPELINE FAILURE - TVKCPM-90\", function () {\r",
-                      "    pm.expect(1).to.eql(2);\r",
-                      "});"
+                      ""
                     ],
                     "type": "text/javascript",
                     "packages": {},
