@@ -59,13 +59,11 @@ export async function sendContactInquiry(payload: {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!response.ok) {
-      throw new Error('Gửi góp ý thất bại!');
-    }
-    return await response.json();
-  } catch (error) {
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
     console.error('Lỗi gửi thư góp ý:', error);
-    return { success: false, message: 'Có lỗi xảy ra, vui lòng thử lại sau.' };
+    return { success: false, message: error?.message || 'Có lỗi xảy ra, vui lòng thử lại sau.' };
   }
 }
 

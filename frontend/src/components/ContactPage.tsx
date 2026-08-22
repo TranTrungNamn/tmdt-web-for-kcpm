@@ -66,8 +66,12 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formName.trim() === "" || formEmail.trim() === "" || isSubmitting)
+    if (isSubmitting) return;
+
+    if (!formName.trim() || !formEmail.trim() || !formSubject.trim() || !formMessage.trim()) {
+      showError("Vui lòng điền đầy đủ họ tên, email, chủ đề và nội dung tin nhắn!");
       return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -91,22 +95,11 @@ export default function ContactPage() {
           setIsSubmitted(false);
         }, 5000);
       } else {
-        showError("Gửi thất bại: " + data.message);
+        showError(data.message || "Gửi liên hệ thất bại!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting feedback:", error);
-      // Fallback behavior
-      setIsSubmitted(true);
-      setFormName("");
-      setFormEmail("");
-      setFormSubject("");
-      setFormMessage("");
-      showSuccess(
-        "Cảm ơn bạn! Chúng tôi đã nhận được thông tin và sẽ phản hồi sớm nhất.",
-      );
-      setTimeout(() => {
-        setIsSubmitted(false);
-      }, 5000);
+      showError("Có lỗi xảy ra khi gửi liên hệ, vui lòng thử lại!");
     } finally {
       setIsSubmitting(false);
     }

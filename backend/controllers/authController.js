@@ -146,6 +146,9 @@ const authController = {
       }
 
       // Kiểm tra email trùng lặp
+      // "Nếu một email đã được đăng ký nhưng chưa xác thực (chưa verify), hệ thống sẽ tự động xóa tài khoản cũ đi và cho phép đăng ký đè lên."
+      // "Nếu một người dùng A đăng ký bằng email của tôi, nhưng họ chưa xác thực (chưa bấm link trong email). Vậy thì email đó đang bị 'chiếm dụng' vô lý. 
+      // Nếu tôi (chủ thật sự) vào đăng ký, hệ thống sẽ xóa tài khoản rác của A đi, và nhường lại email đó cho tôi đăng ký thành công."
       const existingUser = await User.findByEmail(email);
       if (existingUser) {
         if (existingUser.isEmailVerified === false) {
@@ -345,14 +348,29 @@ const authController = {
   // 3.5 Cập nhật thông tin cá nhân (Protected Route)
   updateProfile: async (req, res) => {
     try {
-      const { name, phone, address } = req.body;
+      // Chuẩn hóa --> SRS: nhận trực tiếp trường 'username'
+      const { username, name, phone, address } = req.body;
       const userId = req.user.id;
 
-      const updatedUser = await User.updateById(userId, {
-        username: name,
-        phone,
-        address,
-      });
+      if (phone) {
+        // Regex kiểm tra số điện thoại Việt Nam nới lỏng (đầu 0, 84, +84, số thứ hai là 3,5,7,8,9 và có 8 số cuối)
+        const phoneRegex = /^(0|84|\+84)(3|5|7|8|9)[0-9]{8}$/;
+        if (!phoneRegex.test(phone)) {
+          return res.status(400).json({
+            success: false,
+            message: "Số điện thoại không hợp lệ (Không đúng định dạng nhà mạng Việt Nam)!",
+          });
+        }
+      }
+
+      // Backward Comaptibility: Fallback nếu cần key 'name'
+      const newUsername = username !== undefined ? username : name;
+      const updateData = {};
+      if (newUsername !== undefined) updateData.username = newUsername;
+      if (phone !== undefined) updateData.phone = phone;
+      if (address !== undefined) updateData.address = address;
+
+      const updatedUser = await User.updateById(userId, updateData);
 
       if (!updatedUser) {
         return res.status(404).json({
@@ -411,12 +429,12 @@ const authController = {
         });
       }
 
-      // Kiểm tra cooldown chống spam (chờ ít nhất 60 giây)
+      // Kiểm tra cooldown chống spam (chờ ít nhất 10 giây)
       if (user.resetPasswordToken && user.resetPasswordExpire) {
         const timeElapsedSinceLastSent =
           15 * 60 * 1000 -
           (new Date(user.resetPasswordExpire).getTime() - Date.now());
-        const cooldownMs = 60 * 1000;
+        const cooldownMs = 10 * 1000;
         if (timeElapsedSinceLastSent < cooldownMs) {
           const secondsLeft = Math.ceil(
             (cooldownMs - timeElapsedSinceLastSent) / 1000,
@@ -734,12 +752,12 @@ const authController = {
           .json({ success: false, message: "Email này đã được xác thực rồi!" });
       }
 
-      // Kiểm tra cooldown chống spam (chờ ít nhất 60 giây)
+      // Kiểm tra cooldown chống spam (chờ ít nhất 5 giây)
       if (user.emailVerificationToken && user.emailVerificationExpire) {
         const timeElapsedSinceLastSent =
           24 * 60 * 60 * 1000 -
           (new Date(user.emailVerificationExpire).getTime() - Date.now());
-        const cooldownMs = 60 * 1000;
+        const cooldownMs = 5 * 1000;
         if (timeElapsedSinceLastSent < cooldownMs) {
           const secondsLeft = Math.ceil(
             (cooldownMs - timeElapsedSinceLastSent) / 1000,
@@ -749,7 +767,7 @@ const authController = {
             message: `Yêu cầu gửi mail xác thực quá nhanh. Vui lòng thử lại sau ${secondsLeft} giây.`,
           });
         }
-        // Qua 60s → Cho phép gửi lại → 200
+        // Qua 5s → Cho phép gửi lại → 200
       }
 
       // Tạo verification token

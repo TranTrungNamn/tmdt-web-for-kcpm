@@ -8,18 +8,27 @@ exports.createContactInquiry = async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
 
-    if (!name || !email) {
+    if (
+      !name ||
+      !name.trim() ||
+      !email ||
+      !email.trim() ||
+      !subject ||
+      !subject.trim() ||
+      !message ||
+      !message.trim()
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Họ tên và email là bắt buộc.",
+        message: "Họ tên, email, tiêu đề và nội dung liên hệ là bắt buộc.",
       });
     }
 
     const newInquiry = new Contact({
-      name,
-      email,
-      subject: subject || "Yêu cầu tư vấn thiết bị",
-      message: message || "Khách hàng đăng ký nhận tin",
+      name: name.trim(),
+      email: email.trim(),
+      subject: subject.trim(),
+      message: message.trim(),
     });
 
     await newInquiry.save();

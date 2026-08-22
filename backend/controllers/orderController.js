@@ -208,6 +208,19 @@ exports.createOrder = async (req, res) => {
     const normalizedPayment = normalizePaymentMethod(paymentMethod);
     const normalizedDelivery = normalizeDeliveryMethod(deliveryMethod);
 
+    // Kiểm tra Voucher nếu có áp dụng trong đơn hàng
+    const voucherCode = body.voucherCode || body.promoCode || body.voucher_code;
+    if (voucherCode && String(voucherCode).trim() !== "") {
+      const Voucher = require("../models/Voucher");
+      const voucherInDb = await Voucher.findOne({ code: String(voucherCode).trim().toUpperCase() });
+      if (!voucherInDb || !voucherInDb.isActive) {
+        return res.status(400).json({
+          success: false,
+          message: "Mã giảm giá không hợp lệ hoặc đã hết hạn sử dụng.",
+        });
+      }
+    }
+
     // TC-BVA-CHK-009: Kiểm tra stock khả dụng trước khi Checkout
     for (const item of cart) {
       const prod = item.product || {};
