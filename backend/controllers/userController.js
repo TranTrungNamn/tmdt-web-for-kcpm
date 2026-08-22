@@ -106,7 +106,7 @@ const userController = {
         });
       }
 
-      let newRole = req.body.role;
+      let newRole = req.body?.role;
       if (!newRole) {
         // Fallback tương thích với FE cũ (toggle 2 trạng thái)
         newRole = user.role === "admin" ? "user" : "admin";

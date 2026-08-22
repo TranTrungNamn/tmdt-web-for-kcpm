@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Product } from "../../types";
 import { 
   Boxes, 
@@ -29,6 +29,18 @@ export default function StockManager({
   const [statusFilter, setStatusFilter] = useState<"all" | "out" | "low" | "ok">("all");
   const [sortBy, setSortBy] = useState<"name" | "stock-asc" | "stock-desc">("stock-asc");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setIsSortDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Statistics
   const totalStock = products.reduce((sum, p) => sum + (p.stock ?? 0), 0);
@@ -178,19 +190,78 @@ export default function StockManager({
           {/* Sort dropdown */}
           <div className="flex items-center gap-2">
             <ArrowUpDown size={14} className={d ? "text-gray-400" : "text-gray-500"} />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className={`rounded-xl px-3 py-2.5 text-xs font-semibold outline-none border cursor-pointer ${
-                d
-                  ? "bg-[#161b22] border-[#30363d] text-white focus:border-white"
-                  : "bg-white border-gray-200 text-gray-900 focus:border-black"
-              }`}
-            >
-              <option value="stock-asc">Tồn kho: Tăng dần</option>
-              <option value="stock-desc">Tồn kho: Giảm dần</option>
-              <option value="name">Tên sản phẩm: A-Z</option>
-            </select>
+            <div className="relative" ref={sortDropdownRef}>
+              {/* Custom Dropdown Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer w-44
+                  ${
+                    d
+                      ? isSortDropdownOpen
+                        ? "bg-[#161b22] border-indigo-500 text-white shadow-sm"
+                        : "bg-[#0d1117]/60 border-[#30363d] text-white hover:border-gray-700 hover:bg-[#21262d]/50"
+                      : isSortDropdownOpen
+                        ? "bg-white border-black text-gray-905 shadow-sm"
+                        : "bg-slate-50 border-slate-200 text-gray-905 hover:border-gray-300 hover:bg-gray-50/50"
+                  }
+                `}
+              >
+                <span className="font-semibold text-xs truncate">
+                  {sortBy === "stock-asc" ? "Tồn kho: Tăng dần" : sortBy === "stock-desc" ? "Tồn kho: Giảm dần" : "Tên sản phẩm: A-Z"}
+                </span>
+                
+                {/* Arrow Icon */}
+                <svg
+                  className={`w-3.5 h-3.5 text-gray-450 transition-transform duration-300 flex-shrink-0 ${isSortDropdownOpen ? "rotate-180 text-black" : ""}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Custom Dropdown Menu */}
+              {isSortDropdownOpen && (
+                <div
+                  className={`absolute top-full right-0 z-50 w-44 mt-2 rounded-2xl shadow-xl py-2 animate-fade-in text-xs transition-all duration-350 border ${
+                    d
+                      ? "bg-[#161b22] border-[#30363d] text-white shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+                      : "bg-white border-gray-200 text-gray-900 shadow-xl"
+                  }`}
+                >
+                  <ul className="max-h-60 overflow-auto scrollbar-none space-y-1">
+                    {[
+                      { value: "stock-asc", label: "Tồn kho: Tăng dần" },
+                      { value: "stock-desc", label: "Tồn kho: Giảm dần" },
+                      { value: "name", label: "Tên sản phẩm: A-Z" },
+                    ].map((option) => (
+                      <li
+                        key={option.value}
+                        onClick={() => {
+                          setSortBy(option.value as any);
+                          setIsSortDropdownOpen(false);
+                        }}
+                        className={`flex items-center justify-between px-3 py-2.5 cursor-pointer transition-colors mx-2 rounded-xl group
+                          ${
+                            sortBy === option.value
+                              ? d
+                                ? "bg-[#21262d] text-white font-black hover:bg-white/10"
+                                : "bg-slate-100 text-black font-black hover:bg-black hover:text-white"
+                              : d
+                                ? "text-gray-350 hover:bg-[#21262d] hover:text-white font-semibold"
+                                : "text-gray-600 hover:bg-black hover:text-white font-semibold"
+                          }
+                        `}
+                      >
+                        <span>{option.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Sync Button */}

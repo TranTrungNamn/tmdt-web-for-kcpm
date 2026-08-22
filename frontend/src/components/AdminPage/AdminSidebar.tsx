@@ -216,7 +216,7 @@ export default function AdminSidebar({
               {[
                 { tab: 'categories' as const, Icon: FolderTree, label: 'Danh mục SP', count: categoriesCount },
                 { tab: 'products' as const, Icon: Package, label: 'Sản phẩm', count: productsCount },
-                { tab: 'stock' as const, Icon: Boxes, label: 'Kho hàng / Tồn', count: null },
+                { tab: 'stock' as const, Icon: Boxes, label: 'Kho hàng / Tồn kho', count: null },
                 { tab: 'orders' as const, Icon: ShoppingBag, label: 'Đơn hàng', count: ordersCount },
                 { tab: 'payments' as const, Icon: CreditCard, label: 'Thanh toán', count: null },
               ].map(({ tab, Icon, label, count }, i) => (

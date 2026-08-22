@@ -4,6 +4,7 @@ import { Plus, Edit3, Trash2, FileSpreadsheet, FileJson, RefreshCw } from "lucid
 import CsvImportExportModal from "./CsvImportExportModal";
 import JsonImportExportModal from "./JsonImportExportModal";
 import CustomAlert from "../CustomAlert";
+import Pagination from "../Pagination";
 
 interface ProductManagerProps {
   products: Product[];
@@ -30,6 +31,10 @@ export default function ProductManager({
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Custom alert state
   const [alertConfig, setAlertConfig] = useState<{
@@ -178,7 +183,11 @@ export default function ProductManager({
                   : "divide-gray-150 text-gray-700"
               }`}
             >
-              {products.map((p) => (
+              {(() => {
+                const totalPages = Math.ceil(products.length / itemsPerPage);
+                const paginatedProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+                
+                return paginatedProducts.map((p) => (
                 <tr
                   key={p.id}
                   className={`transition-colors duration-200 ${
@@ -339,11 +348,24 @@ export default function ProductManager({
                     </div>
                   </td>
                 </tr>
-              ))}
+                ));
+              })()}
             </tbody>
           </table>
         </div>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(products.length / itemsPerPage)}
+        onPageChange={setCurrentPage}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={(val) => {
+          setItemsPerPage(val);
+          setCurrentPage(1);
+        }}
+        isDarkMode={d}
+      />
 
       <CsvImportExportModal
         isOpen={isCsvModalOpen}
