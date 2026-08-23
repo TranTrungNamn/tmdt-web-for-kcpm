@@ -1,8 +1,10 @@
 name: MAIN - Postman Robust BVA Automation
 
 on:
-  workflow_dispatch: # Chạy thủ công khi bấm "Run workflow" trên GitHub
-
+  push:
+    branches:
+      - main
+  workflow_dispatch: #chạy tự động khi có commit vào main
 jobs:
   run-main-bva-tests:
     name: Execute MAIN Postman Robust BVA Automation
