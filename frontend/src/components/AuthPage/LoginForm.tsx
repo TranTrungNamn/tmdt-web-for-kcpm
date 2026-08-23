@@ -93,6 +93,7 @@ export default function LoginForm({
               defaultChecked
               className="rounded border-black/20 text-black focus:ring-0 h-4 w-4 bg-transparent cursor-pointer" 
             />
+            {/* Có thực sự hoạt động không? */}
             <span className="font-jakarta text-[12px] font-semibold text-black/60 group-hover:text-black transition-colors uppercase tracking-wider">
               Ghi nhớ tôi
             </span>

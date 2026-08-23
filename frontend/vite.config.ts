@@ -1,5 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import istanbul from 'vite-plugin-istanbul';
 import path from 'path';
 import {defineConfig, loadEnv} from 'vite';
 
@@ -8,7 +9,17 @@ export default defineConfig(({ mode }) => {
   const backendUrl = env.VITE_API_URL || 'http://localhost:5000';
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      istanbul({
+        include: 'src/*',
+        exclude: ['node_modules', 'cypress'],
+        extension: ['.ts', '.tsx', '.js', '.jsx'],
+        requireEnv: false,
+        forceBuildInstrument: true,
+      }),
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

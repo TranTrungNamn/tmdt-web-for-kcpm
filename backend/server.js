@@ -182,6 +182,14 @@ app.post("/api/logs", (req, res) => {
   return res.status(200).json({ success: true });
 });
 
+// Endpoint tắt server an toàn cho môi trường test và kết xuất Istanbul coverage
+app.post("/api/test/shutdown", (req, res) => {
+  res.status(200).json({ success: true, message: "Server shutting down for coverage report..." });
+  setTimeout(() => {
+    process.exit(0);
+  }, 500);
+});
+
 // 17. Endpoint GET /api/hero-images truy xuất ảnh từ thư mục wallpaper-slideshow-for-homePage trên Cloudinary
 app.get("/api/hero-images", async (req, res) => {
   const fallbackImages = [

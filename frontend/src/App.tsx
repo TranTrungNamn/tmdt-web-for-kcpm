@@ -52,6 +52,7 @@ function AppContent() {
   const activeTab = getActiveTab(location.pathname);
 
   const handleNavigate = (tab: any) => {
+    setIsCartOpen(false);
     if (tab === "home") {
       navigate("/");
     } else {
@@ -59,6 +60,13 @@ function AppContent() {
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // Ensure cart drawer never covers the checkout page
+  useEffect(() => {
+    if (location.pathname === "/checkout") {
+      setIsCartOpen(false);
+    }
+  }, [location.pathname]);
 
 
   const [products, setProducts] = useState<Product[]>([]);
