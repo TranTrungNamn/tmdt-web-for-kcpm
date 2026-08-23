@@ -28,7 +28,7 @@ jobs:
       # Chạy Collection Core API CI (có tích hợp BVA) của TTNam
       - name: Run TTNam Core API CI Collection
         run: |
-          npx newman run "postman_collections/TTNam/Core_API_CI.postman_collection.json" \
+          npx newman run "postman_collections/TTNam/TTNam - TechVie FULL - CoreAPI - BVA - EP - DT - ST.postman_collection.json" \
             --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
             --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
             --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \

@@ -1,12 +1,30 @@
 name: MAIN - Postman Robust BVA Automation
 
 on:
-  workflow_dispatch: # Chạy thủ công khi bấm "Run workflow" trên GitHub
+  workflow_dispatch: # Cho phép chạy thủ công khi bấm "Run workflow" trên GitHub
+  push:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+      - "postman_collections/MAIN/**"
+      - ".github/workflows/main-postman-automation.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+      - "postman_collections/MAIN/**"
+  schedule:
+    - cron: "0 17 * * *" # Chạy tự động hàng ngày lúc 00:00 (GMT+7 tức 17:00 UTC)
+  workflow_run:
+    workflows: ["Deploy Render (CD)"]
+    types:
+      - completed
 
 jobs:
   run-main-bva-tests:
     name: Execute MAIN Postman Robust BVA Automation
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     environment: "Testing Env"
 
     steps:
