@@ -1,14 +1,29 @@
 name: MAIN - Postman Robust BVA Automation
 
 on:
+  workflow_dispatch: # Cho phép chạy thủ công khi bấm "Run workflow" trên GitHub
   push:
-    branches:
-      - main
-  workflow_dispatch: #chạy tự động khi có commit vào main
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+      - "postman_collections/MAIN/**"
+      - ".github/workflows/main-postman-automation.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+      - "postman_collections/MAIN/**"
+  schedule:
+    - cron: "0 17 * * *" # Chạy tự động hàng ngày lúc 00:00 (GMT+7 tức 17:00 UTC)
+  workflow_run:
+    workflows: ["Deploy Render (CD)"]
+    types:
+      - completed
 jobs:
   run-main-bva-tests:
     name: Execute MAIN Postman Robust BVA Automation
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     environment: "Testing Env"
 
     steps:
@@ -26,6 +41,33 @@ jobs:
 
       - name: Create Reports Directory
         run: mkdir -p newman-reports
+
+      # Đánh thức (Warm up) Backend trên Render trước khi test để tránh timeout / cold start
+      - name: Warm up & Wait for Render Backend and DB Ready
+        run: |
+          echo "Checking and waking up Render Backend..."
+          BASE_URL="${{ secrets.RENDER_BACKEND_URL_LINK }}"
+          BASE_URL="${BASE_URL%/}"
+          
+          MAX_RETRIES=30
+          COUNT=0
+          
+          until [ $COUNT -ge $MAX_RETRIES ]
+          do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$BASE_URL/test-db" || true)
+            echo "Ping $BASE_URL/test-db -> HTTP $HTTP_CODE (Attempt $((COUNT+1))/$MAX_RETRIES)"
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Render Backend and Database are awake, healthy, and ready!"
+              exit 0
+            fi
+            
+            COUNT=$((COUNT+1))
+            sleep 5
+          done
+          
+          echo "Render backend failed to wake up in time ($((MAX_RETRIES*5))s)."
+          exit 1
 
       # Chạy Collection BVA của nhóm MAIN
       - name: Run MAIN Robust BVA Collection

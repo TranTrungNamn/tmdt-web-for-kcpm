@@ -22,6 +22,7 @@ import {
 import { Product } from "../../types";
 import * as XLSX from "xlsx";
 import OrderExportModal from "./OrderExportModal";
+import Pagination from "../Pagination";
 
 interface OrderManagerProps {
   orders: any[];
@@ -178,6 +179,16 @@ export default function OrderManager({
     [orderId: number]: "success" | "cancelled" | null;
   }>({});
   const [isExportJsonOpen, setIsExportJsonOpen] = useState(false);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  const totalPages = Math.ceil((orders?.length || 0) / itemsPerPage);
+  const paginatedOrders = (orders || []).slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handleExportExcel = () => {
     if (!orders || orders.length === 0) {
@@ -439,7 +450,7 @@ export default function OrderManager({
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((ord: any) => (
+          {paginatedOrders.map((ord: any) => (
             <div
               key={ord.orderId}
               className={`overflow-hidden rounded-[1.8rem] border font-sans text-xs shadow-sm ${
@@ -871,6 +882,23 @@ export default function OrderManager({
               </div>
             </div>
           ))}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pt-4 border-t border-dashed border-gray-200 dark:border-gray-800">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                isDarkMode={d}
+                itemsPerPage={itemsPerPage}
+                onItemsPerPageChange={(newLimit) => {
+                  setItemsPerPage(newLimit);
+                  setCurrentPage(1); // Reset to page 1 on limit change
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
 

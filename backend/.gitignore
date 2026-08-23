@@ -13,3 +13,7 @@ desktop.ini
 # file nạp dữ liệu [KHÔNG UPLOAD LÊN]
 scratch/
 scratch*
+
+# Coverage reports
+coverage/
+.nyc_output/

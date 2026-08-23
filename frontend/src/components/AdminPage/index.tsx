@@ -54,6 +54,7 @@ interface AdminPageProps {
   ) => Promise<{ success: boolean; message: string; user?: any }>;
   onToggleUserRole: (
     id: string,
+    newRole?: string,
   ) => Promise<{ success: boolean; message: string; user?: any }>;
   onToggleUserVip: (
     id: string,
@@ -466,8 +467,8 @@ export default function AdminPage({
     });
   };
 
-  const handleToggleUserRole = (id: string) => {
-    onToggleUserRole(id).then((res) => {
+  const handleToggleUserRole = (id: string, newRole?: string) => {
+    onToggleUserRole(id, newRole).then((res) => {
       if (res.success && res.user) {
         addLog(
           `Đã chuyển đổi quyền hạn tài khoản ${res.user.email} thành: ${res.user.role.toUpperCase()}`,

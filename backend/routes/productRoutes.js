@@ -33,8 +33,14 @@ router.delete(
   productController.deleteProduct
 );
 
-// 5. Khôi phục sản phẩm (Chỉ cho Admin)
+// 5. Khôi phục sản phẩm (Chỉ cho Admin - hỗ trợ cả PATCH và PUT)
 router.patch(
+  "/:id/restore",
+  authMiddleware,
+  authMiddleware.adminOnly,
+  productController.restoreProduct
+);
+router.put(
   "/:id/restore",
   authMiddleware,
   authMiddleware.adminOnly,

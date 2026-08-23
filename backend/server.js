@@ -362,3 +362,9 @@ connectDB().then(async (conn) => {
     }
   });
 });
+
+// Graceful shutdown để đảm bảo V8 Coverage được dump ra file trên Windows khi bấm Ctrl+C
+process.on("SIGINT", () => {
+  logger.info("\n[SERVER] Đang tắt server an toàn để lưu dữ liệu Coverage...");
+  process.exit(0);
+});

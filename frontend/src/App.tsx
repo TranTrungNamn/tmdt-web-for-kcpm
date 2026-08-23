@@ -432,9 +432,9 @@ function AppContent() {
     }
   };
 
-  const handleToggleUserRole = async (id: string) => {
+  const handleToggleUserRole = async (id: string, newRole?: string) => {
     try {
-      const res = await toggleUserRole(id, token);
+      const res = await toggleUserRole(id, token, newRole);
       if (res.success && res.user) {
         const mappedUser = {
           id: res.user.id || res.user._id,
