@@ -69,10 +69,13 @@ jobs:
           echo "Render backend failed to wake up in time ($((MAX_RETRIES*5))s)."
           exit 1
 
-      # Chạy Collection BVA của nhóm MAIN
+      # Chạy Collection BVA của nhóm MAIN (có delay để tránh quá tải Render Free)
       - name: Run MAIN Robust BVA Collection
         run: |
+          sleep 5
           npx newman run "postman_collections/MAIN/Automation_Robust_BVA.postman_collection.json" \
+            --delay-request 300 \
+            --timeout-request 15000 \
             --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
             --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
             --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
