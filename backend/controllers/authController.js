@@ -429,12 +429,12 @@ const authController = {
         });
       }
 
-      // Kiểm tra cooldown chống spam (chờ ít nhất 10 giây)
+      // Kiểm tra cooldown chống spam (chờ ít nhất 60 giây)
       if (user.resetPasswordToken && user.resetPasswordExpire) {
         const timeElapsedSinceLastSent =
           15 * 60 * 1000 -
           (new Date(user.resetPasswordExpire).getTime() - Date.now());
-        const cooldownMs = 10 * 1000;
+        const cooldownMs = 60 * 1000;
         if (timeElapsedSinceLastSent < cooldownMs) {
           const secondsLeft = Math.ceil(
             (cooldownMs - timeElapsedSinceLastSent) / 1000,
@@ -752,12 +752,16 @@ const authController = {
           .json({ success: false, message: "Email này đã được xác thực rồi!" });
       }
 
-      // Kiểm tra cooldown chống spam (chờ ít nhất 5 giây)
+      // Kiểm tra cooldown chống spam (chờ ít nhất 60 giây)
       if (user.emailVerificationToken && user.emailVerificationExpire) {
         const timeElapsedSinceLastSent =
           24 * 60 * 60 * 1000 -
           (new Date(user.emailVerificationExpire).getTime() - Date.now());
-        const cooldownMs = 5 * 1000;
+        // Đặt chuẩn về 60s 
+        // [TC-BVA-AUTH-007] Resend Forgot Password after 59 seconds
+        // [TC-BVA-AUTH-008] Resend Forgot Password after 60 seconds
+        // [TC-BVA-AUTH-009] Resend Forgot Password after 61 seconds
+        const cooldownMs = 60 * 1000;
         if (timeElapsedSinceLastSent < cooldownMs) {
           const secondsLeft = Math.ceil(
             (cooldownMs - timeElapsedSinceLastSent) / 1000,
@@ -767,7 +771,7 @@ const authController = {
             message: `Yêu cầu gửi mail xác thực quá nhanh. Vui lòng thử lại sau ${secondsLeft} giây.`,
           });
         }
-        // Qua 5s → Cho phép gửi lại → 200
+        // Qua 60s → Cho phép gửi lại → 200
       }
 
       // Tạo verification token
