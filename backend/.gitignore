@@ -16,4 +16,5 @@ scratch*
 
 # Coverage reports
 coverage/
+.coverage-tmp/
 .nyc_output/
