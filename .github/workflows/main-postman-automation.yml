@@ -1,0 +1,94 @@
+name: MAIN - Postman Robust BVA Automation
+
+on:
+  workflow_dispatch: # Cho phép chạy thủ công khi bấm "Run workflow" trên GitHub
+  push:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+      - "postman_collections/MAIN/**"
+      - ".github/workflows/main-postman-automation.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+      - "postman_collections/MAIN/**"
+  schedule:
+    - cron: "0 17 * * *" # Chạy tự động hàng ngày lúc 00:00 (GMT+7 tức 17:00 UTC)
+  workflow_run:
+    workflows: ["Deploy Render (CD)"]
+    types:
+      - completed
+jobs:
+  run-main-bva-tests:
+    name: Execute MAIN Postman Robust BVA Automation
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    environment: "Testing Env"
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Newman & HTML Reporter
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      - name: Create Reports Directory
+        run: mkdir -p newman-reports
+
+      # Đánh thức (Warm up) Backend trên Render trước khi test để tránh timeout / cold start
+      - name: Warm up & Wait for Render Backend and DB Ready
+        run: |
+          echo "Checking and waking up Render Backend..."
+          BASE_URL="${{ secrets.RENDER_BACKEND_URL_LINK }}"
+          BASE_URL="${BASE_URL%/}"
+          
+          MAX_RETRIES=30
+          COUNT=0
+          
+          until [ $COUNT -ge $MAX_RETRIES ]
+          do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$BASE_URL/test-db" || true)
+            echo "Ping $BASE_URL/test-db -> HTTP $HTTP_CODE (Attempt $((COUNT+1))/$MAX_RETRIES)"
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Render Backend and Database are awake, healthy, and ready!"
+              exit 0
+            fi
+            
+            COUNT=$((COUNT+1))
+            sleep 5
+          done
+          
+          echo "Render backend failed to wake up in time ($((MAX_RETRIES*5))s)."
+          exit 1
+
+      # Chạy Collection BVA của nhóm MAIN (có delay để tránh quá tải Render Free)
+      # --timeout-request 15000 (15s), tăng lên --timeout-request 30000 (30s) để các request có gửi mail SMTP có đủ thời gian hoàn tất.
+      - name: Run MAIN Robust BVA Collection
+        run: |
+          sleep 5
+          npx newman run "postman_collections/MAIN/Automation_Robust_BVA.postman_collection.json" \
+            --delay-request 300 \
+            --timeout-request 30000 \
+            --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
+            --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
+            --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export newman-reports/MAIN_Robust_BVA_Report.html \
+            --reporter-htmlextra-title "MAIN - Robust BVA Test Report"
+
+      # Upload Artifact báo cáo kiểm thử HTML
+      - name: Upload Test Reports Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MAIN-Postman-BVA-Reports
+          path: newman-reports/
+          retention-days: 14
