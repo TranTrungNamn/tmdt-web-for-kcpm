@@ -2916,6 +2916,35 @@
               "name": "Setup Reset Token for BVA",
               "event": [
                 {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Tạo email và user riêng cho cụm test BVA Reset Password để tránh dính Rate Limit 429",
+                      "const bvaRand = Math.floor(Math.random() * 90000) + 10000;",
+                      "const bvaEmail = `bva_reset_${bvaRand}@gmail.com`;",
+                      "pm.environment.set(\"bva_auth_email\", bvaEmail);",
+                      "",
+                      "// Đăng ký trước tài khoản này",
+                      "pm.sendRequest({",
+                      "  url: pm.environment.replaceIn(\"{{baseUrl}}/api/auth/register\"),",
+                      "  method: \"POST\",",
+                      "  header: {\"Content-Type\": \"application/json\"},",
+                      "  body: {",
+                      "    mode: \"raw\",",
+                      "    raw: JSON.stringify({",
+                      "      username: `bva_user_${bvaRand}`,",
+                      "      email: bvaEmail,",
+                      "      password: \"Pass123456\"",
+                      "    })",
+                      "  }",
+                      "}, function(err, res) {",
+                      "  if (err) console.warn(\"Error registering BVA user:\", err);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                },
+                {
                   "listen": "test",
                   "script": {
                     "exec": [
@@ -2942,7 +2971,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\"email\":\"{{test_email}}\"}"
+                  "raw": "{\"email\":\"{{bva_auth_email}}\"}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/api/auth/forgot-password",
@@ -4323,11 +4352,16 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.sendRequest({url:pm.environment.replaceIn(\"{{baseUrl}}/api/auth/forgot-password\"),method:\"POST\",header:{\"Content-Type\":\"application/json\"},body:{mode:\"raw\",raw:JSON.stringify({email:pm.environment.get(\"test_email\")})}},function(err,res){",
-                      "  if(err){ console.warn(\"Unable to obtain fresh BVA reset token\",err); return; }",
-                      "  let body={}; try{ body=res.json(); }catch(e){}",
-                      "  const token=body.resetToken || (body.parsedData && body.data.resetToken) || (body.parsedData && body.data.token);",
-                      "  if(token) pm.environment.set(\"bva_reset_token\",token);",
+                      "const setupUrl = pm.environment.replaceIn(\"{{baseUrl}}/api/auth/test/set-reset-token-time\");",
+                      "pm.sendRequest({",
+                      "  url: setupUrl,",
+                      "  method: \"POST\",",
+                      "  header: {\"Content-Type\":\"application/json\"},",
+                      "  body: { mode: \"raw\", raw: JSON.stringify({ email: pm.environment.get(\"bva_auth_email\") || pm.environment.get(\"test_email\"), elapsedSeconds: 0 }) }",
+                      "}, function(err, res){",
+                      "  if(!err && res && res.code === 200) {",
+                      "    try { const body = res.json(); if(body.resetToken) pm.environment.set(\"bva_reset_token\", body.resetToken); } catch(e){}",
+                      "  }",
                       "});"
                     ]
                   }
@@ -4387,11 +4421,16 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.sendRequest({url:pm.environment.replaceIn(\"{{baseUrl}}/api/auth/forgot-password\"),method:\"POST\",header:{\"Content-Type\":\"application/json\"},body:{mode:\"raw\",raw:JSON.stringify({email:pm.environment.get(\"test_email\")})}},function(err,res){",
-                      "  if(err){ console.warn(\"Unable to obtain fresh BVA reset token\",err); return; }",
-                      "  let body={}; try{ body=res.json(); }catch(e){}",
-                      "  const token=body.resetToken || (body.parsedData && body.data.resetToken) || (body.parsedData && body.data.token);",
-                      "  if(token) pm.environment.set(\"bva_reset_token\",token);",
+                      "const setupUrl = pm.environment.replaceIn(\"{{baseUrl}}/api/auth/test/set-reset-token-time\");",
+                      "pm.sendRequest({",
+                      "  url: setupUrl,",
+                      "  method: \"POST\",",
+                      "  header: {\"Content-Type\":\"application/json\"},",
+                      "  body: { mode: \"raw\", raw: JSON.stringify({ email: pm.environment.get(\"bva_auth_email\") || pm.environment.get(\"test_email\"), elapsedSeconds: 0 }) }",
+                      "}, function(err, res){",
+                      "  if(!err && res && res.code === 200) {",
+                      "    try { const body = res.json(); if(body.resetToken) pm.environment.set(\"bva_reset_token\", body.resetToken); } catch(e){}",
+                      "  }",
                       "});"
                     ]
                   }
@@ -4451,11 +4490,16 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.sendRequest({url:pm.environment.replaceIn(\"{{baseUrl}}/api/auth/forgot-password\"),method:\"POST\",header:{\"Content-Type\":\"application/json\"},body:{mode:\"raw\",raw:JSON.stringify({email:pm.environment.get(\"test_email\")})}},function(err,res){",
-                      "  if(err){ console.warn(\"Unable to obtain fresh BVA reset token\",err); return; }",
-                      "  let body={}; try{ body=res.json(); }catch(e){}",
-                      "  const token=body.resetToken || (body.parsedData && body.data.resetToken) || (body.parsedData && body.data.token);",
-                      "  if(token) pm.environment.set(\"bva_reset_token\",token);",
+                      "const setupUrl = pm.environment.replaceIn(\"{{baseUrl}}/api/auth/test/set-reset-token-time\");",
+                      "pm.sendRequest({",
+                      "  url: setupUrl,",
+                      "  method: \"POST\",",
+                      "  header: {\"Content-Type\":\"application/json\"},",
+                      "  body: { mode: \"raw\", raw: JSON.stringify({ email: pm.environment.get(\"bva_auth_email\") || pm.environment.get(\"test_email\"), elapsedSeconds: 899 }) }",
+                      "}, function(err, res){",
+                      "  if(!err && res && res.code === 200) {",
+                      "    try { const body = res.json(); if(body.resetToken) pm.environment.set(\"bva_reset_token\", body.resetToken); } catch(e){}",
+                      "  }",
                       "});"
                     ]
                   }
