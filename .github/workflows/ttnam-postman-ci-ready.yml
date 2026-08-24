@@ -53,12 +53,13 @@ jobs:
           exit 1
 
       # Chạy Collection Core API CI (có tích hợp BVA) của TTNam (có delay để tránh quá tải Render Free)
+      # --timeout-request 30000 (30s) tương tự như main
       - name: Run TTNam Core API CI Collection
         run: |
           sleep 5
           npx newman run "postman_collections/TTNam/TTNam - TechVie FULL - CoreAPI - BVA - EP - DT - ST.postman_collection.json" \
             --delay-request 300 \
-            --timeout-request 15000 \
+            --timeout-request 30000 \
             --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK }}" \
             --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
             --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
