@@ -46,6 +46,7 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "// Thao tác đăng nhập trên Render + Github Environment",
                   "pm.test(\"Admin login successful (Status 200)\", function () {",
                   "    pm.response.to.have.status(200);",
                   "    const json = pm.response.json();",
@@ -2864,10 +2865,44 @@
           "name": "[TC-BVA-AUTH-002] Reset Password length = 6",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const baseUrl = pm.environment.get(\"baseUrl\") || pm.variables.get(\"baseUrl\");",
+                  "const targetEmail = pm.environment.get(\"auth_test_email\") || \"bva_auth_runner@gmail.com\";",
+                  "pm.sendRequest({",
+                  "    url: baseUrl + \"/api/auth/test/set-reset-token-time\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            email: targetEmail,",
+                  "            elapsedSeconds: 0",
+                  "        })",
+                  "    }",
+                  "}, function(err, setupResponse) {",
+                  "    if (!err && setupResponse && setupResponse.code === 200) {",
+                  "        const setupJson = setupResponse.json();",
+                  "        if (setupJson && setupJson.resetToken) {",
+                  "            pm.environment.set(\"current_reset_token\", setupJson.resetToken);",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "const json = pm.response.json();\r",
+                  "let json = {};\r",
+                  "try {\r",
+                  "    json = pm.response.json();\r",
+                  "} catch(e) {}\r",
                   "\r",
                   "pm.test(\"TC-BVA-AUTH-002 | HTTP 200\", function () {\r",
                   "    pm.response.to.have.status(200);\r",

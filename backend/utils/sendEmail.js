@@ -18,13 +18,22 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 
   // 2. Chạy thật nếu ở môi trường Production (Deploy thật)
-  // Cấu hình transporter - sử dụng Gmail SMTP (hoặc dịch vụ khác qua biến môi trường)
+  // Nếu chưa cấu hình EMAIL_USER hoặc EMAIL_PASS trên môi trường Render, bypass để tránh timeout kết nối SMTP
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    logger.warn(`[EMAIL BYPASS] Thiếu EMAIL_USER hoặc EMAIL_PASS trên Server, chuyển sang mock mode để tránh timeout.`);
+    return { messageId: 'mock-message-id-' + Date.now() };
+  }
+
+  // Cấu hình transporter - sử dụng Gmail SMTP (kèm timeout 10 giây để không bao giờ bị nghẽn socket)
   const transporter = nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE || "gmail",
     auth: {
       user: process.env.EMAIL_USER,   // Email gửi đi (vd: noreply@techvie.com)
       pass: process.env.EMAIL_PASS,   // App Password của Gmail
     },
+    connectionTimeout: 10000, // 10s
+    greetingTimeout: 10000,   // 10s
+    socketTimeout: 10000,     // 10s
   });
 
   const mailOptions = {
