@@ -632,30 +632,41 @@
           "name": "[TC-BVA-PROD-005] Create Product stock = 0",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const randomId = Math.floor(10000 + Math.random() * 90000);",
+                  "pm.environment.set(\"bva_prod005_name\", \"Test Product BVA PROD005 \" + randomId);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "const json = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"TC-BVA-PROD-005 | HTTP 201\", function () {\r",
-                  "    pm.response.to.have.status(201);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"TC-BVA-PROD-005 | success = true\", function () {\r",
-                  "    pm.expect(json.success).to.eql(true);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"TC-BVA-PROD-005 | Có product\", function () {\r",
-                  "    pm.expect(json).to.have.property(\"product\");\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"TC-BVA-PROD-005 | stock = 0\", function () {\r",
-                  "    pm.expect(Number(json.product.stock)).to.eql(0);\r",
+                  "let json = {};",
+                  "try {",
+                  "    json = pm.response.json();",
+                  "} catch(e) {}",
+                  "",
+                  "pm.test(\"TC-BVA-PROD-005 | HTTP 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"TC-BVA-PROD-005 | success = true\", function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test(\"TC-BVA-PROD-005 | Có product\", function () {",
+                  "    pm.expect(json).to.have.property(\"product\");",
+                  "});",
+                  "",
+                  "pm.test(\"TC-BVA-PROD-005 | stock = 0\", function () {",
+                  "    pm.expect(Number(json.product && json.product.stock)).to.eql(0);",
                   "});"
                 ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                "type": "text/javascript"
               }
             }
           ],
@@ -677,7 +688,7 @@
               "formdata": [
                 {
                   "key": "name",
-                  "value": "Test Product BVA PROD005",
+                  "value": "{{bva_prod005_name}}",
                   "type": "text",
                   "uuid": "e340e9a5-4ee8-44a8-ad0a-8ed6bc9ebdd2"
                 },
@@ -868,30 +879,41 @@
           "name": "[TC-BVA-PROD-002] Create Product price = 0",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const randomId = Math.floor(10000 + Math.random() * 90000);",
+                  "pm.environment.set(\"bva_prod002_name\", \"Test Product BVA PROD002 \" + randomId);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "const json = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"TC-BVA-PROD-002 | HTTP 201\", function () {\r",
-                  "    pm.response.to.have.status(201);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"TC-BVA-PROD-002 | success = true\", function () {\r",
-                  "    pm.expect(json.success).to.eql(true);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"TC-BVA-PROD-002 | Có product\", function () {\r",
-                  "    pm.expect(json).to.have.property(\"product\");\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"TC-BVA-PROD-002 | price = 0\", function () {\r",
-                  "    pm.expect(Number(json.product.price)).to.eql(0);\r",
+                  "let json = {};",
+                  "try {",
+                  "    json = pm.response.json();",
+                  "} catch(e) {}",
+                  "",
+                  "pm.test(\"TC-BVA-PROD-002 | HTTP 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"TC-BVA-PROD-002 | success = true\", function () {",
+                  "    pm.expect(json.success).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test(\"TC-BVA-PROD-002 | Có product\", function () {",
+                  "    pm.expect(json).to.have.property(\"product\");",
+                  "});",
+                  "",
+                  "pm.test(\"TC-BVA-PROD-002 | price = 0\", function () {",
+                  "    pm.expect(Number(json.product && json.product.price)).to.eql(0);",
                   "});"
                 ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                "type": "text/javascript"
               }
             }
           ],
@@ -913,7 +935,7 @@
               "formdata": [
                 {
                   "key": "name",
-                  "value": "Test Product BVA PROD002",
+                  "value": "{{bva_prod002_name}}",
                   "type": "text",
                   "uuid": "e340e9a5-4ee8-44a8-ad0a-8ed6bc9ebdd2"
                 },
