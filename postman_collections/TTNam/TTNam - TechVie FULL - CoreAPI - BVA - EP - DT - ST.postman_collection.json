@@ -2971,17 +2971,18 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\"email\":\"{{bva_auth_email}}\"}"
+                  "raw": "{\"email\":\"{{bva_auth_email}}\",\"elapsedSeconds\":0}"
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/api/auth/forgot-password",
+                  "raw": "{{baseUrl}}/api/auth/test/set-reset-token-time",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "api",
                     "auth",
-                    "forgot-password"
+                    "test",
+                    "set-reset-token-time"
                   ]
                 }
               },
