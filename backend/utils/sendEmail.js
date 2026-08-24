@@ -6,6 +6,13 @@ const logger = require("./logger");
  * @param {Object} options - { to, subject, html }
  */
 const sendEmail = async ({ to, subject, html }) => {
+  logger.info("[SEND_EMAIL_INVOKED]", {
+    nodeEnv: process.env.NODE_ENV,
+    emailService: process.env.EMAIL_SERVICE || "gmail",
+    hasEmailUser: !!process.env.EMAIL_USER,
+    hasEmailPass: !!process.env.EMAIL_PASS,
+  });
+
   // 1. Bypass (Mock) Gửi mail nếu không phải môi trường Production (ví dụ: đang test ở máy Local)
   if (process.env.NODE_ENV !== 'production') {
     logger.info(`[MOCK EMAIL] Bypass gửi mail thật...`);
@@ -34,9 +41,30 @@ const sendEmail = async ({ to, subject, html }) => {
     html,
   };
 
-  const info = await transporter.sendMail(mailOptions);
-  logger.info(`[EMAIL] Đã gửi email đến ${to} — Message ID: ${info.messageId}`);
-  return info;
+  const startTime = Date.now();
+  logger.info("[SEND_EMAIL_START] Bắt đầu gọi transporter.sendMail()", {
+    startTime: new Date(startTime).toISOString(),
+  });
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    const durationMs = Date.now() - startTime;
+    logger.info(`[EMAIL] Đã gửi email đến ${to} — Message ID: ${info.messageId}`, {
+      durationMs,
+      messageId: info.messageId,
+    });
+    return info;
+  } catch (error) {
+    const durationMs = Date.now() - startTime;
+    logger.error("[SEND_EMAIL_ERROR] Lỗi khi thực thi transporter.sendMail()", {
+      durationMs,
+      code: error.code,
+      message: error.message,
+      command: error.command,
+      responseCode: error.responseCode,
+    });
+    throw error;
+  }
 };
 
 module.exports = sendEmail;

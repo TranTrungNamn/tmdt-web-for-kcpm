@@ -435,7 +435,15 @@ const authController = {
           15 * 60 * 1000 -
           (new Date(user.resetPasswordExpire).getTime() - Date.now());
         const cooldownMs = 60 * 1000;
-        if (timeElapsedSinceLastSent < cooldownMs) {
+        const isBlocked = timeElapsedSinceLastSent < cooldownMs;
+
+        logger.info("[AUTH_FORGOT_PASSWORD_COOLDOWN_CHECK]", {
+          timeElapsedSinceLastSent,
+          cooldownMs,
+          isBlocked,
+        });
+
+        if (isBlocked) {
           const secondsLeft = Math.ceil(
             (cooldownMs - timeElapsedSinceLastSent) / 1000,
           );
@@ -509,12 +517,18 @@ const authController = {
 
       // Gửi email
       try {
+        logger.info("[AUTH_FORGOT_PASSWORD_EMAIL_START] Bắt đầu gọi sendEmail()");
         await sendEmail({
           to: user.email,
           subject: "[TechVie] Yêu cầu đặt lại mật khẩu",
           html: emailHtml,
         });
+        logger.info("[AUTH_FORGOT_PASSWORD_EMAIL_END] sendEmail() hoàn tất thành công");
       } catch (emailErr) {
+        logger.error("[AUTH_FORGOT_PASSWORD_EMAIL_ERROR] Lỗi khi gọi sendEmail()", {
+          code: emailErr.code,
+          message: emailErr.message,
+        });
         console.error("Lỗi gửi email đặt lại mật khẩu:", emailErr);
         console.log(
           "\n=======================================================",
