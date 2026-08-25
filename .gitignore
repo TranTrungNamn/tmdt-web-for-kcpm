@@ -63,4 +63,4 @@ postman/
 _test_case/
 _test_case
 
-newman/
+newman/frontend/.nyc_output/
