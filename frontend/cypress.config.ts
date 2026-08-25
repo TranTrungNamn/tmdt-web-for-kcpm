@@ -11,10 +11,11 @@ export default defineConfig({
     embeddedScreenshots: true,
     inlineAssets: true,
   },
+  
+  trashAssetsBeforeRuns: false,
   e2e: {
     baseUrl: "http://localhost:3000",
-    // Cảnh báo bảo mật Cypress (v15+)
-    allowCypressEnv: false,
+    allowCypressEnv: true,
     viewportWidth: 1920,
     viewportHeight: 1080,
     // Tránh trượt đi khi tương tác với ô input, nút bấm, checkbox

@@ -13,11 +13,11 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 });
 
 // ============================================================================
-// 🎬 SLOW MOTION MODE: Tự động thêm khoảng dừng sau mỗi thao tác
-// Giúp con người quan sát trực quan từng bước click, gõ phím, chọn màu sắc
+// 🎬 SLOW MOTION MODE: Tự động thêm khoảng dừng sau mỗi thao tác (Khi mở GUI)
+// Nếu truyền --env NO_DELAY=true hoặc chạy headless siêu tốc, delay = 0
 // ============================================================================
-// ms (khoảng dừng 0.35s giữa các thao tác)
-const COMMAND_DELAY = 350;
+const isNoDelay = Cypress.env("NO_DELAY") === true || Cypress.env("NO_DELAY") === "true";
+const COMMAND_DELAY = isNoDelay ? 0 : 350;
 
 const interactiveCommands = [
   "click",
@@ -40,6 +40,9 @@ interactiveCommands.forEach((command) => {
     }
 
     return originalFn(target, ...args).then((result: any) => {
+      if (COMMAND_DELAY === 0) {
+        return result;
+      }
       return new Cypress.Promise((resolve) => {
         setTimeout(() => resolve(result), COMMAND_DELAY);
       });

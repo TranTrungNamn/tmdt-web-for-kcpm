@@ -1,0 +1,238 @@
+{
+  "info": {
+    "_postman_id": "google-oauth-standalone-collection-2026",
+    "name": "TechVie - Google OAuth2 Manual & Semi-Auto Test",
+    "description": "Collection dành riêng cho kiểm thử luồng Đăng nhập Google OAuth2 (Manual & Edge Cases) - Chạy độc lập, không làm ảnh hưởng CI Runner.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Generate Google Auth URL (Auto)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response returns valid Google Auth URL\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.url).to.include(\"accounts.google.com\");",
+              "    pm.expect(jsonData.url).to.include(\"client_id=\");",
+              "    pm.expect(jsonData.url).to.include(\"redirect_uri=\");",
+              "    ",
+              "    // Hiển thị nút bấm trực quan để Tester click mở thẳng Google OAuth",
+              "    const template = `",
+              "      <div style=\"font-family: Arial; padding: 16px; background: #f8fafc; border-radius: 8px;\">",
+              "        <h3 style=\"color: #0f172a;\">🔑 Link Đăng nhập Google OAuth 2.0</h3>",
+              "        <p style=\"color: #475569;\">Bấm nút bên dưới hoặc copy link để mở trên trình duyệt:</p>",
+              "        <a href=\"{{url}}\" target=\"_blank\" style=\"display: inline-block; padding: 10px 18px; background: #4285F4; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold;\">",
+              "          🌐 Mở trang Đăng nhập Google",
+              "        </a>",
+              "        <div style=\"margin-top: 12px; word-break: break-all; font-size: 12px; color: #64748b;\"><b>URL:</b> {{url}}</div>",
+              "      </div>",
+              "    `;",
+              "    pm.visualizer.set(template, { url: jsonData.url });",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/google",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "google"
+          ]
+        },
+        "description": "API tạo ra đường link đăng nhập Google OAuth 2.0 có kèm state cookie."
+      },
+      "response": []
+    },
+    {
+      "name": "02 - Callback Missing Code (Negative Test)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Returns error for missing code parameter\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.message).to.include(\"Thiếu mã xác thực (code)\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/google/callback?state=invalid_test_state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "google",
+            "callback"
+          ],
+          "query": [
+            {
+              "key": "state",
+              "value": "invalid_test_state"
+            }
+          ]
+        },
+        "description": "Kiểm tra xử lý lỗi khi người dùng gọi callback mà không truyền code xác thực từ Google."
+      },
+      "response": []
+    },
+    {
+      "name": "03 - Callback Invalid / Expired Code (Negative Test)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 500 or 400 for fake/expired Google code\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([400, 500]);",
+              "});",
+              "",
+              "pm.test(\"Success is false\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/google/callback?code=fake_google_auth_code_99999&state=mock_state",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "google",
+            "callback"
+          ],
+          "query": [
+            {
+              "key": "code",
+              "value": "fake_google_auth_code_99999"
+            },
+            {
+              "key": "state",
+              "value": "mock_state"
+            }
+          ]
+        },
+        "description": "Kiểm tra hệ thống không bị crash khi nhận mã code giả hoặc mã code đã hết hạn từ Google OAuth API."
+      },
+      "response": []
+    },
+    {
+      "name": "04 - Manual Flow Helper: Direct Browser URL Guide",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Manual Instruction Info Ready\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Render Bảng Hướng dẫn Test Manual đẹp mắt trực tiếp trên tab 'Visualize' của Postman",
+              "const template = `",
+              "<div style=\"font-family: Arial, sans-serif; padding: 15px; background: #f8fafc; border-radius: 8px;\">",
+              "  <h2 style=\"color: #1e293b; border-bottom: 2px solid #3b82f6; padding-bottom: 8px;\">📋 HƯỚNG DẪN KIỂM THỬ THỦ CÔNG (MANUAL TEST) - GOOGLE OAUTH 2.0</h2>",
+              "  <table border=\"1\" cellpadding=\"10\" style=\"border-collapse: collapse; width: 100%; background: #ffffff; border-color: #cbd5e1;\">",
+              "    <thead>",
+              "      <tr style=\"background: #3b82f6; color: #ffffff; text-align: left;\">",
+              "        <th>Bước</th>",
+              "        <th>Hành động (Action)</th>",
+              "        <th>Chi tiết / URL</th>",
+              "        <th>Kết quả kỳ vọng (Expected Result)</th>",
+              "      </tr>",
+              "    </thead>",
+              "    <tbody>",
+              "      <tr>",
+              "        <td><b>1</b></td>",
+              "        <td>Mở trình duyệt</td>",
+              "        <td>Google Chrome / MS Edge</td>",
+              "        <td>Trình duyệt sẵn sàng, không chặn Cookie/Popup</td>",
+              "      </tr>",
+              "      <tr style=\"background: #f1f5f9;\">",
+              "        <td><b>2</b></td>",
+              "        <td>Truy cập trang Đăng nhập</td>",
+              "        <td><code>http://localhost:3000/login</code></td>",
+              "        <td>Hiển thị nút <b>'Đăng nhập bằng Google'</b></td>",
+              "      </tr>",
+              "      <tr>",
+              "        <td><b>3</b></td>",
+              "        <td>Click nút Google OAuth</td>",
+              "        <td>Bấm 'Đăng nhập bằng Google'</td>",
+              "        <td>Chuyển hướng sang <code>accounts.google.com</code></td>",
+              "      </tr>",
+              "      <tr style=\"background: #f1f5f9;\">",
+              "        <td><b>4</b></td>",
+              "        <td>Chọn tài khoản & xác thực</td>",
+              "        <td>Nhập email/password Google</td>",
+              "        <td>Google xác thực thành công và bắn mã code về callback</td>",
+              "      </tr>",
+              "      <tr>",
+              "        <td><b>5</b></td>",
+              "        <td>Kiểm tra kết quả</td>",
+              "        <td>Tự động redirect về <code>/</code></td>",
+              "        <td><b>Đăng nhập thành công:</b> Lưu token, hiển thị đúng Tên & Avatar</td>",
+              "      </tr>",
+              "    </tbody>",
+              "  </table>",
+              "</div>",
+              "`;",
+              "",
+              "pm.visualizer.set(template);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}",
+          "host": [
+            "{{baseUrl}}"
+          ]
+        },
+        "description": "Request hướng dẫn nhanh cho tester thực hiện bước Manual trên trình duyệt."
+      },
+      "response": []
+    }
+  ]
+}

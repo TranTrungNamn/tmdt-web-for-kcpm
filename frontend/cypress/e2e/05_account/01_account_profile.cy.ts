@@ -1,15 +1,19 @@
 describe("Module 5.1: Account - Quản lý tài khoản cá nhân (Profile, Orders, Devices & Security)", () => {
+  // Đảm bảo trang /account loading 100% trước khi thực hiện bước tiếp theo
   beforeEach(() => {
     // 1. Đăng nhập với tài khoản khách hàng chuẩn
     cy.visit("/login");
-    cy.get('input[placeholder*="email@example.com"], input[type="text"]').first().clear().type("customer@techvie.com");
+    cy.get('input[placeholder*="email@example.com"], input[type="text"]')
+      .first()
+      .clear()
+      .type("customer@techvie.com");
     cy.get('input[type="password"]').first().clear().type("customer123");
     cy.get('button[type="submit"]').click({ force: true });
     cy.url({ timeout: 10000 }).should("not.include", "/login");
 
-    // 2. Truy cập /account
+    // 2. Truy cập /account và đảm bảo hồ sơ đã load xong
     cy.visit("/account");
-    cy.get("body").should("be.visible");
+    cy.contains(/HỒ SƠ THÀNH VIÊN/i, { timeout: 10000 }).should("be.visible");
   });
 
   it("TC_FE_ACC_001A: [Profile View & TechVie ID] Xem thông tin cá nhân, mã TechVie ID và huy hiệu bảo vệ", () => {
@@ -74,17 +78,25 @@ describe("Module 5.1: Account - Quản lý tài khoản cá nhân (Profile, Orde
 
     // 3. Nhập mật khẩu và test toggle icon mắt
     cy.get('input[placeholder="••••••••"]').first().type("currentpass123");
-    cy.get('input[placeholder="••••••••"]').first().should("have.attr", "type", "password");
+    cy.get('input[placeholder="••••••••"]')
+      .first()
+      .should("have.attr", "type", "password");
 
     // Click icon mắt để hiện password
-    cy.get('input[placeholder="••••••••"]').first().parent().find("button").click({ force: true });
+    cy.get('input[placeholder="••••••••"]')
+      .first()
+      .parent()
+      .find("button")
+      .click({ force: true });
     cy.get('input[value="currentpass123"]').should("have.attr", "type", "text");
   });
 
   it("TC_FE_ACC_001E: [Copy Email Shortcut] Tương tác nút sao chép Email đăng ký", () => {
     // 1. Tìm nút sao chép email (icon copy bên cạnh email input readonly)
-    cy.get('button[title="Sao chép email"]').first().should("be.visible").click({ force: true });
+    cy.get('button[title="Sao chép email"]')
+      .first()
+      .should("be.visible")
+      .click({ force: true });
     cy.wait(300);
   });
 });
-

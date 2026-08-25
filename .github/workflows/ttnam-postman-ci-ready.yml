@@ -1,11 +1,11 @@
-name: TTNam - Postman Core API & BVA (CI Ready)
+name: TTNam - TechVie FULL - CoreAPI - BVA - EP - DT - ST (CI)
 
 on:
   workflow_dispatch: # Chạy thủ công khi bấm "Run workflow" trên GitHub
 
 jobs:
-  run-ttnam-ci-ready:
-    name: Execute TTNam Core API CI Ready Tests
+  run-ttnam-full-collection:
+    name: TTNam FULL CoreAPI - BVA - EP - DT - ST
     runs-on: ubuntu-latest
     environment: "Testing Env"
 
@@ -31,10 +31,10 @@ jobs:
           echo "Checking and waking up Render Backend..."
           BASE_URL="${{ secrets.RENDER_BACKEND_URL_LINK }}"
           BASE_URL="${BASE_URL%/}"
-          
+
           MAX_RETRIES=30
           COUNT=0
-          
+
           until [ $COUNT -ge $MAX_RETRIES ]
           do
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$BASE_URL/test-db" || true)
@@ -48,13 +48,12 @@ jobs:
             COUNT=$((COUNT+1))
             sleep 5
           done
-          
+
           echo "Render backend failed to wake up in time ($((MAX_RETRIES*5))s)."
           exit 1
 
-      # Chạy Collection Core API CI (có tích hợp BVA) của TTNam (có delay để tránh quá tải Render Free)
-      # --timeout-request 30000 (30s) tương tự như main
-      - name: Run TTNam Core API CI Collection
+      # Chạy Collection FULL của TTNam (BVA, EP, DT, ST)
+      - name: Run TTNam FULL CoreAPI - BVA - EP - DT - ST Collection
         run: |
           sleep 5
           npx newman run "postman_collections/TTNam/TTNam - TechVie FULL - CoreAPI - BVA - EP - DT - ST.postman_collection.json" \
@@ -64,14 +63,14 @@ jobs:
             --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
             --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
             --reporters cli,htmlextra \
-            --reporter-htmlextra-export newman-reports/TTNam_Core_API_Report.html \
-            --reporter-htmlextra-title "TTNam - Core API w BVA Test Report (CI Ready)"
+            --reporter-htmlextra-export newman-reports/TTNam_FULL_CoreAPI_BVA_EP_DT_ST_Report.html \
+            --reporter-htmlextra-title "TTNam - TechVie FULL - CoreAPI - BVA - EP - DT - ST Report"
 
       # Upload Artifact báo cáo kiểm thử HTML
       - name: Upload Test Reports Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: TTNam-Core-API-CI-Reports
+          name: TTNam-FULL-CoreAPI-BVA-EP-DT-ST-Reports
           path: newman-reports/
           retention-days: 14
