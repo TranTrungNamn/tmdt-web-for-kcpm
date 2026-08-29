@@ -136,6 +136,14 @@ const authController = {
         });
       }
 
+      // Validate độ dài mật khẩu (tối thiểu 6 ký tự)
+      if (typeof password !== "string" || password.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message: "Mật khẩu phải có độ dài tối thiểu từ 6 ký tự!",
+        });
+      }
+
       // Validate định dạng email (bắt lỗi thiếu @ hoặc domain)
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
