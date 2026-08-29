@@ -15,8 +15,8 @@ const productSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true,
-    min: 0,
-    description: "Giá niêm yết (VND) >= 0",
+    min: [1, "Giá sản phẩm phải lớn hơn 0"],
+    description: "Giá niêm yết (VND) > 0",
   },
   category: {
     type: String,

@@ -103,10 +103,25 @@ const productController = {
     try {
       const { name, price, stock, category, description, specs, colors, badge } = req.body;
 
-      if (!name || !price || !category) {
+      if (!name || !category || price === undefined || price === null || (typeof price === "string" && price.trim() === "")) {
         return res.status(400).json({
           success: false,
           message: "Vui lòng nhập đầy đủ: name, price, category!",
+        });
+      }
+
+      if (typeof price !== "number" && typeof price !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Giá sản phẩm phải là số lớn hơn 0!",
+        });
+      }
+
+      const numPrice = Number(price);
+      if (isNaN(numPrice) || numPrice <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Giá sản phẩm phải là số lớn hơn 0!",
         });
       }
 
@@ -156,7 +171,7 @@ const productController = {
       const newProduct = new Product({
         _id: uniqueId,
         name,
-        price: Number(price),
+        price: numPrice,
         stock: stock !== undefined ? Number(stock) : 0,
         category,
         image: imageUrl,
