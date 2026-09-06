@@ -176,6 +176,7 @@ const productController = {
     } catch (error) {
       logger.error("Lỗi thêm sản phẩm:", { error: error.message });
       if (error.name === "ValidationError") {
+        
         return res.status(400).json({
           success: false,
           message: error.message,
@@ -253,6 +254,14 @@ const productController = {
       });
     } catch (error) {
       logger.error("Lỗi cập nhật sản phẩm:", { error: error.message });
+      // Thêm trả về 400 Bad Request
+      if (error.name === "ValidationError") {
+        return res.status(400).json({
+          success: false,
+          message: error.message,
+          error: error.message,
+        });
+      }
       return res.status(500).json({
         success: false,
         message: "Có lỗi xảy ra khi cập nhật sản phẩm!",
