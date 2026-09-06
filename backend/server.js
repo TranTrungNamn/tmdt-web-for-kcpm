@@ -184,7 +184,12 @@ app.post("/api/logs", (req, res) => {
 
 // Endpoint tắt server an toàn cho môi trường test và kết xuất Istanbul coverage
 app.post("/api/test/shutdown", (req, res) => {
-  res.status(200).json({ success: true, message: "Server shutting down for coverage report..." });
+  res
+    .status(200)
+    .json({
+      success: true,
+      message: "Server shutting down for coverage report...",
+    });
   setTimeout(() => {
     process.exit(0);
   }, 500);
@@ -291,9 +296,7 @@ connectDB().then(async (conn) => {
           hostInfo = urlParts[urlParts.length - 1].split("?")[0];
         }
       } catch (e) {}
-      logger.info(
-        `[ENV] MONGODB_URI: ${hostInfo} (Đã ẩn thông tin đăng nhập & mật khẩu)`,
-      );
+      logger.info(`[ENV] MONGODB_URI: ${hostInfo}`);
     } else {
       logger.error("[ENV] MONGODB_URI: CHƯA ĐỊNH NGHĨA hoặc trống!");
     }
