@@ -1,0 +1,4041 @@
+{
+  "info": {
+    "_postman_id": "46a2367b-480d-48ed-93be-7412bed278f8",
+    "name": "TechVie - Robust BVA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57852231",
+    "_collection_link": "https://go.postman.co/collection/57879621-46a2367b-480d-48ed-93be-7412bed278f8?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"automation_test1\",\r\n  \"email\": \"automation.test1@gmail.com\",\r\n  \"password\": \"Pass123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Login User | HTTP 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const token = String(json.token || \"\")\r",
+                  "    .replace(/^Bearer\\s+/i, \"\");\r",
+                  "\r",
+                  "pm.environment.set(\"bearerToken\", token);\r",
+                  "\r",
+                  "console.log(\"Đã lưu bearerToken\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"automation.user@gmail.com\",\r\n  \"password\": \"Pass123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Email",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/check-email?email=phat_test_02@gmail.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "check-email"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "phat_test_02@gmail.com"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Login Admin | HTTP 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const token = String(json.token || \"\")\r",
+                  "    .replace(/^Bearer\\s+/i, \"\");\r",
+                  "\r",
+                  "pm.environment.set(\"adminToken\", token);\r",
+                  "\r",
+                  "console.log(\"Đã lưu adminToken\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"admin@techvie.com\",\r\n    \"password\": \"admin123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "if (json.resetToken) {\r",
+                  "    pm.environment.set(\r",
+                  "        \"token-reset-password\",\r",
+                  "        json.resetToken\r",
+                  "    );\r",
+                  "\r",
+                  "    console.log(\"Đã lưu token-reset-password\");\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"automation.test1@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"newPassword\": \"Pass123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                "{{token-reset-password}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Verification Email",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/send-verification-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-verification-email"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "TP-BVA-01 - Reset Password Length",
+      "item": [
+        {
+          "name": "TC-BVA-AUTH-001 - Password 5 chars",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: pm.environment.get(\"baseUrl\") +\r",
+                  "        \"/api/auth/test/set-reset-token-time\",\r",
+                  "    method: \"POST\",\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            elapsedSeconds: 0\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "const json = setupRes.json();\r",
+                  "\r",
+                  "if (setupRes.code !== 200 || !json.resetToken) {\r",
+                  "    throw new Error(\"Không lấy được resetToken\");\r",
+                  "}\r",
+                  "\r",
+                  "pm.environment.set(\r",
+                  "    \"token-reset-password\",\r",
+                  "    json.resetToken\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-001 | HTTP 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-001 | success = false\", function () {\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newPassword\": \"12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                "{{token-reset-password}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-AUTH-002 - Password 6 chars",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: pm.environment.get(\"baseUrl\") +\r",
+                  "        \"/api/auth/test/set-reset-token-time\",\r",
+                  "\r",
+                  "    method: \"POST\",\r",
+                  "\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            elapsedSeconds: 0\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "console.log(\"SETUP STATUS:\", setupRes.code);\r",
+                  "console.log(\"SETUP BODY:\", setupRes.text());\r",
+                  "\r",
+                  "if (setupRes.code !== 200) {\r",
+                  "    throw new Error(\r",
+                  "        `Không tạo được reset token - HTTP ${setupRes.code}`\r",
+                  "    );\r",
+                  "}\r",
+                  "\r",
+                  "const json = setupRes.json();\r",
+                  "\r",
+                  "if (!json.resetToken) {\r",
+                  "    throw new Error(\r",
+                  "        \"Backend không trả resetToken\"\r",
+                  "    );\r",
+                  "}\r",
+                  "\r",
+                  "pm.environment.set(\r",
+                  "    \"token-reset-password\",\r",
+                  "    json.resetToken\r",
+                  ");\r",
+                  "\r",
+                  "console.log(\r",
+                  "    \"Đã lưu token-reset-password:\",\r",
+                  "    json.resetToken\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-002 | HTTP 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-002 | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newPassword\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                "{{token-reset-password}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-AUTH-003 - Password 7 chars",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: pm.environment.get(\"baseUrl\") +\r",
+                  "        \"/api/auth/test/set-reset-token-time\",\r",
+                  "\r",
+                  "    method: \"POST\",\r",
+                  "\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            elapsedSeconds: 0\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "console.log(\"SETUP STATUS:\", setupRes.code);\r",
+                  "console.log(\"SETUP BODY:\", setupRes.text());\r",
+                  "\r",
+                  "if (setupRes.code !== 200) {\r",
+                  "    throw new Error(\r",
+                  "        `Không tạo được reset token - HTTP ${setupRes.code}`\r",
+                  "    );\r",
+                  "}\r",
+                  "\r",
+                  "const json = setupRes.json();\r",
+                  "\r",
+                  "if (!json.resetToken) {\r",
+                  "    throw new Error(\r",
+                  "        \"Backend không trả resetToken\"\r",
+                  "    );\r",
+                  "}\r",
+                  "\r",
+                  "pm.environment.set(\r",
+                  "    \"token-reset-password\",\r",
+                  "    json.resetToken\r",
+                  ");\r",
+                  "\r",
+                  "console.log(\r",
+                  "    \"Đã lưu token-reset-password:\",\r",
+                  "    json.resetToken\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-003 | HTTP 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-003 | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newPassword\": \"1234567\"\r\n} ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                "{{token-reset-password}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Phương phụ trách"
+    },
+    {
+      "name": "TP-BVA-02 - Reset Token Expiration",
+      "item": [
+        {
+          "name": "TC-BVA-AUTH-004 — 14m59s",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const response = await pm.sendRequest({\r",
+                  "    url: pm.environment.get(\"baseUrl\") + \"/api/auth/test/set-reset-token-time\",\r",
+                  "    method: \"POST\",\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            elapsedSeconds: 899\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"SETUP - Reset Token Age 899s | HTTP 200\", function () {\r",
+                  "    pm.expect(response.code).to.eql(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = response.json();\r",
+                  "\r",
+                  "pm.test(\"SETUP - Có resetToken\", function () {\r",
+                  "    pm.expect(json.resetToken).to.be.a(\"string\");\r",
+                  "    pm.expect(json.resetToken).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"SETUP - elapsedSeconds = 899\", function () {\r",
+                  "    pm.expect(json.elapsedSeconds).to.eql(899);\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"token-reset-password\", json.resetToken);\r",
+                  "\r",
+                  "console.log(\"Reset token:\", json.resetToken);\r",
+                  "console.log(\"Elapsed:\", json.elapsedSeconds);\r",
+                  "console.log(\"Remaining:\", json.remainingSeconds);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-004 | HTTP 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-004 | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newPassword\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                "{{token-reset-password}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-AUTH-005 — 15m00s",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const response = await pm.sendRequest({\r",
+                  "    url: pm.environment.get(\"baseUrl\") + \"/api/auth/test/set-reset-token-time\",\r",
+                  "    method: \"POST\",\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            elapsedSeconds: 900\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"SETUP - Reset Token Age 900s | HTTP 200\", function () {\r",
+                  "    pm.expect(response.code).to.eql(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = response.json();\r",
+                  "\r",
+                  "pm.test(\"SETUP - Có resetToken\", function () {\r",
+                  "    pm.expect(json.resetToken).to.be.a(\"string\");\r",
+                  "    pm.expect(json.resetToken).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"SETUP - elapsedSeconds = 900\", function () {\r",
+                  "    pm.expect(json.elapsedSeconds).to.eql(900);\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\r",
+                  "    \"token-reset-password\",\r",
+                  "    json.resetToken\r",
+                  ");\r",
+                  "\r",
+                  "console.log(\"Reset token:\", json.resetToken);\r",
+                  "console.log(\"Elapsed:\", json.elapsedSeconds);\r",
+                  "console.log(\"Remaining:\", json.remainingSeconds);\r",
+                  "console.log(\"Expire:\", json.resetPasswordExpire);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-005 | HTTP 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-005 | success = false\", function () {\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-005 | Token hết hạn\", function () {\r",
+                  "    pm.expect(json.message)\r",
+                  "        .to.include(\"không hợp lệ hoặc đã hết hạn\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newPassword\": \"Pass123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                "{{token-reset-password}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-AUTH-006 — 15m01s",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const response = await pm.sendRequest({\r",
+                  "    url: pm.environment.get(\"baseUrl\") + \"/api/auth/test/set-reset-token-time\",\r",
+                  "    method: \"POST\",\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            elapsedSeconds: 901\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"SETUP - Reset Token Age 901s | HTTP 200\", function () {\r",
+                  "    pm.expect(response.code).to.eql(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = response.json();\r",
+                  "\r",
+                  "pm.test(\"SETUP - Có resetToken\", function () {\r",
+                  "    pm.expect(json.resetToken).to.be.a(\"string\");\r",
+                  "    pm.expect(json.resetToken).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"SETUP - elapsedSeconds = 901\", function () {\r",
+                  "    pm.expect(json.elapsedSeconds).to.eql(901);\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\r",
+                  "    \"token-reset-password\",\r",
+                  "    json.resetToken\r",
+                  ");\r",
+                  "\r",
+                  "console.log(\"Reset token:\", json.resetToken);\r",
+                  "console.log(\"Elapsed:\", json.elapsedSeconds);\r",
+                  "console.log(\"Remaining:\", json.remainingSeconds);\r",
+                  "console.log(\"Expire:\", json.resetPasswordExpire);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-006 | HTTP 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-006 | success = false\", function () {\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-006 | Token hết hạn\", function () {\r",
+                  "    pm.expect(json.message)\r",
+                  "        .to.include(\"không hợp lệ hoặc đã hết hạn\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newPassword\": \"Pass123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                "{{token-reset-password}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "TP-BVA-03 - Forgot Password Cooldown",
+      "item": [
+        {
+          "name": "00. [PRE-TEST] Register Test User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tài khoản sẵn sàng | Dành cho TC-BVA-AUTH-007 → TC-BVA-AUTH-009\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Sinh email và username ngẫu nhiên động 100%\r",
+                  "const uniqueId = `${Date.now()}_${Math.floor(Math.random() * 10000)}`;\r",
+                  "const testEmail = `bva_user_${uniqueId}@techvie.test`;\r",
+                  "const testUsername = `User_${uniqueId}`;\r",
+                  "\r",
+                  "pm.environment.set(\"TP_BVA_03_Email\", testEmail);\r",
+                  "pm.environment.set(\"TP_BVA_03_Username\", testUsername);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{TP_BVA_03_Username}}\",\r\n  \"email\": \"{{TP_BVA_03_Email}}\",\r\n  \"password\": \"Password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Nạp trước tài khoản tránh va chạm với test case khác"
+          },
+          "response": []
+        },
+        {
+          "name": "01. TC-BVA-AUTH-007 (59s - Min-)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// 1. Kiểm tra tiền điều kiện: Bắt buộc phải có email test từ Request 00\r",
+                  "const email = pm.environment.get(\"TP_BVA_03_Email\");\r",
+                  "if (!email) {\r",
+                  "  throw new Error(\r",
+                  "    \"[PRE-CONDITION FAILED] Chưa có thiết lập tài khoản test! \" +\r",
+                  "      \"Cần chạy Request '00. [PRE-TEST] Register Test User' trước.\",\r",
+                  "  );\r",
+                  "}\r",
+                  "\r",
+                  "// 2. Định dạng URL của helper endpoint\r",
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "  \"{{baseUrl}}/api/auth/test/set-reset-token-time\",\r",
+                  ");\r",
+                  "\r",
+                  "// 3. Gán mốc thời gian lùi 59 giây (Min-)\r",
+                  "pm.sendRequest(\r",
+                  "  {\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: { \"Content-Type\": \"application/json\" },\r",
+                  "    body: {\r",
+                  "      mode: \"raw\",\r",
+                  "      raw: JSON.stringify({\r",
+                  "        email: email,\r",
+                  "        elapsedSeconds: 59,\r",
+                  "      }),\r",
+                  "    },\r",
+                  "  },\r",
+                  "  function (err, setupResponse) {\r",
+                  "    if (err) {\r",
+                  "      console.error(\"Lỗi setup thời gian 59s:\", err);\r",
+                  "    } else {\r",
+                  "      console.log(`AUTH-007 setup complete: Đã gán mốc 59s cho ${email}`);\r",
+                  "    }\r",
+                  "  },\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "// 1. Kiểm tra mã phản hồi HTTP 429 Too Many Requests\r",
+                  "pm.test(\"TC-BVA-AUTH-007 | HTTP 429 Too Many Requests\", function () {\r",
+                  "  pm.response.to.have.status(429);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Kiểm tra cờ success = false khi gửi yêu cầu quá sớm\r",
+                  "pm.test(\"TC-BVA-AUTH-007 | Request bị từ chối (success: false)\", function () {\r",
+                  "  pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "// 3. Kiểm tra thông báo yêu cầu thử lại / quá nhanh\r",
+                  "pm.test(\"TC-BVA-AUTH-007 | Thông báo yêu cầu chờ đủ 60 giây\", function () {\r",
+                  "  pm.expect(json.message.toLowerCase()).to.include(\"quá nhanh\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{TP_BVA_03_Email}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "# Test Case: TC-BVA-AUTH-007\n\n| Trường thông tin | Chi tiết |\n| --- | --- |\n| **STT** | 7 |\n| **Mã Test Case** | `TC-BVA-AUTH-007` |\n| **Mã Yêu Cầu (FR)** | `FR-AUTH-04` |\n| **Module** | Auth |\n| **Phương pháp kiểm thử** | Robust BVA |\n| **Giá trị biên** | Min- (59s) |\n| **Mô tả kiểm thử** | Kiểm tra gửi lại email đặt lại mật khẩu trước thời gian chờ tối thiểu |\n| **Tiền điều kiện** | Tài khoản credentials tồn tại và đã thực hiện yêu cầu Forgot Password trước đó; Thời điểm gửi gần nhất có thể được thiết lập phục vụ test; Dữ liệu được reset trước mỗi testcase. |\n| **Hành động / Các bước** | Gửi lại yêu cầu Forgot Password sau 59 giây |\n| **Giá trị đầu vào (Input)** | `elapsedTime = 59s` |\n| **Mã lỗi dự kiến** | X3, B7 |\n| **Kết quả mong đợi** | Backend từ chối yêu cầu gửi lại vì chưa đủ 60 giây (HTTP 429 / 400) |"
+          },
+          "response": []
+        },
+        {
+          "name": "02. TC-BVA-AUTH-008 (60s - Min)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// 1. Kiểm tra tiền điều kiện: Bắt buộc phải có email test từ Request 00\r",
+                  "const email = pm.environment.get(\"TP_BVA_03_Email\");\r",
+                  "if (!email) {\r",
+                  "  throw new Error(\r",
+                  "    \"[PRE-CONDITION FAILED] Chưa có thiết lập tài khoản test! \" +\r",
+                  "      \"Cần chạy Request '00. [PRE-TEST] Register Test User' trước.\",\r",
+                  "  );\r",
+                  "}\r",
+                  "\r",
+                  "// 2. Định dạng URL của helper endpoint\r",
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "  \"{{baseUrl}}/api/auth/test/set-reset-token-time\",\r",
+                  ");\r",
+                  "\r",
+                  "// 3. Gán mốc thời gian lùi đúng 60 giây (Min)\r",
+                  "pm.sendRequest(\r",
+                  "  {\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: { \"Content-Type\": \"application/json\" },\r",
+                  "    body: {\r",
+                  "      mode: \"raw\",\r",
+                  "      raw: JSON.stringify({\r",
+                  "        email: email,\r",
+                  "        elapsedSeconds: 60,\r",
+                  "      }),\r",
+                  "    },\r",
+                  "  },\r",
+                  "  function (err, setupResponse) {\r",
+                  "    if (err) {\r",
+                  "      console.error(\"Lỗi setup thời gian 60s:\", err);\r",
+                  "    } else {\r",
+                  "      console.log(`AUTH-008 setup complete: Đã gán mốc 60s cho ${email}`);\r",
+                  "    }\r",
+                  "  },\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "// 1. Kiểm tra mã phản hồi HTTP 200 OK\r",
+                  "pm.test(\"TC-BVA-AUTH-008 | HTTP 200 OK\", function () {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Kiểm tra cờ success = true khi đã hết thời gian cooldown\r",
+                  "pm.test(\r",
+                  "  \"TC-BVA-AUTH-008 | Backend chấp nhận gửi lại sau 60 giây\",\r",
+                  "  function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "  },\r",
+                  ");\r",
+                  "\r",
+                  "// 3. Kiểm tra thông báo thành công trả về từ server\r",
+                  "pm.test(\"TC-BVA-AUTH-008 | Trả về thông báo thành công\", function () {\r",
+                  "  pm.expect(json.message).to.be.a(\"string\");\r",
+                  "  pm.expect(json.message.length).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{TP_BVA_03_Email}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "# Test Case: TC-BVA-AUTH-008\n\n| Trường thông tin | Chi tiết |\n| --- | --- |\n| **STT** | 8 |\n| **Mã Test Case** | `TC-BVA-AUTH-008` |\n| **Mã Yêu Cầu (FR)** | `FR-AUTH-04` |\n| **Module** | Auth |\n| **Phương pháp kiểm thử** | Robust BVA |\n| **Giá trị biên** | Min (60s) |\n| **Mô tả kiểm thử** | Kiểm tra gửi lại email đặt lại mật khẩu đúng mốc thời gian chờ tối thiểu |\n| **Tiền điều kiện** | Tài khoản tồn tại và đã có yêu cầu Forgot Password trước đó; Mốc thời gian được set = 60s |\n| **Hành động / Các bước** | Gửi lại yêu cầu Forgot Password sau đúng 60 giây |\n| **Giá trị đầu vào (Input)** | `elapsedTime = 60s` |\n| **Kết quả mong đợi** | Backend chấp nhận yêu cầu gửi lại (HTTP 200 OK, success: true) |"
+          },
+          "response": []
+        },
+        {
+          "name": "03. TC-BVA-AUTH-009 (61s - Min+)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "// 1. Kiểm tra mã phản hồi HTTP 200 OK\r",
+                  "pm.test(\"TC-BVA-AUTH-009 | HTTP 200 OK\", function () {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Kiểm tra cờ success = true khi vượt thời gian cooldown 1 giây\r",
+                  "pm.test(\r",
+                  "  \"TC-BVA-AUTH-009 | Backend chấp nhận gửi lại sau 61 giây\",\r",
+                  "  function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "  },\r",
+                  ");\r",
+                  "\r",
+                  "// 3. Kiểm tra thông báo thành công trả về từ server\r",
+                  "pm.test(\"TC-BVA-AUTH-009 | Trả về thông báo thành công\", function () {\r",
+                  "  pm.expect(json.message).to.be.a(\"string\");\r",
+                  "  pm.expect(json.message.length).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// 1. Kiểm tra tiền điều kiện: Bắt buộc phải có email test từ Request 00\r",
+                  "const email = pm.environment.get(\"TP_BVA_03_Email\");\r",
+                  "if (!email) {\r",
+                  "  throw new Error(\r",
+                  "    \"[PRE-CONDITION FAILED] Chưa có thiết lập tài khoản test! \" +\r",
+                  "      \"Cần chạy Request '00. [PRE-TEST] Register Test User' trước.\",\r",
+                  "  );\r",
+                  "}\r",
+                  "\r",
+                  "// 2. Định dạng URL của helper endpoint\r",
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "  \"{{baseUrl}}/api/auth/test/set-reset-token-time\",\r",
+                  ");\r",
+                  "\r",
+                  "// 3. Gán mốc thời gian lùi 61 giây (Min+)\r",
+                  "pm.sendRequest(\r",
+                  "  {\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: { \"Content-Type\": \"application/json\" },\r",
+                  "    body: {\r",
+                  "      mode: \"raw\",\r",
+                  "      raw: JSON.stringify({\r",
+                  "        email: email,\r",
+                  "        elapsedSeconds: 61,\r",
+                  "      }),\r",
+                  "    },\r",
+                  "  },\r",
+                  "  function (err, setupResponse) {\r",
+                  "    if (err) {\r",
+                  "      console.error(\"Lỗi setup thời gian 61s:\", err);\r",
+                  "    } else {\r",
+                  "      console.log(`AUTH-009 setup complete: Đã gán mốc 61s cho ${email}`);\r",
+                  "    }\r",
+                  "  },\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"{{TP_BVA_03_Email}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "# Test Case: TC-BVA-AUTH-009\n\n| Trường thông tin | Chi tiết |\n|---|---|\n| **STT** | 9 |\n| **Mã Test Case** | `TC-BVA-AUTH-009` |\n| **Mã Yêu Cầu (FR)** | `FR-AUTH-04` |\n| **Module** | Auth |\n| **Phương pháp kiểm thử** | Robust BVA |\n| **Giá trị biên** | Min+ (61s) |\n| **Mô tả kiểm thử** | Kiểm tra gửi lại email đặt lại mật khẩu sau thời gian chờ tối thiểu |\n| **Tiền điều kiện** | Tài khoản tồn tại và đã có yêu cầu Forgot Password trước đó; Mốc thời gian được set = 61s |\n| **Hành động / Các bước** | Gửi lại yêu cầu Forgot Password sau 61 giây |\n| **Giá trị đầu vào (Input)** | `elapsedTime = 61s` |\n| **Kết quả mong đợi** | Backend chấp nhận yêu cầu gửi lại (HTTP 200 OK, success: true) |"
+          },
+          "response": []
+        }
+      ],
+      "description": "| Mã TP | Tên Test Procedure | Test Cases liên quan | Mục tiêu kiểm thử | Tiền điều kiện (Preconditions) | Các bước thực hiện (Steps) | Hậu điều kiện (Postconditions) |\n| --- | --- | --- | --- | --- | --- | --- |\n| **TP-BVA-03** | Forgot Password – Resend Cooldown Boundary Testing | TC-BVA-AUTH-007 → TC-BVA-AUTH-009 | Xác minh Backend xử lý đúng giới hạn thời gian chờ tối thiểu 60 giây giữa hai lần gửi Email đặt lại mật khẩu theo Robust BVA. | Backend và Database test đang hoạt động; User có tài khoản local hợp lệ; User đã gửi yêu cầu Forgot Password trước đó; thời điểm gửi gần nhất có thể được thiết lập/reset độc lập cho mỗi testcase. | 1\\. Chuẩn bị User và trạng thái Forgot Password hợp lệ.  <br>2\\. Thiết lập thời gian từ lần gửi trước = 59s.  <br>3\\. Chạy TC-BVA-AUTH-007, ghi Actual Result/Status.  <br>4\\. Reset trạng thái cooldown/timestamp test.  <br>5\\. Thiết lập 60s, chạy TC-BVA-AUTH-008, ghi kết quả.  <br>6\\. Reset trạng thái cooldown/timestamp test.  <br>7\\. Thiết lập 61s, chạy TC-BVA-AUTH-009, ghi kết quả.  <br>8\\. Tổng hợp Pass/Fail và ghi Bug ID nếu có. | Trạng thái gửi email và cooldown được khôi phục/reset; kết quả của TC007–TC009 đã được ghi nhận đầy đủ. |",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              "// Áp dụng delay cố định 500ms (0.5 giây) trước mỗi request trong folder này\r",
+              "await new Promise(resolve => setTimeout(resolve, 500));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TP-BVA-04 - Verification Token Expiration",
+      "item": [
+        {
+          "name": "00. [PRE-TEST] Register Test User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tài khoản sẵn sàng | Dành cho TC-BVA-AUTH-010 → TC-BVA-AUTH-012\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Sinh email và username ngẫu nhiên động 100%\r",
+                  "const uniqueId = `${Date.now()}_${Math.floor(Math.random() * 10000)}`;\r",
+                  "const testEmail = `bva_user_${uniqueId}@techvie.test`;\r",
+                  "const testUsername = `User_${uniqueId}`;\r",
+                  "\r",
+                  "// Đặt biến môi trường 'auth_test_email'\r",
+                  "pm.environment.set(\"TP_BVA_04_Email\", testEmail);\r",
+                  "pm.environment.set(\"TP_BVA_04_Username\", testUsername);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{TP_BVA_04_Username}}\",\r\n  \"email\": \"{{TP_BVA_04_Email}}\",\r\n  \"password\": \"Password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Nạp trước tài khoản tránh va chạm với test case khác"
+          },
+          "response": []
+        },
+        {
+          "name": "01. TC-BVA-AUTH-010 (23h59m59s - Max-)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// 1. Kiểm tra tiền điều kiện: Bắt buộc phải có email test từ Request 00\r",
+                  "const targetEmail = pm.environment.get(\"TP_BVA_04_Email\");\r",
+                  "if (!targetEmail) {\r",
+                  "    throw new Error(\r",
+                  "        \"[PRE-CONDITION FAILED] Chưa có thiết lập tài khoản test! \" +\r",
+                  "        \"Cần thao tác Request '00. [PRE-TEST] Register Unverified User' trước để tạo tài khoản kiểm thử.\",\r",
+                  "    );\r",
+                  "}\r",
+                  "console.log(\"Email đang test verify TC-010:\", targetEmail);\r",
+                  "\r",
+                  "// 2. Định dạng URL của helper endpoint\r",
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "    \"{{baseUrl}}/api/auth/test/set-verification-token-time\",\r",
+                  ");\r",
+                  "\r",
+                  "// 3. DÙNG AWAIT: Bắt buộc Postman chờ Backend tạo xong token và lùi thời gian rồi mới chạy request chính\r",
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: { \"Content-Type\": \"application/json\" },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: targetEmail,\r",
+                  "            /// Set up thời gian thực thi theo điều kiện\r",
+                  "            elapsedSeconds: 86399,\r",
+                  "        }),\r",
+                  "    },\r",
+                  "});\r",
+                  "\r",
+                  "// 4. Kiểm tra helper endpoint thực thi thành công\r",
+                  "if (setupRes.code !== 200) {\r",
+                  "    throw new Error(`AUTH-010 SETUP failed với mã HTTP: ${setupRes.code}`);\r",
+                  "}\r",
+                  "\r",
+                  "const setupData = setupRes.json();\r",
+                  "if (!setupData || !setupData.verificationToken) {\r",
+                  "    throw new Error(\r",
+                  "        \"AUTH-010 SETUP không nhận được verificationToken từ server\",\r",
+                  "    );\r",
+                  "}\r",
+                  "\r",
+                  "// 5. ĐẶT VÀO CẢ VARIABLES VÀ ENVIRONMENT:\r",
+                  "// pm.variables có độ ưu tiên cao nhất, ép thanh URL của Postman lấy ngay lập tức token mới này,\r",
+                  "// loại bỏ hoàn toàn việc Postman dùng lại token cũ từ lần chạy trước\r",
+                  "pm.variables.set(\"current_verification_token\", setupData.verificationToken);\r",
+                  "pm.environment.set(\"current_verification_token\", setupData.verificationToken);\r",
+                  "console.log(\r",
+                  "    \"AUTH-010 SETUP OK | Token mới đã set:\",\r",
+                  "    setupData.verificationToken,\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 1. Kiểm tra Backend trả về mã chuyển hướng 302 Redirect khi token còn hạn hợp lệ\r",
+                  "pm.test(\"TC-BVA-AUTH-010 | HTTP 302 Redirect\", function () {\r",
+                  "  pm.response.to.have.status(302);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Kiểm tra Header Location chuyển hướng người dùng về trang thành công (verified=true)\r",
+                  "pm.test(\r",
+                  "  \"TC-BVA-AUTH-010 | Verification Token 23h59m59s còn hiệu lực\",\r",
+                  "  function () {\r",
+                  "    const location = pm.response.headers.get(\"Location\");\r",
+                  "    pm.expect(location).to.be.a(\"string\");\r",
+                  "    pm.expect(location).to.include(\"verified=true\");\r",
+                  "  },\r",
+                  ");\r",
+                  "\r",
+                  "// 3. Đảm bảo trong URL chuyển hướng không xuất hiện thông báo lỗi\r",
+                  "pm.test(\"TC-BVA-AUTH-010 | Không chứa lỗi xác thực\", function () {\r",
+                  "  const location = pm.response.headers.get(\"Location\");\r",
+                  "  pm.expect(location).to.not.include(\"error\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-email?token={{current_verification_token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{current_verification_token}}"
+                }
+              ]
+            },
+            "description": "- **Settings:** `Automatically follow redirects` -> `OFF`"
+          },
+          "response": []
+        },
+        {
+          "name": "02. TC-BVA-AUTH-011 (24h00m00s - Max)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// 1. Kiểm tra tiền điều kiện: Bắt buộc phải có email test từ Request 00\r",
+                  "const targetEmail = pm.environment.get(\"TP_BVA_04_Email\");\r",
+                  "if (!targetEmail) {\r",
+                  "    throw new Error(\r",
+                  "        \"[PRE-CONDITION FAILED] Chưa có thiết lập tài khoản test! \" +\r",
+                  "        \"Cần thao tác Request '00. [PRE-TEST] Register Unverified User' trước để tạo tài khoản kiểm thử.\",\r",
+                  "    );\r",
+                  "}\r",
+                  "console.log(\"Email đang test verify TC-011:\", targetEmail);\r",
+                  "\r",
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "    \"{{baseUrl}}/api/auth/test/set-verification-token-time\",\r",
+                  ");\r",
+                  "\r",
+                  "// 2. DÙNG AWAIT: Đợi Backend thiết lập đúng mốc chạm hạn 24 giờ (86400 giây)\r",
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: { \"Content-Type\": \"application/json\" },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: targetEmail,\r",
+                  "            elapsedSeconds: 86400, // Chạm đúng mốc 24h00m00s\r",
+                  "        }),\r",
+                  "    },\r",
+                  "});\r",
+                  "\r",
+                  "if (setupRes.code !== 200) {\r",
+                  "    throw new Error(`AUTH-011 SETUP failed: HTTP ${setupRes.code}`);\r",
+                  "}\r",
+                  "\r",
+                  "const setupData = setupRes.json();\r",
+                  "if (!setupData || !setupData.verificationToken) {\r",
+                  "    throw new Error(\"AUTH-011 SETUP không có verificationToken\");\r",
+                  "}\r",
+                  "\r",
+                  "// 3. Đặt vào cả variables và environment để URL lấy ngay token mới\r",
+                  "pm.variables.set(\"current_verification_token\", setupData.verificationToken);\r",
+                  "pm.environment.set(\"current_verification_token\", setupData.verificationToken);\r",
+                  "console.log(\r",
+                  "    \"AUTH-011 SETUP OK | Token chạm mốc 24h:\",\r",
+                  "    setupData.verificationToken,\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.text();\r",
+                  "\r",
+                  "// 1. Backend phải từ chối yêu cầu và trả về lỗi client HTTP 400\r",
+                  "pm.test(\"TC-BVA-AUTH-011 | HTTP 400 Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Kiểm tra thông báo từ chối có chứa từ khóa liên quan đến hết hạn hoặc không hợp lệ\r",
+                  "pm.test(\"TC-BVA-AUTH-011 | Verification Token 24h đã hết hạn\", function () {\r",
+                  "    const message = body.toLowerCase();\r",
+                  "    pm.expect(\r",
+                  "        message.includes(\"hết hạn\")\r",
+                  "    ).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "// 3. Kiểm tra câu thông báo chuẩn xác từ controller\r",
+                  "pm.test(\"TC-BVA-AUTH-011 | Hệ thống từ chối xác thực email\", function () {\r",
+                  "    pm.expect(body).to.include(\r",
+                  "        \"Liên kết xác thực không hợp lệ hoặc đã hết hạn.\",\r",
+                  "    );\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-email?token={{current_verification_token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{current_verification_token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03. TC-BVA-AUTH-012 (24h00m01s - Max+)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// 1. Kiểm tra tiền điều kiện: Bắt buộc phải có email test từ Request 00\r",
+                  "const targetEmail = pm.environment.get(\"TP_BVA_04_Email\");\r",
+                  "if (!targetEmail) {\r",
+                  "    throw new Error(\r",
+                  "        \"[PRE-CONDITION FAILED] Chưa có thiết lập tài khoản test! \" +\r",
+                  "        \"Cần thao tác Request '00. [PRE-TEST] Register Unverified User' trước để tạo tài khoản kiểm thử.\",\r",
+                  "    );\r",
+                  "}\r",
+                  "console.log(\"Email đang test verify TC-012:\", targetEmail);\r",
+                  "\r",
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "    \"{{baseUrl}}/api/auth/test/set-verification-token-time\",\r",
+                  ");\r",
+                  "\r",
+                  "// 2. DÙNG AWAIT: Đợi Backend thiết lập mốc quá hạn 1 giây (86401 giây)\r",
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: { \"Content-Type\": \"application/json\" },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: targetEmail,\r",
+                  "            // 86400+1s\r",
+                  "            elapsedSeconds: 86401, \r",
+                  "        }),\r",
+                  "    },\r",
+                  "});\r",
+                  "\r",
+                  "if (setupRes.code !== 200) {\r",
+                  "    throw new Error(`AUTH-012 SETUP failed: HTTP ${setupRes.code}`);\r",
+                  "}\r",
+                  "\r",
+                  "const setupData = setupRes.json();\r",
+                  "if (!setupData || !setupData.verificationToken) {\r",
+                  "    throw new Error(\"AUTH-012 SETUP không có verificationToken\");\r",
+                  "}\r",
+                  "\r",
+                  "// 3. Đặt vào cả variables và environment để URL lấy ngay token mới\r",
+                  "pm.variables.set(\"current_verification_token\", setupData.verificationToken);\r",
+                  "pm.environment.set(\"current_verification_token\", setupData.verificationToken);\r",
+                  "console.log(\r",
+                  "    \"AUTH-012 SETUP OK | Token quá hạn 1s:\",\r",
+                  "    setupData.verificationToken,\r",
+                  ");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.text();\r",
+                  "\r",
+                  "// 1. Backend phải từ chối yêu cầu và trả về lỗi client HTTP 400\r",
+                  "pm.test(\"TC-BVA-AUTH-012 | HTTP 400 Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Kiểm tra thông báo từ chối có chứa từ khóa liên quan đến hết hạn hoặc không hợp lệ\r",
+                  "pm.test(\r",
+                  "    \"TC-BVA-AUTH-012 | Verification Token 24h00m01s đã hết hạn\",\r",
+                  "    function () {\r",
+                  "        const message = body.toLowerCase();\r",
+                  "        pm.expect(\r",
+                  "            message.includes(\"hết hạn\") || message.includes(\"không hợp lệ\"),\r",
+                  "        ).to.eql(true);\r",
+                  "    },\r",
+                  ");\r",
+                  "\r",
+                  "// 3. Kiểm tra câu thông báo chuẩn xác từ controller\r",
+                  "pm.test(\"TC-BVA-AUTH-012 | Hệ thống từ chối xác thực email\", function () {\r",
+                  "    pm.expect(body).to.include(\r",
+                  "        \"Liên kết xác thực không hợp lệ hoặc đã hết hạn.\",\r",
+                  "    );\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-email?token={{current_verification_token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{current_verification_token}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "TP-BVA-05 - Verification Email Cooldown",
+      "item": [
+        {
+          "name": "TC-BVA-AUTH-013 - 59s",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-BVA-AUTH-013 - Status 429\", function () {\r",
+                  "    pm.response.to.have.status(429);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-013 - Backend từ chối tại 59s\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-013 - Có thông báo cooldown\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(json.message).to.include(\"quá nhanh\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "    \"{{baseUrl}}/api/auth/test/set-verification-token-time\"\r",
+                  ");\r",
+                  "\r",
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.user@gmail.com\",\r",
+                  "            elapsedSeconds: 59\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "if (setupRes.code !== 200) {\r",
+                  "    throw new Error(\r",
+                  "        `SETUP TC013 thất bại - HTTP ${setupRes.code}`\r",
+                  "    );\r",
+                  "}\r",
+                  "\r",
+                  "const setupJson = setupRes.json();\r",
+                  "\r",
+                  "if (\r",
+                  "    setupJson.success !== true ||\r",
+                  "    setupJson.elapsedSeconds !== 59\r",
+                  ") {\r",
+                  "    throw new Error(\"SETUP TC013 không thiết lập đúng 59s\");\r",
+                  "}\r",
+                  "\r",
+                  "console.log(\"SETUP TC013 OK - elapsedSeconds = 59\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/send-verification-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-verification-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-AUTH-014 - 60s",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-BVA-AUTH-014 - Status Code = 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-014 - success = true\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-014 - Gửi email xác thực thành công\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json.message).to.include(\"Email xác thực đã được gửi\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "    \"{{baseUrl}}/api/auth/test/set-verification-token-time\"\r",
+                  ");\r",
+                  "\r",
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.user@gmail.com\",\r",
+                  "            elapsedSeconds: 60\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "if (setupRes.code !== 200) {\r",
+                  "    throw new Error(\r",
+                  "        `SETUP TC014 thất bại - HTTP ${setupRes.code}`\r",
+                  "    );\r",
+                  "}\r",
+                  "\r",
+                  "const setupJson = setupRes.json();\r",
+                  "\r",
+                  "if (\r",
+                  "    setupJson.success !== true ||\r",
+                  "    setupJson.elapsedSeconds !== 60\r",
+                  ") {\r",
+                  "    throw new Error(\"SETUP TC014 không thiết lập đúng 60s\");\r",
+                  "}\r",
+                  "\r",
+                  "console.log(\"SETUP TC014 OK - elapsedSeconds = 60\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/send-verification-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-verification-email"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-AUTH-015 - 61s",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-BVA-AUTH-015 - Status Code = 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-015 - success = true\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-AUTH-015 - Gửi email xác thực thành công\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json.message).to.include(\"Email xác thực đã được gửi\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const setupUrl = pm.variables.replaceIn(\r",
+                  "    \"{{baseUrl}}/api/auth/test/set-verification-token-time\"\r",
+                  ");\r",
+                  "\r",
+                  "const setupRes = await pm.sendRequest({\r",
+                  "    url: setupUrl,\r",
+                  "    method: \"POST\",\r",
+                  "    header: {\r",
+                  "        \"Content-Type\": \"application/json\"\r",
+                  "    },\r",
+                  "    body: {\r",
+                  "        mode: \"raw\",\r",
+                  "        raw: JSON.stringify({\r",
+                  "            email: \"automation.user@gmail.com\",\r",
+                  "            elapsedSeconds: 61\r",
+                  "        })\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "if (setupRes.code !== 200) {\r",
+                  "    throw new Error(\r",
+                  "        `SETUP TC015 thất bại - HTTP ${setupRes.code}`\r",
+                  "    );\r",
+                  "}\r",
+                  "\r",
+                  "const setupJson = setupRes.json();\r",
+                  "\r",
+                  "if (\r",
+                  "    setupJson.success !== true ||\r",
+                  "    setupJson.elapsedSeconds !== 61\r",
+                  ") {\r",
+                  "    throw new Error(\"SETUP TC015 không thiết lập đúng 61s\");\r",
+                  "}\r",
+                  "\r",
+                  "console.log(\"SETUP TC015 OK - elapsedSeconds = 61\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/send-verification-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-verification-email"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TP-BVA-06 - Product Stock",
+      "item": [
+        {
+          "name": "[PRE-TEST] Admin Login to get JWT Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"[PRE-TEST] Đăng nhập tài khoản Admin thành công\", function () {\r",
+                  "    pm.expect(pm.response.code).to.eql(200);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "pm.test(\"[PRE-TEST] Trả về token hợp lệ\", function () {\r",
+                  "    pm.expect(json.token).to.be.a(\"string\");\r",
+                  "});\r",
+                  "\r",
+                  "if (json.token) {\r",
+                  "    const cleanToken = json.token.replace(/^Bearer\\s+/i, \"\");\r",
+                  "    pm.environment.set(\"adminToken\", cleanToken);\r",
+                  "    console.log(\"Admin token lưu thành công!\");\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"admin@techvie.com\",\r\n    \"password\": \"admin123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-PROD-016 — Stock = -1",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uniqueId = `${Date.now()}_${Math.floor(Math.random() * 1000)}`;\r",
+                  "pm.variables.set(\"product_name_tc016\", `Test BVA Product 016 ${uniqueId}`);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-PROD-016 | Ghi nhận lỗi từ chối tạo với stock âm\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400]);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-PROD-016 | Không tạo sản phẩm (success: false)\", function () {\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-PROD-016 | Chặn lỗi stock âm từ Mongoose Schema\", function () {\r",
+                  "    pm.expect(json.error).to.include(\"less than minimum allowed value (0)\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "BVA Stock -1",
+                  "type": "text",
+                  "uuid": "80085e18-ccf6-4117-86b3-46dcdef4ef7f"
+                },
+                {
+                  "key": "price",
+                  "value": "100000",
+                  "type": "text",
+                  "uuid": "88d3b88e-31dc-4388-8aa1-50e68b0c693a"
+                },
+                {
+                  "key": "category",
+                  "value": "Laptop",
+                  "type": "text",
+                  "uuid": "0e0d6a08-17c7-47d0-b7c2-a73d64894302"
+                },
+                {
+                  "key": "stock",
+                  "value": "-1",
+                  "type": "text",
+                  "uuid": "29714274-c125-4a66-b12e-0a0f30285079"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-PROD-017 — Stock = 0",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "BVA Stock -1",
+                  "type": "text",
+                  "uuid": "80085e18-ccf6-4117-86b3-46dcdef4ef7f"
+                },
+                {
+                  "key": "price",
+                  "value": "100000",
+                  "type": "text",
+                  "uuid": "88d3b88e-31dc-4388-8aa1-50e68b0c693a"
+                },
+                {
+                  "key": "category",
+                  "value": "<categoryId hợp lệ>",
+                  "type": "text",
+                  "uuid": "0e0d6a08-17c7-47d0-b7c2-a73d64894302"
+                },
+                {
+                  "key": "stock",
+                  "value": "0",
+                  "type": "text",
+                  "uuid": "29714274-c125-4a66-b12e-0a0f30285079"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-PROD-018 — Stock = 1",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "BVA Stock -1",
+                  "type": "text",
+                  "uuid": "80085e18-ccf6-4117-86b3-46dcdef4ef7f"
+                },
+                {
+                  "key": "price",
+                  "value": "100000",
+                  "type": "text",
+                  "uuid": "88d3b88e-31dc-4388-8aa1-50e68b0c693a"
+                },
+                {
+                  "key": "category",
+                  "value": "<categoryId hợp lệ>",
+                  "type": "text",
+                  "uuid": "0e0d6a08-17c7-47d0-b7c2-a73d64894302"
+                },
+                {
+                  "key": "stock",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "29714274-c125-4a66-b12e-0a0f30285079"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Đang dính lỗi"
+    },
+    {
+      "name": "TP-BVA-07 - Voucher Minimum Order",
+      "item": [
+        {
+          "name": "00. [PRE-TEST] Register & Login User Test",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Đăng ký tài khoản test thành công\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "if (json.token) {\r",
+                  "    const cleanToken = json.token.replace(/^Bearer\\s+/i, \"\");\r",
+                  "    pm.environment.set(\"userToken\", cleanToken);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uniqueId = `${Date.now()}_${Math.floor(Math.random() * 10000)}`;\r",
+                  "const testEmail = `bva_voucher_user_${uniqueId}@techvie.test`;\r",
+                  "const testUsername = `VoucherUser_${uniqueId}`;\r",
+                  "const testPassword = \"Password123\";\r",
+                  "\r",
+                  "pm.environment.set(\"TP_BVA_07_Email\", testEmail);\r",
+                  "pm.environment.set(\"TP_BVA_07_Username\", testUsername);\r",
+                  "pm.environment.set(\"TP_BVA_07_Password\", testPassword);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{TP_BVA_07_Username}}\",\r\n  \"email\": \"{{TP_BVA_07_Email}}\",\r\n  \"password\": \"{{TP_BVA_07_Password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01. [PRE-TEST] Seed Voucher TECHVIE50",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"TP_BVA_07_VoucherCode\", \"TECHVIE50\");\r",
+                  "pm.environment.set(\"TP_BVA_07_MinOrderVal\", 500000);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Khởi tạo hoặc kiểm tra Voucher TECHVIE50\", function () {\r",
+                  "    // 201 = Vừa tạo mới\r",
+                  "    // 400 = Đã tồn tại trước đó -> Cả 2 đều hợp lệ để test\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"{{TP_BVA_07_VoucherCode}}\",\r\n  \"discount\": 10,\r\n  \"description\": \"Giảm 10% cho đơn hàng từ 500.000đ\",\r\n  \"minOrderVal\": 500000,\r\n  \"isActive\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vouchers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vouchers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02. TC-BVA-VOU-019 - 499,999 VND (Min-)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-019 | HTTP 400 Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-019 | Áp dụng thất bại (success: false)\", function () {\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-019 | Thông báo lỗi yêu cầu đơn hàng tối thiểu\", function () {\r",
+                  "    pm.expect(json.message).to.be.a(\"string\");\r",
+                  "    pm.expect(json.message.toLowerCase()).to.include(\"tối thiểu\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"TECHVIE50\",\r\n  \"subtotal\": 499999\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vouchers/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vouchers",
+                "apply"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03. TC-BVA-VOU-020 - 500,000 VND (Min)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-020 | HTTP 200 OK\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-020 | Áp dụng thành công (success: true)\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-020 | Trả về thông tin chiết khấu hợp lệ\", function () {\r",
+                  "    pm.expect(json.discount).to.be.a(\"number\");\r",
+                  "    pm.expect(json.discount).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"TECHVIE50\",\r\n  \"subtotal\": 500000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vouchers/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vouchers",
+                "apply"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04. TC-BVA-VOU-021 - 500,001 VND (Min+)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-021 | HTTP 200 OK\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-021 | Áp dụng thành công (success: true)\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-VOU-021 | Trả về thông tin chiết khấu hợp lệ\", function () {\r",
+                  "    pm.expect(json.discount).to.be.a(\"number\");\r",
+                  "    pm.expect(json.discount).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"TECHVIE50\",\r\n  \"subtotal\": 500000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vouchers/apply",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vouchers",
+                "apply"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              "// Áp dụng delay cố định 500ms (0.5 giây) trước mỗi request trong folder này\r",
+              "await new Promise(resolve => setTimeout(resolve, 500));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TP-BVA-08 - Checkout Minimum Quantity",
+      "item": [
+        {
+          "name": "SETUP - Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"SETUP - Login User | HTTP 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"SETUP - Login User | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "const token = String(json.token || \"\")\r",
+                  "    .replace(/^Bearer\\s+/i, \"\");\r",
+                  "\r",
+                  "pm.test(\"SETUP - Có bearerToken\", function () {\r",
+                  "    pm.expect(token).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"bearerToken\", token);\r",
+                  "\r",
+                  "console.log(\"Đã lưu bearerToken\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"automation.user@gmail.com\",\r\n  \"password\": \"Pass123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-CHK-022-quantity = 0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-022 | HTTP 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-022 | success = false\", function () {\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"BVA Checkout User\",\r\n  \"phone\": \"0987654321\",\r\n  \"email\": \"bva.checkout.022@gmail.com\",\r\n  \"address\": \"BVA Test Address\",\r\n  \"notes\": \"TC-BVA-CHK-022\",\r\n  \"paymentMethod\": \"cod\",\r\n  \"deliveryMethod\": \"standard\",\r\n  \"cart\": [\r\n    {\r\n      \"product\": {\r\n        \"id\": \"{{productId}}\",\r\n        \"name\": \"Test Product\",\r\n        \"price\": 1800000\r\n      },\r\n      \"quantity\": 0\r\n    }\r\n  ],\r\n  \"finalTotal\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-CHK-023-quantity = 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-023 | HTTP 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-023 | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-023 | Có orderId\", function () {\r",
+                  "    pm.expect(json.orderId).to.not.be.empty;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"BVA Checkout User\",\r\n  \"phone\": \"0987654321\",\r\n  \"email\": \"bva.checkout.022@gmail.com\",\r\n  \"address\": \"BVA Test Address\",\r\n  \"notes\": \"TC-BVA-CHK-022\",\r\n  \"paymentMethod\": \"cod\",\r\n  \"deliveryMethod\": \"standard\",\r\n  \"cart\": [\r\n    {\r\n      \"product\": {\r\n        \"id\": \"{{productId}}\",\r\n        \"name\": \"Test Product\",\r\n        \"price\": 1800000\r\n      },\r\n      \"quantity\": 1\r\n    }\r\n  ],\r\n\"finalTotal\": 1800000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-CHK-024 - quantity = 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-BVA-CHK-024 | HTTP 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-024 | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-024 | Có orderId\", function () {\r",
+                  "    pm.expect(json.orderId).to.exist;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"BVA Checkout User\",\r\n  \"phone\": \"0987654321\",\r\n  \"email\": \"bva.checkout.022@gmail.com\",\r\n  \"address\": \"BVA Test Address\",\r\n  \"notes\": \"TC-BVA-CHK-022\",\r\n  \"paymentMethod\": \"cod\",\r\n  \"deliveryMethod\": \"standard\",\r\n  \"cart\": [\r\n    {\r\n      \"product\": {\r\n        \"id\": \"{{productId}}\",\r\n        \"name\": \"Test Product\",\r\n        \"price\": 1800000\r\n      },\r\n      \"quantity\": 2\r\n    }\r\n  ],\r\n\"finalTotal\": 3600000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "TP-BVA-09 - Checkout Stock",
+      "item": [
+        {
+          "name": "SETUP - Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"SETUP - Login User | HTTP 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"SETUP - Login User | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "const token = String(json.token || \"\")\r",
+                  "    .replace(/^Bearer\\s+/i, \"\");\r",
+                  "\r",
+                  "pm.test(\"SETUP - Có bearerToken\", function () {\r",
+                  "    pm.expect(token).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"bearerToken\", token);\r",
+                  "\r",
+                  "console.log(\"Đã lưu bearerToken\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"automation.user@gmail.com\",\r\n  \"password\": \"Pass123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-CHK-025 - quantity = 9",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-025 | HTTP 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-025 | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-025 | Có orderId\", function () {\r",
+                  "    pm.expect(json.orderId).to.not.be.empty;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"BVA Checkout User\",\r\n  \"phone\": \"0987654321\",\r\n  \"email\": \"bva.checkout.022@gmail.com\",\r\n  \"address\": \"BVA Test Address\",\r\n  \"notes\": \"TC-BVA-CHK-022\",\r\n  \"paymentMethod\": \"cod\",\r\n  \"deliveryMethod\": \"standard\",\r\n  \"cart\": [\r\n    {\r\n      \"product\": {\r\n        \"id\": \"{{productId}}\",\r\n        \"name\": \"Test Product\",\r\n        \"price\": 1800000\r\n      },\r\n      \"quantity\": 9\r\n    }\r\n  ],\r\n\"finalTotal\": 16200000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-CHK-026 - quantity = 10",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-026 | HTTP 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-026 | success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-026 | Có orderId\", function () {\r",
+                  "    pm.expect(json.orderId).to.not.be.empty;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"BVA Checkout User\",\r\n  \"phone\": \"0987654321\",\r\n  \"email\": \"bva.checkout.022@gmail.com\",\r\n  \"address\": \"BVA Test Address\",\r\n  \"notes\": \"TC-BVA-CHK-022\",\r\n  \"paymentMethod\": \"cod\",\r\n  \"deliveryMethod\": \"standard\",\r\n  \"cart\": [\r\n    {\r\n      \"product\": {\r\n        \"id\": \"{{productId}}\",\r\n        \"name\": \"Test Product\",\r\n        \"price\": 1800000\r\n      },\r\n      \"quantity\": 10\r\n    }\r\n  ],\r\n\"finalTotal\": 18000000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-CHK-027 - quantity = 11",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-027 | HTTP 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-027 | success = false\", function () {\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-CHK-027 | Vượt tồn kho\", function () {\r",
+                  "    pm.expect(json.message).to.include(\"vượt quá số lượng tồn kho\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"BVA Checkout User\",\r\n  \"phone\": \"0987654321\",\r\n  \"email\": \"bva.checkout.022@gmail.com\",\r\n  \"address\": \"BVA Test Address\",\r\n  \"notes\": \"TC-BVA-CHK-022\",\r\n  \"paymentMethod\": \"cod\",\r\n  \"deliveryMethod\": \"standard\",\r\n  \"cart\": [\r\n    {\r\n      \"product\": {\r\n        \"id\": \"{{productId}}\",\r\n        \"name\": \"Test Product\",\r\n        \"price\": 1800000\r\n      },\r\n      \"quantity\": 11\r\n    }\r\n  ],\r\n\"finalTotal\": 19800000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "TP-BVA-10 - Review Rating",
+      "item": [
+        {
+          "name": "CLEANUP - Initial Review State",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"INITIAL CLEANUP - Lấy danh sách review\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const reviews = Array.isArray(json.reviews) ? json.reviews : [];\r",
+                  "\r",
+                  "const oldReview = reviews.find(r =>\r",
+                  "    r.user_id &&\r",
+                  "    r.user_id.email === \"automation.user@gmail.com\" &&\r",
+                  "    r.isDeleted !== true\r",
+                  ");\r",
+                  "\r",
+                  "if (!oldReview) {\r",
+                  "    console.log(\"INITIAL CLEANUP - Không có review cũ\");\r",
+                  "    pm.environment.unset(\"reviewId\");\r",
+                  "} else {\r",
+                  "\r",
+                  "    const reviewId = oldReview._id || oldReview.id;\r",
+                  "\r",
+                  "    pm.environment.set(\"reviewId\", reviewId);\r",
+                  "\r",
+                  "    console.log(\"Tìm thấy review cũ:\", reviewId);\r",
+                  "\r",
+                  "    const deleteUrl =\r",
+                  "        pm.environment.get(\"baseUrl\") +\r",
+                  "        \"/api/reviews/\" +\r",
+                  "        reviewId;\r",
+                  "\r",
+                  "    const deleteRes = await pm.sendRequest({\r",
+                  "        url: deleteUrl,\r",
+                  "        method: \"DELETE\",\r",
+                  "        header: {\r",
+                  "            \"Authorization\":\r",
+                  "                \"Bearer \" + pm.environment.get(\"bearerToken\")\r",
+                  "        }\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.test(\"INITIAL CLEANUP - Xóa review cũ\", function () {\r",
+                  "        pm.expect(deleteRes.code).to.eql(200);\r",
+                  "    });\r",
+                  "\r",
+                  "    pm.environment.unset(\"reviewId\");\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-REV-028",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-BVA-REV-028 - Status Code = 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-028 - success = false\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-028 - Rating 0 bị từ chối\", function () {\r",
+                  "    const json = pm.response.json();\r",
+                  "    pm.expect(json).to.have.property(\"message\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 0,\r\n  \"title\": \"BVA Rating Test\",\r\n  \"comment\": \"TC-BVA-REV-028 Kiểm thử Rating\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-REV-029",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-029 - Status Code = 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-029 - success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-029 - Rating = 1\", function () {\r",
+                  "    pm.expect(json.review.rating).to.eql(1);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-029 - Lưu Review ID\", function () {\r",
+                  "    pm.expect(json.review).to.have.property(\"_id\");\r",
+                  "\r",
+                  "    pm.environment.set(\r",
+                  "        \"reviewId\",\r",
+                  "        json.review._id\r",
+                  "    );\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 1,\r\n  \"title\": \"BVA Rating Test\",\r\n  \"comment\": \"TC-BVA-REV-029 Kiểm thử Rating\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CLEANUP - After TC029",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC029 - Status Code = 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC029 - Xóa review thành công\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const reviewId = pm.environment.get(\"reviewId\");\r",
+                  "\r",
+                  "if (!reviewId) {\r",
+                  "    console.log(\"Không có reviewId - bỏ qua Cleanup\");\r",
+                  "    pm.execution.skipRequest();\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-REV-030",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-030 - Status Code = 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-030 - success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-030 - Rating = 2\", function () {\r",
+                  "    pm.expect(json.review.rating).to.eql(2);\r",
+                  "});\r",
+                  "\r",
+                  "// Lưu reviewId để cleanup\r",
+                  "if (json.review && json.review._id) {\r",
+                  "    pm.environment.set(\"reviewId\", json.review._id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 2,\r\n  \"title\": \"BVA Rating Test\",\r\n  \"comment\": \"TC-BVA-REV-030 Kiểm thử Rating\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CLEANUP - After TC030",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC030 - Status Code = 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC030 - Xóa review thành công\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-REV-031",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-031 - Status Code = 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-031 - success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-031 - Rating = 3\", function () {\r",
+                  "    pm.expect(json.review.rating).to.eql(3);\r",
+                  "});\r",
+                  "\r",
+                  "// Lưu reviewId để cleanup\r",
+                  "if (json.review && json.review._id) {\r",
+                  "    pm.environment.set(\"reviewId\", json.review._id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 3,\r\n  \"title\": \"BVA Rating Test\",\r\n  \"comment\": \"TC-BVA-REV-031 Kiểm thử Rating\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CLEANUP - After TC031",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC031 - Status Code = 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC031 - Xóa review thành công\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-REV-032",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-032 - Status Code = 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-032 - success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-032 - Rating = 4\", function () {\r",
+                  "    pm.expect(json.review.rating).to.eql(4);\r",
+                  "});\r",
+                  "\r",
+                  "// Lưu reviewId để cleanup\r",
+                  "if (json.review && json.review._id) {\r",
+                  "    pm.environment.set(\"reviewId\", json.review._id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 4,\r\n  \"title\": \"BVA Rating Test\",\r\n  \"comment\": \"TC-BVA-REV-032 Kiểm thử Rating\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CLEANUP - After TC032",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC032 - Status Code = 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC032 - Xóa review thành công\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-REV-033",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-033 - Status Code = 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-033 - success = true\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-033 - Rating = 5\", function () {\r",
+                  "    pm.expect(json.review.rating).to.eql(5);\r",
+                  "});\r",
+                  "\r",
+                  "// Lưu reviewId để cleanup\r",
+                  "if (json.review && json.review._id) {\r",
+                  "    pm.environment.set(\"reviewId\", json.review._id);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 5,\r\n  \"title\": \"BVA Rating Test\",\r\n  \"comment\": \"TC-BVA-REV-033 Kiểm thử Rating\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CLEANUP - After TC033",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC033 - Status Code = 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"CLEANUP TC033 - Xóa review thành công\", function () {\r",
+                  "    pm.expect(json.success).to.eql(true);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "TC-BVA-REV-034",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-034 - Status Code = 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-034 - success = false\", function () {\r",
+                  "    pm.expect(json.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"TC-BVA-REV-034 - Rating 6 bị từ chối\", function () {\r",
+                  "    pm.expect(json).to.have.property(\"message\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rating\": 6,\r\n  \"title\": \"BVA Rating Test\",\r\n  \"comment\": \"TC-BVA-REV-034 Kiểm thử Rating\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "bvaReviewId",
+      "value": ""
+    }
+  ]
+}
