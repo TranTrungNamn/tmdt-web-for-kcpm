@@ -3,7 +3,6 @@ const { uploadToCloudinary, deleteFromCloudinary } = require("../config/cloudina
 const { uploadImage } = require("../services/uploadService");
 const logger = require("../utils/logger");
 
-
 // Helper trích xuất public_id từ Cloudinary URL
 const getPublicIdFromUrl = (url) => {
   if (!url || !url.includes("res.cloudinary.com")) return null;
@@ -25,42 +24,47 @@ const productController = {
     try {
       const { search, includeDeleted } = req.query;
       let query = {};
-      
-      if (includeDeleted !== 'true') {
+
+      if (includeDeleted !== "true") {
         query.isDeleted = { $ne: true };
-        
+
         // Tự động ẩn các sản phẩm thuộc danh mục đã bị tắt (soft deleted/disabled)
         try {
           const Category = require("../models/Category");
-          const disabledCategories = await Category.find({ isDeleted: true }, 'name');
+          const disabledCategories = await Category.find(
+            { isDeleted: true },
+            "name",
+          );
           if (disabledCategories.length > 0) {
-            const disabledNames = disabledCategories.map(cat => cat.name);
-            logger.info('[BACKEND] Hiding products under disabled categories:', { disabledNames });
+            const disabledNames = disabledCategories.map((cat) => cat.name);
+            logger.info(
+              "[BACKEND] Hiding products under disabled categories:",
+              { disabledNames },
+            );
             query.category = { $nin: disabledNames };
           }
         } catch (catError) {
-          logger.error("Lỗi khi tìm danh mục bị tắt:", { error: catError.message });
+          logger.error("Lỗi khi tìm danh mục bị tắt:", {
+            error: catError.message,
+          });
         }
       }
-      
+
       if (search) {
         const searchRegex = new RegExp(search.trim(), "i");
         // Nếu đã có điều kiện category, ta gộp lại bằng $and để tránh đè query
         const searchOrCond = [
           { name: searchRegex },
-          { description: searchRegex }
+          { description: searchRegex },
         ];
-        
+
         // Nếu category không bị cấm do đã tắt, cho phép tìm kiếm theo category
         if (!query.category) {
           searchOrCond.push({ category: searchRegex });
         }
-        
+
         if (query.category) {
-          query.$and = [
-            { category: query.category },
-            { $or: searchOrCond }
-          ];
+          query.$and = [{ category: query.category }, { $or: searchOrCond }];
         } else {
           query.$or = searchOrCond;
         }
@@ -72,21 +76,24 @@ const productController = {
           if (authHeader && authHeader.startsWith("Bearer ")) {
             const token = authHeader.split(" ")[1];
             const jwt = require("jsonwebtoken");
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || "techvie_jwt_secret_key_2026");
+            const decoded = jwt.verify(
+              token,
+              process.env.JWT_SECRET || "techvie_jwt_secret_key_2026",
+            );
             userId = decoded.id || decoded.email || null;
           }
-          
+
           const SearchLog = require("../models/SearchLog");
           await SearchLog.create({
             query: search.trim(),
             userId: userId,
-            ip: req.ip || req.connection.remoteAddress
+            ip: req.ip || req.connection.remoteAddress,
           });
         } catch (logErr) {
           logger.error("Lỗi ghi log tìm kiếm:", { error: logErr.message });
         }
       }
-      
+
       const products = await Product.find(query);
       return res.status(200).json(products);
     } catch (error) {
@@ -115,7 +122,7 @@ const productController = {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
-      
+
       let uniqueId = slugId || "product";
       let count = 1;
       while (await Product.findById(uniqueId)) {
@@ -126,10 +133,13 @@ const productController = {
       // Upload ảnh với cơ chế Fallback (ImageKit -> Cloudinary)
       let imageUrl = req.body.image || "";
       if (req.file) {
-        const uploadResult = await uploadImage(req.file.buffer, req.file.originalname, "techvie_products");
+        const uploadResult = await uploadImage(
+          req.file.buffer,
+          req.file.originalname,
+          "techvie_products",
+        );
         imageUrl = uploadResult.url;
       }
-
 
       // Parse specs từ JSON string (nếu gửi bằng form-data)
       let parsedSpecs = [];
@@ -146,7 +156,8 @@ const productController = {
       let parsedColors = [];
       if (colors) {
         try {
-          parsedColors = typeof colors === "string" ? JSON.parse(colors) : colors;
+          parsedColors =
+            typeof colors === "string" ? JSON.parse(colors) : colors;
         } catch (e) {
           logger.warn("Lỗi parse colors JSON:", { error: e.message });
           parsedColors = [];
@@ -176,7 +187,6 @@ const productController = {
     } catch (error) {
       logger.error("Lỗi thêm sản phẩm:", { error: error.message });
       if (error.name === "ValidationError") {
-        
         return res.status(400).json({
           success: false,
           message: error.message,
@@ -194,7 +204,16 @@ const productController = {
   updateProduct: async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, price, stock, category, description, specs, colors, badge } = req.body;
+      const {
+        name,
+        price,
+        stock,
+        category,
+        description,
+        specs,
+        colors,
+        badge,
+      } = req.body;
 
       const product = await Product.findById(id);
       if (!product) {
@@ -221,9 +240,12 @@ const productController = {
 
       if (colors) {
         try {
-          product.colors = typeof colors === "string" ? JSON.parse(colors) : colors;
+          product.colors =
+            typeof colors === "string" ? JSON.parse(colors) : colors;
         } catch (e) {
-          logger.warn("Lỗi parse colors JSON khi update:", { error: e.message });
+          logger.warn("Lỗi parse colors JSON khi update:", {
+            error: e.message,
+          });
         }
       }
 
@@ -232,15 +254,22 @@ const productController = {
         if (product.image) {
           const oldPublicId = getPublicIdFromUrl(product.image);
           if (oldPublicId) {
-            logger.info(`[CLOUDINARY] Xóa ảnh cũ khi cập nhật sản phẩm: ${oldPublicId}`);
-            await deleteFromCloudinary(oldPublicId).catch(err => 
-              logger.error("Lỗi xóa ảnh cũ khi cập nhật:", { error: err.message })
+            logger.info(
+              `[CLOUDINARY] Xóa ảnh cũ khi cập nhật sản phẩm: ${oldPublicId}`,
+            );
+            await deleteFromCloudinary(oldPublicId).catch((err) =>
+              logger.error("Lỗi xóa ảnh cũ khi cập nhật:", {
+                error: err.message,
+              }),
             );
           }
         }
-        const uploadResult = await uploadImage(req.file.buffer, req.file.originalname, "techvie_products");
+        const uploadResult = await uploadImage(
+          req.file.buffer,
+          req.file.originalname,
+          "techvie_products",
+        );
         product.image = uploadResult.url;
-
       } else if (req.body.image !== undefined) {
         product.image = req.body.image;
       }
@@ -274,7 +303,7 @@ const productController = {
   deleteProduct: async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       const product = await Product.findById(id);
       if (!product) {
         return res.status(404).json({
@@ -307,7 +336,7 @@ const productController = {
   restoreProduct: async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       const product = await Product.findById(id);
       if (!product) {
         return res.status(404).json({

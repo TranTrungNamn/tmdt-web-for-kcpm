@@ -1,0 +1,90 @@
+name: MAIN 02 - Postman Robust BVA Automation
+
+on:
+  workflow_dispatch: # Chạy thủ công khi bấm "Run workflow"
+  schedule:
+    - cron: "0 0 * * *" # Chạy tự động hàng ngày lúc 07:00 sáng (GMT+7 tức 00:00 UTC)
+  workflow_run:
+    workflows: ["Deploy Render (CD)"] # Chạy tự động sau khi deploy hoàn tất
+    types:
+      - completed
+  push:
+    branches: ["main"]
+    paths:
+      - "_nguyencongviec/06_09_2026 - Nộp E-learning/POSTMAN/**"
+      - ".github/workflows/MAIN-02-postman-automation.yml"
+
+jobs:
+  run-elearning-bva-tests:
+    name: Execute E-Learning Postman Robust BVA Automation
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    environment: "Testing Env"
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Newman & HTML Reporter
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      - name: Create Reports Directory
+        run: mkdir -p newman-reports
+
+      # Đánh thức (Warm up) Render Backend trước khi chạy test để tránh timeout / cold start
+      - name: Warm up & Wait for Render Backend and DB Ready
+        run: |
+          echo "Checking and waking up Render Backend..."
+          BASE_URL="${{ secrets.RENDER_BACKEND_URL_LINK }}"
+          if [ -z "$BASE_URL" ]; then
+            BASE_URL="https://tmdt-web-for-kcpm-vdd4.onrender.com"
+          fi
+          BASE_URL="${BASE_URL%/}"
+
+          MAX_RETRIES=30
+          COUNT=0
+
+          until [ $COUNT -ge $MAX_RETRIES ]
+          do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$BASE_URL/test-db" || true)
+            echo "Ping $BASE_URL/test-db -> HTTP $HTTP_CODE (Attempt $((COUNT+1))/$MAX_RETRIES)"
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Render Backend and Database are awake, healthy, and ready!"
+              exit 0
+            fi
+
+            COUNT=$((COUNT+1))
+            sleep 5
+          done
+
+          echo "Render backend failed to wake up in time ($((MAX_RETRIES*5))s)."
+          exit 1
+
+      # Chạy Collection Robust BVA trong thư mục Nộp E-learning
+      - name: Run E-Learning Robust BVA Collection
+        run: |
+          sleep 5
+          npx newman run "_nguyencongviec/06_09_2026 - Nộp E-learning/POSTMAN/Nộp E-learning/Collection/TechVie - Robust BVA.postman_collection.json" \
+            --environment "_nguyencongviec/06_09_2026 - Nộp E-learning/POSTMAN/Nộp E-learning/Env/TechVie Render.postman_environment.json" \
+            --delay-request 300 \
+            --timeout-request 30000 \
+            --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK || 'https://tmdt-web-for-kcpm-vdd4.onrender.com' }}" \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export newman-reports/Elearning_Robust_BVA_Report.html \
+            --reporter-htmlextra-title "E-Learning - Robust BVA Test Report"
+
+      # Upload Artifact báo cáo kiểm thử HTML
+      - name: Upload Test Reports Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Elearning-Postman-BVA-Reports
+          path: newman-reports/
+          retention-days: 14
