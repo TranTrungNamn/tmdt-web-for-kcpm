@@ -1,22 +1,35 @@
 {
   "info": {
-    "_postman_id": "46a2367b-480d-48ed-93be-7412bed278f8",
-    "name": "TechVie - Robust BVA",
+    "_postman_id": "02336b3c-a58e-4875-a9e0-e619b3be52bb",
+    "name": "TechVie - Robust BVA - Last",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "57852231",
-    "_collection_link": "https://go.postman.co/collection/57879621-46a2367b-480d-48ed-93be-7412bed278f8?source=collection_link"
+    "_exporter_id": "58032370",
+    "_collection_link": "https://go.postman.co/collection/58032370-02336b3c-a58e-4875-a9e0-e619b3be52bb?source=collection_link"
   },
   "item": [
     {
       "name": "Authentication",
       "item": [
         {
-          "name": "Register",
+          "name": "Login Admin",
           "event": [
             {
               "listen": "test",
               "script": {
-                "exec": [""],
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Login Admin | HTTP 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const token = String(json.token || \"\")\r",
+                  "    .replace(/^Bearer\\s+/i, \"\");\r",
+                  "\r",
+                  "pm.environment.set(\"adminToken\", token);\r",
+                  "\r",
+                  "console.log(\"Đã lưu adminToken\");"
+                ],
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
@@ -25,13 +38,20 @@
           ],
           "request": {
             "auth": {
-              "type": "noauth"
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
             },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"username\": \"automation_test1\",\r\n  \"email\": \"automation.test1@gmail.com\",\r\n  \"password\": \"Pass123456\"\r\n}",
+              "raw": "{\r\n    \"email\": \"{{admin_email}}\",\r\n    \"password\": \"{{admin_password}}\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -39,9 +59,15 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
@@ -89,186 +115,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Profile",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{bearerToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "profile"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Check Email",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/check-email?email=phat_test_02@gmail.com",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "check-email"],
-              "query": [
-                {
-                  "key": "email",
-                  "value": "phat_test_02@gmail.com"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login Admin",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const json = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"Login Admin | HTTP 200\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "});\r",
-                  "\r",
-                  "const token = String(json.token || \"\")\r",
-                  "    .replace(/^Bearer\\s+/i, \"\");\r",
-                  "\r",
-                  "pm.environment.set(\"adminToken\", token);\r",
-                  "\r",
-                  "console.log(\"Đã lưu adminToken\");"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"email\": \"admin@techvie.com\",\r\n    \"password\": \"admin123\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Forgot Password",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const json = pm.response.json();\r",
-                  "\r",
-                  "if (json.resetToken) {\r",
-                  "    pm.environment.set(\r",
-                  "        \"token-reset-password\",\r",
-                  "        json.resetToken\r",
-                  "    );\r",
-                  "\r",
-                  "    console.log(\"Đã lưu token-reset-password\");\r",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"email\": \"automation.test1@gmail.com\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "forgot-password"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Reset Password",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"newPassword\": \"Pass123456\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "auth",
-                "reset-password",
-                "{{token-reset-password}}"
+                "login"
               ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Send Verification Email",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/send-verification-email",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "send-verification-email"]
             }
           },
           "response": []
@@ -295,7 +149,7 @@
                   "    body: {\r",
                   "        mode: \"raw\",\r",
                   "        raw: JSON.stringify({\r",
-                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            email: \"testuser_35621@gmail.com\",\r",
                   "            elapsedSeconds: 0\r",
                   "        })\r",
                   "    }\r",
@@ -351,7 +205,9 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "auth",
@@ -382,7 +238,7 @@
                   "    body: {\r",
                   "        mode: \"raw\",\r",
                   "        raw: JSON.stringify({\r",
-                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            email: \"testuser_35621@gmail.com\",\r",
                   "            elapsedSeconds: 0\r",
                   "        })\r",
                   "    }\r",
@@ -454,7 +310,9 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "auth",
@@ -485,7 +343,7 @@
                   "    body: {\r",
                   "        mode: \"raw\",\r",
                   "        raw: JSON.stringify({\r",
-                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            email: \"testuser_35621@gmail.com\",\r",
                   "            elapsedSeconds: 0\r",
                   "        })\r",
                   "    }\r",
@@ -557,7 +415,9 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "auth",
@@ -590,7 +450,7 @@
                   "    body: {\r",
                   "        mode: \"raw\",\r",
                   "        raw: JSON.stringify({\r",
-                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            email: \"testuser_35621@gmail.com\",\r",
                   "            elapsedSeconds: 899\r",
                   "        })\r",
                   "    }\r",
@@ -656,7 +516,9 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "auth",
@@ -683,7 +545,7 @@
                   "    body: {\r",
                   "        mode: \"raw\",\r",
                   "        raw: JSON.stringify({\r",
-                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            email: \"testuser_35621@gmail.com\",\r",
                   "            elapsedSeconds: 900\r",
                   "        })\r",
                   "    }\r",
@@ -758,7 +620,9 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "auth",
@@ -785,7 +649,7 @@
                   "    body: {\r",
                   "        mode: \"raw\",\r",
                   "        raw: JSON.stringify({\r",
-                  "            email: \"automation.test1@gmail.com\",\r",
+                  "            email: \"testuser_35621@gmail.com\",\r",
                   "            elapsedSeconds: 901\r",
                   "        })\r",
                   "    }\r",
@@ -860,7 +724,9 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/reset-password/{{token-reset-password}}",
-              "host": ["{{baseUrl}}"],
+              "host": [
+                "{{baseUrl}}"
+              ],
               "path": [
                 "api",
                 "auth",
@@ -924,8 +790,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             },
             "description": "Nạp trước tài khoản tránh va chạm với test case khác"
           },
@@ -1021,8 +893,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
             },
             "description": "# Test Case: TC-BVA-AUTH-007\n\n| Trường thông tin | Chi tiết |\n| --- | --- |\n| **STT** | 7 |\n| **Mã Test Case** | `TC-BVA-AUTH-007` |\n| **Mã Yêu Cầu (FR)** | `FR-AUTH-04` |\n| **Module** | Auth |\n| **Phương pháp kiểm thử** | Robust BVA |\n| **Giá trị biên** | Min- (59s) |\n| **Mô tả kiểm thử** | Kiểm tra gửi lại email đặt lại mật khẩu trước thời gian chờ tối thiểu |\n| **Tiền điều kiện** | Tài khoản credentials tồn tại và đã thực hiện yêu cầu Forgot Password trước đó; Thời điểm gửi gần nhất có thể được thiết lập phục vụ test; Dữ liệu được reset trước mỗi testcase. |\n| **Hành động / Các bước** | Gửi lại yêu cầu Forgot Password sau 59 giây |\n| **Giá trị đầu vào (Input)** | `elapsedTime = 59s` |\n| **Mã lỗi dự kiến** | X3, B7 |\n| **Kết quả mong đợi** | Backend từ chối yêu cầu gửi lại vì chưa đủ 60 giây (HTTP 429 / 400) |"
           },
@@ -1122,8 +1000,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
             },
             "description": "# Test Case: TC-BVA-AUTH-008\n\n| Trường thông tin | Chi tiết |\n| --- | --- |\n| **STT** | 8 |\n| **Mã Test Case** | `TC-BVA-AUTH-008` |\n| **Mã Yêu Cầu (FR)** | `FR-AUTH-04` |\n| **Module** | Auth |\n| **Phương pháp kiểm thử** | Robust BVA |\n| **Giá trị biên** | Min (60s) |\n| **Mô tả kiểm thử** | Kiểm tra gửi lại email đặt lại mật khẩu đúng mốc thời gian chờ tối thiểu |\n| **Tiền điều kiện** | Tài khoản tồn tại và đã có yêu cầu Forgot Password trước đó; Mốc thời gian được set = 60s |\n| **Hành động / Các bước** | Gửi lại yêu cầu Forgot Password sau đúng 60 giây |\n| **Giá trị đầu vào (Input)** | `elapsedTime = 60s` |\n| **Kết quả mong đợi** | Backend chấp nhận yêu cầu gửi lại (HTTP 200 OK, success: true) |"
           },
@@ -1223,8 +1107,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/forgot-password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "forgot-password"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
             },
             "description": "# Test Case: TC-BVA-AUTH-009\n\n| Trường thông tin | Chi tiết |\n|---|---|\n| **STT** | 9 |\n| **Mã Test Case** | `TC-BVA-AUTH-009` |\n| **Mã Yêu Cầu (FR)** | `FR-AUTH-04` |\n| **Module** | Auth |\n| **Phương pháp kiểm thử** | Robust BVA |\n| **Giá trị biên** | Min+ (61s) |\n| **Mô tả kiểm thử** | Kiểm tra gửi lại email đặt lại mật khẩu sau thời gian chờ tối thiểu |\n| **Tiền điều kiện** | Tài khoản tồn tại và đã có yêu cầu Forgot Password trước đó; Mốc thời gian được set = 61s |\n| **Hành động / Các bước** | Gửi lại yêu cầu Forgot Password sau 61 giây |\n| **Giá trị đầu vào (Input)** | `elapsedTime = 61s` |\n| **Kết quả mong đợi** | Backend chấp nhận yêu cầu gửi lại (HTTP 200 OK, success: true) |"
           },
@@ -1240,8 +1130,7 @@
             "packages": {},
             "requests": {},
             "exec": [
-              "// Áp dụng delay cố định 500ms (0.5 giây) trước mỗi request trong folder này\r",
-              "await new Promise(resolve => setTimeout(resolve, 500));"
+              ""
             ]
           }
         },
@@ -1251,7 +1140,9 @@
             "type": "text/javascript",
             "packages": {},
             "requests": {},
-            "exec": [""]
+            "exec": [
+              ""
+            ]
           }
         }
       ]
@@ -1308,8 +1199,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             },
             "description": "Nạp trước tài khoản tránh va chạm với test case khác"
           },
@@ -1419,8 +1316,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/verify-email?token={{current_verification_token}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "verify-email"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ],
               "query": [
                 {
                   "key": "token",
@@ -1529,8 +1432,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/verify-email?token={{current_verification_token}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "verify-email"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ],
               "query": [
                 {
                   "key": "token",
@@ -1639,8 +1548,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/verify-email?token={{current_verification_token}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "verify-email"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ],
               "query": [
                 {
                   "key": "token",
@@ -1745,8 +1660,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/send-verification-email",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "send-verification-email"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-verification-email"
+              ]
             }
           },
           "response": []
@@ -1838,8 +1759,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/send-verification-email",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "send-verification-email"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-verification-email"
+              ]
             }
           },
           "response": []
@@ -1931,8 +1858,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/auth/send-verification-email",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "send-verification-email"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-verification-email"
+              ]
             }
           },
           "response": []
@@ -1945,7 +1878,9 @@
             "type": "text/javascript",
             "packages": {},
             "requests": {},
-            "exec": [""]
+            "exec": [
+              ""
+            ]
           }
         },
         {
@@ -1954,7 +1889,9 @@
             "type": "text/javascript",
             "packages": {},
             "requests": {},
-            "exec": [""]
+            "exec": [
+              ""
+            ]
           }
         }
       ]
@@ -2005,7 +1942,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"admin@techvie.com\",\r\n    \"password\": \"admin123\"\r\n}",
+              "raw": "{\r\n    \"email\": \"{{admin_email}}\",\r\n    \"password\": \"{{admin_password}}\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2014,8 +1951,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
@@ -2104,8 +2047,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
             }
           },
           "response": []
@@ -2156,8 +2104,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
             }
           },
           "response": []
@@ -2208,8 +2161,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/products",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "products"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
             }
           },
           "response": []
@@ -2276,8 +2234,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           },
           "response": []
@@ -2327,8 +2291,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/vouchers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "vouchers"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vouchers"
+              ]
             }
           },
           "response": []
@@ -2339,7 +2308,9 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": [""],
+                "exec": [
+                  ""
+                ],
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
@@ -2384,8 +2355,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/vouchers/apply",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "vouchers", "apply"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vouchers",
+                "apply"
+              ]
             }
           },
           "response": []
@@ -2432,8 +2409,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/vouchers/apply",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "vouchers", "apply"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vouchers",
+                "apply"
+              ]
             }
           },
           "response": []
@@ -2480,8 +2463,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/vouchers/apply",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "vouchers", "apply"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vouchers",
+                "apply"
+              ]
             }
           },
           "response": []
@@ -2506,7 +2495,9 @@
             "type": "text/javascript",
             "packages": {},
             "requests": {},
-            "exec": [""]
+            "exec": [
+              ""
+            ]
           }
         }
       ]
@@ -2562,8 +2553,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
@@ -2615,8 +2612,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "checkout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
             }
           },
           "response": []
@@ -2672,8 +2674,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "checkout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
             }
           },
           "response": []
@@ -2729,8 +2736,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "checkout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
             }
           },
           "response": []
@@ -2788,8 +2800,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
@@ -2845,8 +2863,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "checkout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
             }
           },
           "response": []
@@ -2902,8 +2925,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "checkout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
             }
           },
           "response": []
@@ -2959,8 +2987,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "checkout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
             }
           },
           "response": []
@@ -3031,7 +3064,9 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": [""],
+                "exec": [
+                  ""
+                ],
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
@@ -3053,8 +3088,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
             }
           },
           "response": []
@@ -3110,8 +3151,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
             }
           },
           "response": []
@@ -3176,8 +3223,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
             }
           },
           "response": []
@@ -3236,8 +3289,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{reviewId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
             }
           },
           "response": []
@@ -3298,8 +3357,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
             }
           },
           "response": []
@@ -3342,8 +3407,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{reviewId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
             }
           },
           "response": []
@@ -3404,8 +3475,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
             }
           },
           "response": []
@@ -3448,8 +3525,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{reviewId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
             }
           },
           "response": []
@@ -3510,8 +3593,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
             }
           },
           "response": []
@@ -3554,8 +3643,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{reviewId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
             }
           },
           "response": []
@@ -3616,8 +3711,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
             }
           },
           "response": []
@@ -3660,8 +3761,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{reviewId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{reviewId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{reviewId}}"
+              ]
             }
           },
           "response": []
@@ -3717,8 +3824,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reviews/{{productId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reviews", "{{productId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "{{productId}}"
+              ]
             }
           },
           "response": []

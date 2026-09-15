@@ -74,6 +74,8 @@ jobs:
             --delay-request 300 \
             --timeout-request 30000 \
             --env-var "baseUrl=${{ secrets.RENDER_BACKEND_URL_LINK || 'https://tmdt-web-for-kcpm-vdd4.onrender.com' }}" \
+            --env-var "admin_email=${{ secrets.ADMIN_EMAIL }}" \
+            --env-var "admin_password=${{ secrets.ADMIN_PASSWORD }}" \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export newman-reports/MAIN_02_Robust_BVA_Report.html \
             --reporter-htmlextra-title "MAIN 02 - Robust BVA Test Report"
