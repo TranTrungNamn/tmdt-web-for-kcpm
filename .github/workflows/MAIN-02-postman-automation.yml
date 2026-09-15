@@ -9,10 +9,10 @@ on:
     workflows: ["Deploy Render (CD)"] # Chạy tự động sau khi deploy hoàn tất
     types:
       - completed
-    push:
-      branches:
-        - main
-        - ci/fix_TP_BVA_10
+  push:
+    branches:
+      - main
+      - ci/fix_TP_BVA_10
 
 jobs:
   run-main-02-bva-tests:
