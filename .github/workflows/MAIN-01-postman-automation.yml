@@ -1,29 +1,13 @@
-name: MAIN 01 - Postman Robust BVA Automation
+name: MAIN 01 - Postman Robust BVA Automation (Manual / Footage)
 
+# Workflow lưu trữ phục vụ lấy footage/chạy thủ công đối chiếu, không chạy tự động
 on:
-  workflow_dispatch: # Cho phép chạy thủ công khi bấm "Run workflow" trên GitHub
-  push:
-    branches: [ "main" ]
-    paths:
-      - "backend/**"
-      - "postman_collections/MAIN/**"
-      - ".github/workflows/MAIN-01-postman-automation.yml"
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - "backend/**"
-      - "postman_collections/MAIN/**"
-  schedule:
-    - cron: "0 17 * * *" # Chạy tự động hàng ngày lúc 00:00 (GMT+7 tức 17:00 UTC)
-  workflow_run:
-    workflows: ["Deploy Render (CD)"]
-    types:
-      - completed
+  workflow_dispatch: # Chỉ kích hoạt thủ công qua nút "Run workflow" trên GitHub Actions
+
 jobs:
   run-main-bva-tests:
-    name: Execute MAIN 01 Postman Robust BVA Automation
+    name: Execute MAIN 01 Postman Robust BVA (Manual Footage)
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     environment: "Testing Env"
 
     steps:
