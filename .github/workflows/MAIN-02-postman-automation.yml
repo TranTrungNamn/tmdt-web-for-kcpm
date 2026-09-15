@@ -11,9 +11,6 @@ on:
       - completed
   push:
     branches: ["main"]
-    paths:
-      - "postman_collections/MAIN 02/**"
-      - ".github/workflows/MAIN-02-postman-automation.yml"
 
 jobs:
   run-main-02-bva-tests:
