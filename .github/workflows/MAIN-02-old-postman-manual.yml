@@ -1,7 +1,10 @@
 name: MAIN 02 Old - Manual Postman BVA (A/B Testing)
 
 on:
-  workflow_dispatch: # Chỉ kích hoạt thủ công để test đối chiếu A/B
+  workflow_dispatch:
+  push:
+    branches:
+      - ci/fix_TP_BVA_10
 
 jobs:
   run-main-02-old-bva-tests:
