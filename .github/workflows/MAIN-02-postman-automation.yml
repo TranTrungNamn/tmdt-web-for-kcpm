@@ -3,7 +3,8 @@ name: MAIN 02 - Postman Robust BVA Automation
 on:
   workflow_dispatch: # Chạy thủ công khi bấm "Run workflow"
   schedule:
-    - cron: "0 0 * * *" # Chạy tự động hàng ngày lúc 07:00 sáng (GMT+7 tức 00:00 UTC)
+    # Chạy tự động hàng ngày lúc 07:00 sáng (GMT+7 tức 00:00 UTC)
+    - cron: "0 0 * * *"
   workflow_run:
     workflows: ["Deploy Render (CD)"] # Chạy tự động sau khi deploy hoàn tất
     types:
