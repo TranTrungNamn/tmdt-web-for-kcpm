@@ -2784,6 +2784,89 @@
       "name": "TP-BVA-10 - Review Rating",
       "item": [
         {
+          "name": "SETUP - Create Delivered Order for Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"SETUP ORDER | HTTP 200/201 Created\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+                  "});\r",
+                  "\r",
+                  "const orderId = json.orderId || (json.order && (json.order._id || json.order.id));\r",
+                  "\r",
+                  "if (orderId) {\r",
+                  "    console.log(\"Đã tạo order phục vụ review, ID:\", orderId);\r",
+                  "    \r",
+                  "    // Admin update order sang status_type = 'success' để kích hoạt quyền review\r",
+                  "    pm.sendRequest({\r",
+                  "        url: pm.environment.get(\"baseUrl\") + \"/api/orders/\" + orderId + \"/status\",\r",
+                  "        method: \"POST\",\r",
+                  "        header: {\r",
+                  "            \"Content-Type\": \"application/json\",\r",
+                  "            \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")\r",
+                  "        },\r",
+                  "        body: {\r",
+                  "            mode: \"raw\",\r",
+                  "            raw: JSON.stringify({\r",
+                  "                statusType: \"success\",\r",
+                  "                status: \"Giao hàng thành công\"\r",
+                  "            })\r",
+                  "        }\r",
+                  "    }, function (err, res) {\r",
+                  "        if (err || res.code !== 200) {\r",
+                  "            console.error(\"Lỗi duyệt đơn hàng sang success:\", err || res.text());\r",
+                  "        } else {\r",
+                  "            console.log(\"Đơn hàng đã được duyệt status_type = 'success'. Sẵn sàng cho Review!\");\r",
+                  "        }\r",
+                  "    });\r",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Automation Reviewer\",\n  \"phone\": \"0987654321\",\n  \"email\": \"automation.user@gmail.com\",\n  \"address\": \"123 Đường Test, Quận 1, TP.HCM\",\n  \"notes\": \"Setup order for BVA Review\",\n  \"paymentMethod\": \"cod\",\n  \"deliveryMethod\": \"standard\",\n  \"cart\": [\n    {\n      \"product\": {\n        \"id\": \"{{productId}}\",\n        \"name\": \"Test Product\",\n        \"price\": 150000\n      },\n      \"quantity\": 1\n    }\n  ],\n  \"finalTotal\": 150000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "CLEANUP - Initial Review State",
           "event": [
             {
@@ -3042,9 +3125,8 @@
               "script": {
                 "exec": [
                   "const reviewId = pm.environment.get(\"reviewId\");\r",
-                  "\r",
-                  "if (!reviewId) {\r",
-                  "    console.log(\"Không có reviewId - bỏ qua Cleanup\");\r",
+                  "if (!reviewId || String(reviewId).trim() === \"\") {\r",
+                  "    console.log(\"Không có reviewId hợp lệ - Bỏ qua Cleanup để tránh lỗi 500\");\r",
                   "    pm.execution.skipRequest();\r",
                   "}"
                 ],
@@ -3170,6 +3252,19 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const reviewId = pm.environment.get(\"reviewId\");\r",
+                  "if (!reviewId || String(reviewId).trim() === \"\") {\r",
+                  "    console.log(\"Không có reviewId hợp lệ - Bỏ qua Cleanup để tránh lỗi 500\");\r",
+                  "    pm.execution.skipRequest();\r",
+                  "}"
+                ]
+              }
             }
           ],
           "request": {
@@ -3287,6 +3382,19 @@
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const reviewId = pm.environment.get(\"reviewId\");\r",
+                  "if (!reviewId || String(reviewId).trim() === \"\") {\r",
+                  "    console.log(\"Không có reviewId hợp lệ - Bỏ qua Cleanup để tránh lỗi 500\");\r",
+                  "    pm.execution.skipRequest();\r",
+                  "}"
+                ]
               }
             }
           ],
@@ -3406,6 +3514,19 @@
                 "packages": {},
                 "requests": {}
               }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const reviewId = pm.environment.get(\"reviewId\");\r",
+                  "if (!reviewId || String(reviewId).trim() === \"\") {\r",
+                  "    console.log(\"Không có reviewId hợp lệ - Bỏ qua Cleanup để tránh lỗi 500\");\r",
+                  "    pm.execution.skipRequest();\r",
+                  "}"
+                ]
+              }
             }
           ],
           "request": {
@@ -3523,6 +3644,19 @@
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const reviewId = pm.environment.get(\"reviewId\");\r",
+                  "if (!reviewId || String(reviewId).trim() === \"\") {\r",
+                  "    console.log(\"Không có reviewId hợp lệ - Bỏ qua Cleanup để tránh lỗi 500\");\r",
+                  "    pm.execution.skipRequest();\r",
+                  "}"
+                ]
               }
             }
           ],
