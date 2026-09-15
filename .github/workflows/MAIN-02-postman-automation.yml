@@ -69,7 +69,7 @@ jobs:
       - name: Run MAIN 02 Robust BVA Collection
         run: |
           sleep 5
-          npx newman run "postman_collections/MAIN 02/TechVie - Robust BVA.postman_collection.json" \
+          npx newman run "postman_collections/MAIN 02/TechVie - Robust BVA - Github Action.postman_collection.json" \
             --environment "postman_collections/MAIN 02/TechVie Render.postman_environment.json" \
             --delay-request 300 \
             --timeout-request 30000 \
